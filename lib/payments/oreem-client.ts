@@ -80,7 +80,12 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   }
 
   const json = await response.json();
-  const status: string = json?.data?.status ?? json?.status ?? "unknown";
+  // Only ever read data.status here, never the top-level envelope status: Oreem's
+  // top-level `status` is "success" for any successful HTTP call regardless of the
+  // underlying transaction's outcome (it means "the API call succeeded," not "the
+  // payment succeeded"). Falling back to it would report verified: true for a
+  // transaction whose real state is unknown - fail closed instead.
+  const status: string = json?.data?.status ?? "unknown";
   const verified = status === "success" || status === "paid" || status === "completed";
   return { verified, status };
 }

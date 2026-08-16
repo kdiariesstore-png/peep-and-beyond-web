@@ -57,17 +57,18 @@ describe("createHostedPayment", () => {
 
 describe("verifyTransaction", () => {
   it("reports verified=true for a successful transaction status", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ data: { status: "success" } }),
-      })
-    );
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: { status: "success" } }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     const result = await verifyTransaction("peep_abc123");
     expect(result.verified).toBe(true);
     expect(result.status).toBe("success");
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "https://app.oreem.com/api/v1/transactions/verify_by_reference/hosted_payment/peep_abc123"
+    );
   });
 
   it("reports verified=false for a failed transaction status", async () => {
