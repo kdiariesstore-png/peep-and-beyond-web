@@ -28,8 +28,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: receiptCheck.error }, { status: 400 });
   }
 
-  const buyer = JSON.parse(buyerJson) as BuyerDetails;
-  const items = JSON.parse(itemsJson) as CartItem[];
+  let buyer: BuyerDetails;
+  let items: CartItem[];
+  try {
+    buyer = JSON.parse(buyerJson) as BuyerDetails;
+    items = JSON.parse(itemsJson) as CartItem[];
+    if (!Array.isArray(items)) throw new Error("items is not an array");
+  } catch {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
 
   const receiptBuffer = Buffer.from(await (receiptFile as File).arrayBuffer());
