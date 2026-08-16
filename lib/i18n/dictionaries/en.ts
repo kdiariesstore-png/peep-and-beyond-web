@@ -1,0 +1,29 @@
+import type { Dictionary } from "./ar";
+
+export const en: Dictionary = {
+  navShop: "Shop",
+  navStories: "Stories",
+  navGifts: "Gifts",
+  navAbout: "About Peep & beyond",
+  heroTitleLine1: "Open the box…",
+  heroTitleLine2: "and start the adventure",
+  heroSubtitle:
+    "A complete experience combining a fun story, coloring, letter cards, and carefully chosen gifts — creating beautiful moments and nurturing your child's imagination every day.",
+  orderNow: "Order Now",
+  viewContents: "See what's inside",
+  addToCart: "Add to cart",
+  cartTitle: "Cart",
+  cartEmpty: "Your cart is empty",
+  customizeTitle: "Prepare your child's box",
+  customizeSubtitle: "Choose the box details before adding it to your cart.",
+  storyLanguageLabel: "Story language",
+  cardLanguageLabel: "Letter cards language",
+  cupColorLabel: "Cup color",
+  childNameLabel: "Child's name",
+  giftCardLabel: "Add a personalized gift card",
+  giftCardFree: "Free",
+  languageArabic: "Arabic",
+  languageEnglish: "English",
+  cupPink: "Pink",
+  cupBlue: "Blue",
+};

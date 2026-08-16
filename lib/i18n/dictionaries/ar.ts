@@ -1,0 +1,29 @@
+export const ar = {
+  navShop: "تسوّق",
+  navStories: "القصص",
+  navGifts: "الهدايا",
+  navAbout: "عن Peep & beyond",
+  heroTitleLine1: "افتحوا الصندوق…",
+  heroTitleLine2: "وابدأوا المغامرة",
+  heroSubtitle:
+    "تجربة متكاملة تجمع بين قصة ممتعة وتلوين وبطاقات حروف وهدايا مختارة بعناية؛ لتصنع لطفلك لحظات جميلة وتدعم خياله كل يوم.",
+  orderNow: "اطلب الآن",
+  viewContents: "شاهد محتويات البوكس",
+  addToCart: "أضف إلى السلة",
+  cartTitle: "سلة المشتريات",
+  cartEmpty: "سلتك فارغة",
+  customizeTitle: "جهّز بوكس طفلك",
+  customizeSubtitle: "اختر تفاصيل البوكس قبل إضافته إلى السلة.",
+  storyLanguageLabel: "لغة القصة",
+  cardLanguageLabel: "لغة بطاقات الحروف",
+  cupColorLabel: "لون الكوب",
+  childNameLabel: "اسم الطفل",
+  giftCardLabel: "إضافة بطاقة إهداء مخصصة",
+  giftCardFree: "مجانية",
+  languageArabic: "العربية",
+  languageEnglish: "الإنجليزية",
+  cupPink: "وردي",
+  cupBlue: "أزرق",
+} as const;
+
+export type Dictionary = Record<keyof typeof ar, string>;
