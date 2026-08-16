@@ -33,10 +33,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeItem = (id: string) =>
     setItems((prev) => prev.filter((item) => item.id !== id));
 
-  const updateQuantity = (id: string, quantity: number) =>
+  const updateQuantity = (id: string, quantity: number) => {
+    const safeQuantity = Math.max(1, Math.floor(quantity) || 1);
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => (item.id === id ? { ...item, quantity: safeQuantity } : item))
     );
+  };
 
   const clear = () => setItems([]);
 

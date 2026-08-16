@@ -16,13 +16,22 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<Currency>("BHD");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem(STORAGE_KEY);
+    } catch {
+      stored = null;
+    }
     if (stored === "BHD" || stored === "USD") setCurrencyState(stored);
   }, []);
 
   const setCurrency = (next: Currency) => {
     setCurrencyState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // Swallow write failures (e.g. QuotaExceededError, SecurityError).
+    }
   };
 
   return (

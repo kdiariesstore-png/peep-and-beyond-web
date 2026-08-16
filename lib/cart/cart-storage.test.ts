@@ -32,4 +32,10 @@ describe("serializeCart / deserializeCart", () => {
   it("returns an empty array if the parsed value isn't an array", () => {
     expect(deserializeCart('{"foo":"bar"}')).toEqual([]);
   });
+
+  it("filters out malformed items and keeps only valid cart items", () => {
+    const malformed = { foo: 1 };
+    const serialized = JSON.stringify([sampleItem, malformed]);
+    expect(deserializeCart(serialized)).toEqual([sampleItem]);
+  });
 });

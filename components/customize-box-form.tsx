@@ -27,44 +27,65 @@ export function CustomizeBoxForm({ onDone }: { onDone: () => void }) {
 
       <fieldset>
         <legend>{t.storyLanguageLabel}</legend>
-        {(["ar", "en"] as const).map((lang) => (
-          <button
-            type="button"
-            key={lang}
-            aria-pressed={customization.storyLanguage === lang}
-            onClick={() => setCustomization((c) => ({ ...c, storyLanguage: lang }))}
-          >
-            {lang === "ar" ? t.languageArabic : t.languageEnglish}
-          </button>
-        ))}
+        <div className="mt-2 flex gap-2">
+          {(["ar", "en"] as const).map((lang) => (
+            <button
+              type="button"
+              key={lang}
+              aria-pressed={customization.storyLanguage === lang}
+              onClick={() => setCustomization((c) => ({ ...c, storyLanguage: lang }))}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                customization.storyLanguage === lang
+                  ? "border-leaf bg-leaf text-white"
+                  : "border-brown/20 bg-white text-brown"
+              }`}
+            >
+              {lang === "ar" ? t.languageArabic : t.languageEnglish}
+            </button>
+          ))}
+        </div>
       </fieldset>
 
       <fieldset>
         <legend>{t.cardLanguageLabel}</legend>
-        {(["ar", "en"] as const).map((lang) => (
-          <button
-            type="button"
-            key={lang}
-            aria-pressed={customization.cardLanguage === lang}
-            onClick={() => setCustomization((c) => ({ ...c, cardLanguage: lang }))}
-          >
-            {lang === "ar" ? t.languageArabic : t.languageEnglish}
-          </button>
-        ))}
+        <div className="mt-2 flex gap-2">
+          {(["ar", "en"] as const).map((lang) => (
+            <button
+              type="button"
+              key={lang}
+              aria-pressed={customization.cardLanguage === lang}
+              onClick={() => setCustomization((c) => ({ ...c, cardLanguage: lang }))}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                customization.cardLanguage === lang
+                  ? "border-leaf bg-leaf text-white"
+                  : "border-brown/20 bg-white text-brown"
+              }`}
+            >
+              {lang === "ar" ? t.languageArabic : t.languageEnglish}
+            </button>
+          ))}
+        </div>
       </fieldset>
 
       <fieldset>
         <legend>{t.cupColorLabel}</legend>
-        {(["pink", "blue"] as const).map((color) => (
-          <button
-            type="button"
-            key={color}
-            aria-pressed={customization.cupColor === color}
-            onClick={() => setCustomization((c) => ({ ...c, cupColor: color }))}
-          >
-            {color === "pink" ? t.cupPink : t.cupBlue}
-          </button>
-        ))}
+        <div className="mt-2 flex gap-2">
+          {(["pink", "blue"] as const).map((color) => (
+            <button
+              type="button"
+              key={color}
+              aria-pressed={customization.cupColor === color}
+              onClick={() => setCustomization((c) => ({ ...c, cupColor: color }))}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                customization.cupColor === color
+                  ? "border-leaf bg-leaf text-white"
+                  : "border-brown/20 bg-white text-brown"
+              }`}
+            >
+              {color === "pink" ? t.cupPink : t.cupBlue}
+            </button>
+          ))}
+        </div>
       </fieldset>
 
       <label className="block">

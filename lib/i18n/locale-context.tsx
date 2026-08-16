@@ -21,7 +21,12 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem(STORAGE_KEY);
+    } catch {
+      stored = null;
+    }
     if (stored === "ar" || stored === "en") setLocaleState(stored);
     setHydrated(true);
   }, []);
@@ -30,7 +35,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = locale;
     document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, locale);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, locale);
+    } catch {
+      // Swallow write failures (e.g. QuotaExceededError, SecurityError).
+    }
   }, [locale, hydrated]);
 
   const setLocale = (next: Locale) => setLocaleState(next);

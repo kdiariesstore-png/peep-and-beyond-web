@@ -14,10 +14,7 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
     <header className="flex items-center justify-between border-b border-brown/10 px-6 py-4">
       <span className="text-xl font-bold">Peep &amp; beyond</span>
       <nav className="hidden gap-6 md:flex">
-        <a href="#shop">{t.navShop}</a>
-        <a href="#journey">{t.navStories}</a>
         <a href="#inside">{t.navGifts}</a>
-        <a href="#about">{t.navAbout}</a>
       </nav>
       <div className="flex items-center gap-3">
         <button
