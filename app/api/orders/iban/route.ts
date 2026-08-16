@@ -12,12 +12,18 @@ import {
   isPreOrder,
   PRE_ORDER_NOTE,
 } from "../../../../lib/inventory/story-stock";
+import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
   const buyerJson = formData.get("buyer");
   const itemsJson = formData.get("items");
   const receipt = formData.get("receipt");
@@ -38,11 +44,23 @@ export async function POST(request: NextRequest) {
   let items: CartItem[];
   try {
     buyer = JSON.parse(buyerJson) as BuyerDetails;
+    if (!buyer || typeof buyer !== "object") throw new Error("invalid buyer");
     items = JSON.parse(itemsJson) as CartItem[];
     if (!Array.isArray(items)) throw new Error("items is not an array");
   } catch {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
+
+  for (const item of items) {
+    if (item.customization.storyLanguage !== "ar" && item.customization.storyLanguage !== "en") {
+      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    }
+    if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    }
+  }
+
+  items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
 
@@ -58,7 +76,12 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const receiptBuffer = Buffer.from(await (receiptFile as File).arrayBuffer());
+  let receiptBuffer: Buffer;
+  try {
+    receiptBuffer = Buffer.from(await (receiptFile as File).arrayBuffer());
+  } catch {
+    return NextResponse.json({ error: "receipt_unreadable" }, { status: 400 });
+  }
   const emailData = {
     buyer,
     items,

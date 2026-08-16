@@ -4,6 +4,7 @@ import {
   buildOrderEmailSubject,
   type OrderEmailData,
 } from "./order-notification-email";
+import { buildWhatsappConfirmationLink } from "./whatsapp-link";
 
 function getResendClient(): Resend {
   const apiKey = process.env.RESEND_API_KEY;
@@ -28,11 +29,13 @@ export async function sendOrderNotificationEmail(
 
   const resend = getResendClient();
   const { data, receiptAttachment } = params;
+  const whatsappLink = buildWhatsappConfirmationLink(data);
+  const htmlWithWhatsapp = `${buildOrderEmailHtml(data)}<p><a href="${whatsappLink}">أرسل تأكيد واتساب</a></p>`;
   await resend.emails.send({
     from: getFromAddress(),
     to: ownerEmail,
     subject: buildOrderEmailSubject(data),
-    html: buildOrderEmailHtml(data),
+    html: htmlWithWhatsapp,
     attachments: receiptAttachment
       ? [{ filename: receiptAttachment.filename, content: receiptAttachment.content }]
       : undefined,

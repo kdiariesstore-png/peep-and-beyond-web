@@ -2,6 +2,12 @@
 
 import type { PaymentMethod } from "../../lib/types";
 
+const RECEIPT_ERROR_MESSAGES: Record<string, string> = {
+  receipt_required: "يرجى إرفاق صورة إيصال التحويل.",
+  receipt_invalid_type: "نوع الملف غير مدعوم — استخدم JPG أو PNG أو WebP أو PDF.",
+  receipt_too_large: "حجم الملف كبير جدًا — الحد الأقصى 4 ميغابايت.",
+};
+
 export function PaymentMethodSelector({
   value,
   onChange,
@@ -31,7 +37,7 @@ export function PaymentMethodSelector({
 
       {value === "iban" && (
         <label className="block">
-          صورة إيصال التحويل (إلزامي — JPG أو PNG أو WebP أو PDF، بحد أقصى 8MB)
+          صورة إيصال التحويل (إلزامي — JPG أو PNG أو WebP أو PDF، بحد أقصى 4MB)
           <input
             required
             type="file"
@@ -39,7 +45,11 @@ export function PaymentMethodSelector({
             onChange={(e) => onReceiptChange(e.target.files?.[0] ?? null)}
             className="mt-1 block w-full"
           />
-          {receiptError && <p className="text-sm text-red-600">{receiptError}</p>}
+          {receiptError && (
+            <p className="text-sm text-red-600">
+              {RECEIPT_ERROR_MESSAGES[receiptError] ?? "حدث خطأ في الملف المرفق."}
+            </p>
+          )}
         </label>
       )}
 

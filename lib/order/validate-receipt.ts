@@ -1,5 +1,5 @@
 export const ALLOWED_RECEIPT_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-export const MAX_RECEIPT_BYTES = 8 * 1024 * 1024;
+export const MAX_RECEIPT_BYTES = 4 * 1024 * 1024;
 
 export interface ReceiptValidationResult {
   valid: boolean;
