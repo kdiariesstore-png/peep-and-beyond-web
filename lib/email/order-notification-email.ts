@@ -17,6 +17,7 @@ export interface OrderEmailData {
   totalBhd: number | null;
   paymentMethod: PaymentMethod;
   oreemTransactionReference?: string;
+  notes?: string[];
 }
 
 export function buildOrderEmailSubject(data: OrderEmailData): string {
@@ -40,6 +41,10 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
     data.paymentMethod === "iban"
       ? "تحويل بنكي (IBAN)"
       : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
+  const notesHtml =
+    data.notes && data.notes.length > 0
+      ? `<p style="color:#b45309;"><strong>ملاحظات:</strong> ${data.notes.join(" — ")}</p>`
+      : "";
 
   return `
     <div dir="rtl" style="font-family: Arial, sans-serif;">
@@ -49,6 +54,7 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
       <p><strong>الهاتف:</strong> ${escapeHtml(data.buyer.phone)}</p>
       <p><strong>العنوان:</strong> ${escapeHtml(data.buyer.address)}, ${escapeHtml(data.buyer.city)}, ${escapeHtml(data.buyer.country)}</p>
       <p><strong>طريقة الدفع:</strong> ${paymentText}</p>
+      ${notesHtml}
       <h3>تفاصيل الطلب</h3>
       <ul>${itemsHtml}</ul>
       <p><strong>المجموع الفرعي:</strong> ${data.subtotalBhd.toFixed(3)} د.ب</p>

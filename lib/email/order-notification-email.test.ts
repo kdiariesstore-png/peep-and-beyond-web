@@ -92,4 +92,9 @@ describe("buildOrderEmailHtml", () => {
     expect(html).not.toContain('<b>Bold</b>');
     expect(html).toContain("&lt;b&gt;");
   });
+
+  it("renders notes when provided, e.g. a pre-order flag", () => {
+    const html = buildOrderEmailHtml({ ...data, notes: ["طلب مسبق: نفدت نسخ القصة العربية"] });
+    expect(html).toContain("طلب مسبق: نفدت نسخ القصة العربية");
+  });
 });
