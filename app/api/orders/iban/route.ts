@@ -48,9 +48,13 @@ export async function POST(request: NextRequest) {
 
   const notes: string[] = [];
   for (const item of items) {
-    const remaining = await getRemainingStock(item.customization.storyLanguage);
-    if (isPreOrder(remaining)) {
-      notes.push(`${PRE_ORDER_NOTE} (${item.customization.storyLanguage})`);
+    try {
+      const remaining = await getRemainingStock(item.customization.storyLanguage);
+      if (isPreOrder(remaining)) {
+        notes.push(`${PRE_ORDER_NOTE} (${item.customization.storyLanguage})`);
+      }
+    } catch (error) {
+      console.error("Failed to check story stock for pre-order flag", error);
     }
   }
 
