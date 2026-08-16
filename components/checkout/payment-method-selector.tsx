@@ -56,11 +56,10 @@ export function PaymentMethodSelector({
       <button
         type="button"
         aria-pressed={value === "oreem"}
-        disabled
-        title="قريبًا"
-        className="block w-full rounded border border-brown/20 p-4 text-start opacity-50"
+        onClick={() => onChange("oreem")}
+        className="block w-full rounded border border-brown/20 p-4 text-start"
       >
-        <strong>بطاقة عبر أوريم (قريبًا)</strong>
+        <strong>بطاقة عبر أوريم</strong>
         <p className="text-sm text-brown/70">بيئة اختبار آمنة لبطاقات Benefit وVisa وMastercard.</p>
       </button>
     </fieldset>

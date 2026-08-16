@@ -75,6 +75,28 @@ export default function CheckoutPage() {
       } finally {
         setSubmitting(false);
       }
+      return;
+    }
+
+    if (paymentMethod === "oreem") {
+      setSubmitting(true);
+      try {
+        const response = await fetch("/api/orders/oreem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buyer, items }),
+        });
+        const json = await response.json();
+        if (!response.ok || typeof json.paymentUrl !== "string") {
+          setSubmitError("تعذر بدء الدفع عبر أوريم. حاول مرة أخرى.");
+          return;
+        }
+        window.location.href = json.paymentUrl;
+      } catch {
+        setSubmitError("تعذر بدء الدفع عبر أوريم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   }
 
