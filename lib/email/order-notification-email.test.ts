@@ -60,4 +60,36 @@ describe("buildOrderEmailHtml", () => {
     });
     expect(html).toContain("TXN-123");
   });
+
+  it("escapes HTML special characters in user input", () => {
+    const html = buildOrderEmailHtml({
+      ...data,
+      buyer: {
+        ...data.buyer,
+        fullName: '<img src=x>',
+        email: 'test@example.com" onclick="alert(1)',
+        address: '<script>alert("xss")</script>',
+        city: 'City & "More"',
+        country: "BH'>",
+      },
+      items: [
+        {
+          ...data.items[0],
+          customization: {
+            ...data.items[0].customization,
+            childName: '<b>Bold</b>',
+          },
+        },
+      ],
+    });
+    // Assert that dangerous characters are escaped
+    expect(html).toContain("&lt;img");
+    expect(html).not.toContain("<img");
+    expect(html).toContain("&quot;");
+    expect(html).toContain("&lt;script");
+    expect(html).not.toContain("<script");
+    expect(html).toContain("&amp;");
+    expect(html).not.toContain('<b>Bold</b>');
+    expect(html).toContain("&lt;b&gt;");
+  });
 });

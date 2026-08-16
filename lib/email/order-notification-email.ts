@@ -1,5 +1,14 @@
 import type { BuyerDetails, CartItem, PaymentMethod } from "../types";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export interface OrderEmailData {
   buyer: BuyerDetails;
   items: CartItem[];
@@ -11,13 +20,14 @@ export interface OrderEmailData {
 }
 
 export function buildOrderEmailSubject(data: OrderEmailData): string {
-  return `طلب جديد من ${data.buyer.fullName} — بوكس بيب`;
+  return `طلب جديد من ${escapeHtml(data.buyer.fullName)} — بوكس بيب`;
 }
 
 function describeItem(item: CartItem): string {
   const langLabel = item.customization.storyLanguage === "ar" ? "العربية" : "English";
   const cupLabel = item.customization.cupColor === "pink" ? "وردي" : "أزرق";
-  return `بوكس بيب الكامل × ${item.quantity} — ${item.customization.childName || "بدون اسم"} · ${langLabel} · ${cupLabel}`;
+  const childName = escapeHtml(item.customization.childName || "بدون اسم");
+  return `بوكس بيب الكامل × ${item.quantity} — ${childName} · ${langLabel} · ${cupLabel}`;
 }
 
 export function buildOrderEmailHtml(data: OrderEmailData): string {
@@ -34,10 +44,10 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
   return `
     <div dir="rtl" style="font-family: Arial, sans-serif;">
       <h2>طلب جديد</h2>
-      <p><strong>الاسم:</strong> ${data.buyer.fullName}</p>
-      <p><strong>الإيميل:</strong> ${data.buyer.email}</p>
-      <p><strong>الهاتف:</strong> ${data.buyer.phone}</p>
-      <p><strong>العنوان:</strong> ${data.buyer.address}, ${data.buyer.city}, ${data.buyer.country}</p>
+      <p><strong>الاسم:</strong> ${escapeHtml(data.buyer.fullName)}</p>
+      <p><strong>الإيميل:</strong> ${escapeHtml(data.buyer.email)}</p>
+      <p><strong>الهاتف:</strong> ${escapeHtml(data.buyer.phone)}</p>
+      <p><strong>العنوان:</strong> ${escapeHtml(data.buyer.address)}, ${escapeHtml(data.buyer.city)}, ${escapeHtml(data.buyer.country)}</p>
       <p><strong>طريقة الدفع:</strong> ${paymentText}</p>
       <h3>تفاصيل الطلب</h3>
       <ul>${itemsHtml}</ul>
