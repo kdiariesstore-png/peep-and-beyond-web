@@ -3,11 +3,16 @@ export function OrderConfirmationMessage({
   title,
   body,
   whatsappLink,
+  // Set to false on failures where the customer must NOT pay again — e.g. we could not
+  // reach the payment provider and do not know whether the card was already charged.
+  // Showing a "try again" link there would contradict the message directly above it.
+  allowRetry = true,
 }: {
   success: boolean;
   title: string;
   body: string;
   whatsappLink?: string;
+  allowRetry?: boolean;
 }) {
   return (
     <main className="mx-auto max-w-lg p-10 text-center">
@@ -25,7 +30,7 @@ export function OrderConfirmationMessage({
           أرسل تأكيد واتساب
         </a>
       )}
-      {!success && (
+      {!success && allowRetry && (
         <a href="/checkout" className="mt-6 block text-leaf underline">
           حاول مرة أخرى
         </a>

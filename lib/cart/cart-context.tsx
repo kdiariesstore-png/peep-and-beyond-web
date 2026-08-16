@@ -6,6 +6,11 @@ import { loadCart, saveCart } from "./cart-storage";
 
 interface CartContextValue {
   items: CartItem[];
+  // True once the load-from-localStorage effect has run. Exposed so consumers that
+  // mutate the cart on mount can wait for hydration instead of racing it: React runs
+  // child effects before parent effects, so an unguarded mount-time write would be
+  // overwritten by this provider's own hydration.
+  hydrated: boolean;
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -43,7 +48,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clear = () => setItems([]);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clear }}>
+    <CartContext.Provider
+      value={{ items, hydrated, addItem, removeItem, updateQuantity, clear }}
+    >
       {children}
     </CartContext.Provider>
   );

@@ -78,6 +78,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
           success={false}
           title="تعذر التحقق من حالة الدفع"
           body="لم نتمكن من التواصل مع مزوّد الدفع للتأكد من حالة عمليتك. إذا تم خصم مبلغ من بطاقتك، لا تدفع مرة أخرى — تواصل معنا مباشرة عبر واتساب أو البريد الإلكتروني لتأكيد طلبك."
+          allowRetry={false}
         />
       );
     }
@@ -113,6 +114,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
         success={false}
         title="تعذر تأكيد تفاصيل الطلب"
         body="حدث تعارض في بيانات الطلب. يرجى التواصل معنا مباشرة قبل إعادة المحاولة."
+        allowRetry={false}
       />
     );
   }
