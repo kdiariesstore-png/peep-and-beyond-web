@@ -8,8 +8,20 @@ import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
 
+// Never silently fall back to localhost in production: this URL is where Oreem sends a
+// paying customer back to. A localhost redirect on a live payment means money taken and
+// no order record at all, so fail loudly instead (the caller turns this into a 502).
 function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const configured =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+  if (!configured) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("NEXT_PUBLIC_SITE_URL is not set");
+    }
+    return "http://localhost:3000";
+  }
+  return configured.replace(/\/+$/, "");
 }
 
 export async function POST(request: NextRequest) {
@@ -63,9 +75,11 @@ export async function POST(request: NextRequest) {
     shippingBhd,
     totalBhd,
   });
-  const redirectUrl = `${getSiteUrl()}/order/confirmation?order=${encodedOrder}`;
-
+  // getSiteUrl() throws when the site URL is unconfigured in production; it shares this
+  // try/catch with createHostedPayment so that case degrades to the same friendly 502
+  // rather than an unhandled exception.
   try {
+    const redirectUrl = `${getSiteUrl()}/order/confirmation?order=${encodedOrder}`;
     const { paymentUrl } = await createHostedPayment({
       txnRef,
       amountBhd: totalBhd,
@@ -76,7 +90,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ paymentUrl });
   } catch (error) {
-    console.error("Failed to create Oreem hosted payment", error);
+    console.error("Failed to start Oreem hosted payment", error);
     return NextResponse.json({ error: "oreem_unavailable" }, { status: 502 });
   }
 }

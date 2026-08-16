@@ -32,6 +32,30 @@ export function decodeOrderPayload(encoded: string): PendingOrderPayload | null 
     ) {
       return null;
     }
+
+    // The money fields are formatted (`.toFixed(3)`) and compared numerically on the
+    // confirmation page *after* the payment has already been taken — a non-numeric value
+    // here turns a successful order into a crashed page.
+    if (
+      !Number.isFinite(parsed.subtotalBhd) ||
+      !Number.isFinite(parsed.shippingBhd) ||
+      !Number.isFinite(parsed.totalBhd)
+    ) {
+      return null;
+    }
+
+    // Mirrors the per-item validation in app/api/orders/oreem/route.ts: items reaching
+    // this point drive the stock decrement and the order emails.
+    for (const item of parsed.items) {
+      const storyLanguage = item?.customization?.storyLanguage;
+      if (storyLanguage !== "ar" && storyLanguage !== "en") {
+        return null;
+      }
+      if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
+        return null;
+      }
+    }
+
     return parsed as PendingOrderPayload;
   } catch {
     return null;

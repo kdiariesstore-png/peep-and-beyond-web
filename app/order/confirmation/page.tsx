@@ -4,8 +4,9 @@ import { verifyTransaction, type VerifyTransactionResult } from "../../../lib/pa
 import {
   sendOrderNotificationEmail,
   sendCustomerConfirmationEmail,
+  addToMarketingAudience,
 } from "../../../lib/email/resend-client";
-import { buildWhatsappConfirmationLink } from "../../../lib/email/whatsapp-link";
+import { buildCustomerToOwnerWhatsappLink } from "../../../lib/email/whatsapp-link";
 import {
   getRemainingStock,
   decrementStockAfterOrder,
@@ -17,6 +18,22 @@ import { ClearCartOnMount } from "../../../components/clear-cart-on-mount";
 import type { OrderEmailData } from "../../../lib/email/order-notification-email";
 
 export const runtime = "nodejs";
+
+// The only statuses we are willing to read as "this payment definitively did not go
+// through, so it is safe to invite the customer to pay again". Anything else — a
+// still-settling "pending"/"processing", an unrecognised string, or our own "unknown"
+// placeholder — means we do not actually know, and inviting a retry there risks a second
+// charge on a card that may already have been debited. Fail closed by default.
+const RETRYABLE_FAILURE_STATUSES = new Set([
+  "failed",
+  "declined",
+  "cancelled",
+  "canceled",
+  "expired",
+  "rejected",
+]);
+
+const INSTAGRAM_HANDLE = "@peepandbeyond";
 
 interface ConfirmationPageProps {
   searchParams: {
@@ -69,15 +86,18 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
   }
 
   if (!verification.verified) {
-    // Distinguish "we could not reach Oreem" from "Oreem told us the payment did not
-    // complete". In the first case we genuinely do not know whether the card was
-    // charged, so telling the customer to just pay again risks a double charge.
-    if (verification.status === "verification_failed") {
+    // Distinguish "Oreem told us the payment definitively did not complete" from every
+    // other unverified state ("we could not reach Oreem", a still-processing payment, an
+    // unrecognised status). Only the first is safe to retry; everything else gets the
+    // cautious no-retry message, since telling a customer whose card may already have
+    // been charged to "just try again" risks a double charge.
+    const isKnownRetryableFailure = RETRYABLE_FAILURE_STATUSES.has(verification.status);
+    if (!isKnownRetryableFailure) {
       return (
         <OrderConfirmationMessage
           success={false}
           title="تعذر التحقق من حالة الدفع"
-          body="لم نتمكن من التواصل مع مزوّد الدفع للتأكد من حالة عمليتك. إذا تم خصم مبلغ من بطاقتك، لا تدفع مرة أخرى — تواصل معنا مباشرة عبر واتساب أو البريد الإلكتروني لتأكيد طلبك."
+          body={`لم نتمكن من تأكيد حالة عمليتك مع مزوّد الدفع. إذا تم خصم مبلغ من بطاقتك، لا تدفعي مرة أخرى — تواصلي معنا عبر انستقرام ${INSTAGRAM_HANDLE} مع ذكر رقم المرجع: ${payload.txnRef}.`}
           allowRetry={false}
         />
       );
@@ -113,7 +133,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
       <OrderConfirmationMessage
         success={false}
         title="تعذر تأكيد تفاصيل الطلب"
-        body="حدث تعارض في بيانات الطلب. يرجى التواصل معنا مباشرة قبل إعادة المحاولة."
+        body={`حدث تعارض في بيانات الطلب. يرجى التواصل معنا عبر انستقرام ${INSTAGRAM_HANDLE} مع ذكر رقم المرجع: ${payload.txnRef} قبل إعادة المحاولة.`}
         allowRetry={false}
       />
     );
@@ -174,6 +194,16 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
       console.error("Failed to send Oreem customer confirmation email", error);
     }
 
+    // Parity with the IBAN route: opting in must not be silently dropped just because the
+    // order was paid by card. Best-effort — a marketing-list failure never blocks an order.
+    if (payload.buyer.marketingOptIn) {
+      try {
+        await addToMarketingAudience(payload.buyer.email);
+      } catch (error) {
+        console.error("Failed to add buyer to marketing audience", error);
+      }
+    }
+
     for (const item of payload.items) {
       try {
         await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
@@ -183,18 +213,39 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
     }
   }
 
-  const whatsappLink = buildWhatsappConfirmationLink(emailData);
+  // A chat from the customer TO the shop owner — only possible once the owner has
+  // supplied a number. Undefined otherwise, and the copy below falls back to Instagram.
+  // Wrapped defensively: the payment already succeeded and the side effects already ran,
+  // so nothing here is worth crashing a success page over — worst case the button is
+  // simply absent and the Instagram fallback text still tells the customer what to do.
+  let whatsappLink: string | undefined;
+  const ownerWhatsappNumber = process.env.OWNER_WHATSAPP_NUMBER;
+  // Require at least one digit: a blank-but-present value would otherwise render a
+  // wa.me link with no number at all, which is worse than the Instagram fallback.
+  if (ownerWhatsappNumber && /[0-9]/.test(ownerWhatsappNumber)) {
+    try {
+      whatsappLink = buildCustomerToOwnerWhatsappLink(ownerWhatsappNumber, payload.txnRef);
+    } catch (error) {
+      console.error("Failed to build customer-to-owner WhatsApp link", error);
+      whatsappLink = undefined;
+    }
+  }
+
+  let successBody: string;
+  if (ownerEmailSucceeded) {
+    successBody = "شكرًا لتسوقك من Peep & beyond — وصلك تأكيد على بريدك الإلكتروني.";
+  } else if (whatsappLink) {
+    successBody = `شكرًا لتسوقك من Peep & beyond — تم الدفع بنجاح. رقم مرجع طلبك: ${payload.txnRef}. يرجى الضغط على الزر أدناه لإرسال تأكيد طلبك لنا عبر واتساب لضمان استلامه.`;
+  } else {
+    successBody = `شكرًا لتسوقك من Peep & beyond — تم الدفع بنجاح. رقم مرجع طلبك: ${payload.txnRef}. لتأكيد الطلب تواصلي معنا عبر انستقرام ${INSTAGRAM_HANDLE} وأرسلي لنا رقم المرجع.`;
+  }
 
   return (
     <>
       <OrderConfirmationMessage
         success={true}
         title="تم تأكيد طلبك بنجاح!"
-        body={
-          ownerEmailSucceeded
-            ? "شكرًا لتسوقك من Peep & beyond — وصلك تأكيد على بريدك الإلكتروني."
-            : "شكرًا لتسوقك من Peep & beyond — تم الدفع بنجاح. يرجى الضغط على الزر أدناه لإرسال تأكيد طلبك عبر واتساب لضمان استلامه."
-        }
+        body={successBody}
         whatsappLink={whatsappLink}
       />
       <ClearCartOnMount />

@@ -36,6 +36,10 @@ export async function createHostedPayment(
 ): Promise<CreateHostedPaymentResult> {
   const response = await fetch(`${getBaseUrl()}/api/v1/hosted-payments`, {
     method: "POST",
+    // Never serve a memoized response for a payment call, and never hang forever: a
+    // stalled connection must fall into the caller's friendly failure path instead.
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
     headers: {
       Authorization: `Bearer ${getToken()}`,
       "Content-Type": "application/json",
@@ -76,6 +80,11 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   const response = await fetch(
     `${getBaseUrl()}/api/v1/transactions/verify_by_reference/hosted_payment/${encodeURIComponent(txnRef)}`,
     {
+      // This function's entire job is "what is the status right now", so a cached GET
+      // would be worse than useless — Next.js caches fetch() by default in the App
+      // Router. The timeout keeps a hung provider from blocking the confirmation page.
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
       headers: { Authorization: `Bearer ${getToken()}` },
     }
   );

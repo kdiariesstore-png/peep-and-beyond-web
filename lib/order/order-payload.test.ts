@@ -73,4 +73,40 @@ describe("encodeOrderPayload / decodeOrderPayload", () => {
     ).toString("base64url");
     expect(decodeOrderPayload(missingBuyer)).toBeNull();
   });
+
+  // The confirmation page formats these amounts (e.g. totalBhd.toFixed(3)) *after* a real
+  // payment has already been taken, outside any try/catch — a non-numeric amount here
+  // crashes a page that should be showing a successful order.
+  it("returns null when any money field is not a finite number", () => {
+    const encodeRaw = (value: unknown) =>
+      Buffer.from(JSON.stringify(value), "utf-8").toString("base64url");
+
+    expect(decodeOrderPayload(encodeRaw({ ...payload, totalBhd: null }))).toBeNull();
+    expect(decodeOrderPayload(encodeRaw({ ...payload, totalBhd: "23.900" }))).toBeNull();
+    expect(decodeOrderPayload(encodeRaw({ ...payload, subtotalBhd: undefined }))).toBeNull();
+    expect(decodeOrderPayload(encodeRaw({ ...payload, shippingBhd: "free" }))).toBeNull();
+  });
+
+  // Items drive the stock decrement and the order emails; an unrecognised story language
+  // or a fractional/zero/negative quantity must never reach either.
+  it("returns null when any item has a malformed story language or quantity", () => {
+    const withItem = (item: unknown) =>
+      Buffer.from(JSON.stringify({ ...payload, items: [item] }), "utf-8").toString("base64url");
+
+    const goodItem = payload.items[0];
+
+    expect(
+      decodeOrderPayload(
+        withItem({ ...goodItem, customization: { ...goodItem.customization, storyLanguage: "fr" } })
+      )
+    ).toBeNull();
+    expect(decodeOrderPayload(withItem({ ...goodItem, customization: undefined }))).toBeNull();
+    expect(decodeOrderPayload(withItem({ ...goodItem, quantity: 0 }))).toBeNull();
+    expect(decodeOrderPayload(withItem({ ...goodItem, quantity: 1.5 }))).toBeNull();
+    expect(decodeOrderPayload(withItem({ ...goodItem, quantity: "2" }))).toBeNull();
+    expect(decodeOrderPayload(withItem(null))).toBeNull();
+
+    // A well-formed item still decodes, so the guard is not simply rejecting everything.
+    expect(decodeOrderPayload(withItem(goodItem))).not.toBeNull();
+  });
 });

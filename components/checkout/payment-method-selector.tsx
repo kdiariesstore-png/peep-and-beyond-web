@@ -60,7 +60,7 @@ export function PaymentMethodSelector({
         className="block w-full rounded border border-brown/20 p-4 text-start"
       >
         <strong>بطاقة عبر أوريم</strong>
-        <p className="text-sm text-brown/70">بيئة اختبار آمنة لبطاقات Benefit وVisa وMastercard.</p>
+        <p className="text-sm text-brown/70">دفع آمن ببطاقات Benefit وVisa وMastercard.</p>
       </button>
     </fieldset>
   );

@@ -27,14 +27,15 @@ npm run typecheck # TypeScript check
 | `RESEND_AUDIENCE_ID` | The Resend Audience used for the marketing newsletter list. |
 | `OWNER_NOTIFICATION_EMAIL` | Where order notifications are sent. |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV credentials, for the story-language stock counter and payment idempotency lock. Auto-populated by Vercel when you provision a KV database and link it to this project — you usually don't set these by hand. |
-| `NEXT_PUBLIC_SITE_URL` | The deployed site's own URL (e.g. `https://peepandbeyond.vercel.app` or your custom domain), used to build Oreem's `redirect_url`. |
+| `NEXT_PUBLIC_SITE_URL` | The deployed site's own URL (e.g. `https://peepandbeyond.vercel.app` or your custom domain), used to build Oreem's `redirect_url`. **Required in production** — the card-payment route refuses to create a payment session (returns a friendly error) rather than redirect a paying customer to `localhost`. Falls back to `https://$VERCEL_URL` when Vercel provides it. |
+| `OWNER_WHATSAPP_NUMBER` | *Optional, blank by default.* The shop owner's WhatsApp number in international digits (e.g. `97333001122`). When set, a paid-order confirmation page shows a one-tap "message us on WhatsApp" button pre-filled with the order's reference number. When blank, the page degrades gracefully and tells the customer to confirm via Instagram `@peepandbeyond` instead — nothing breaks either way. |
 
 ## What's still pending before this is fully live
 
-This codebase is complete and tested (69 automated tests, real Oreem API integration
+This codebase is complete and tested (71 automated tests, real Oreem API integration
 verified against the live merchant account — see `docs/superpowers/sdd/` history for
-details). Three things remain, and all three need the account owner's direct action since
-they involve real accounts/credentials no one else should touch:
+details). The following remain, and they need the account owner's direct action since they
+involve real accounts/credentials no one else should touch:
 
 1. **Create a Resend account** (resend.com) — needed for order-notification and newsletter
    emails to actually send. Without it, orders will still complete (IBAN emails the owner
@@ -50,6 +51,15 @@ they involve real accounts/credentials no one else should touch:
    flat 2.000 BHD rate and `null` (meaning "quoted after we contact you") for every other
    country. Update this file once the box's shipping weight and real carrier rates are
    known.
+4. **Provide a WhatsApp number** for `OWNER_WHATSAPP_NUMBER` when ready, so paying
+   customers get a one-tap "confirm my order" button instead of the Instagram fallback.
+
+**Watch the first real payment closely.** The redirect round-trip — Oreem appending its own
+query parameters to our confirmation URL and the page verifying that transaction — has not
+yet been observed end-to-end with a genuinely completed payment; only session creation and
+verification of a not-yet-paid transaction have been exercised against the live account. Do
+the first production payment yourself, with a small amount, and confirm the confirmation
+page, the order email, and the stock decrement all behave before pointing customers at it.
 
 ## Deployment (Vercel)
 
