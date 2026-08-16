@@ -1,0 +1,84 @@
+# Peep & beyond — Website
+
+Bilingual (Arabic/English), dual-currency (BHD/USD) storefront for the Peep Box product,
+with guest checkout via bank transfer (IBAN) or card payment (Oreem).
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Runs on `http://localhost:3000`.
+
+```bash
+npm test          # run the automated test suite
+npm run typecheck # TypeScript check
+```
+
+## Required environment variables (`.env.local`, never committed)
+
+| Variable | Purpose |
+|---|---|
+| `OREEM_API_TOKEN` | Bearer token from the Oreem merchant dashboard (app.oreem.com). |
+| `RESEND_API_KEY` | From the Resend account used for order/newsletter emails. |
+| `RESEND_FROM_EMAIL` | Verified sending address (e.g. `orders@peepandbeyond.com`). |
+| `RESEND_AUDIENCE_ID` | The Resend Audience used for the marketing newsletter list. |
+| `OWNER_NOTIFICATION_EMAIL` | Where order notifications are sent. |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV credentials, for the story-language stock counter and payment idempotency lock. Auto-populated by Vercel when you provision a KV database and link it to this project — you usually don't set these by hand. |
+| `NEXT_PUBLIC_SITE_URL` | The deployed site's own URL (e.g. `https://peepandbeyond.vercel.app` or your custom domain), used to build Oreem's `redirect_url`. |
+
+## What's still pending before this is fully live
+
+This codebase is complete and tested (69 automated tests, real Oreem API integration
+verified against the live merchant account — see `docs/superpowers/sdd/` history for
+details). Three things remain, and all three need the account owner's direct action since
+they involve real accounts/credentials no one else should touch:
+
+1. **Create a Resend account** (resend.com) — needed for order-notification and newsletter
+   emails to actually send. Without it, orders will still complete (IBAN emails the owner
+   directly on submit; Oreem orders show the WhatsApp fallback), but automated emails won't
+   go out.
+2. **Provision a Vercel KV database** and link it to this project (Vercel dashboard →
+   Storage tab) — needed for the story-language stock counter (25 Arabic + 25 English copy
+   tracking) and for the Oreem payment idempotency lock (prevents duplicate order emails on
+   page refresh). Without it, the site still works — these features fail open/gracefully
+   degrade — but stock tracking won't persist and refreshing a payment confirmation page
+   could re-send order notifications.
+3. **Real international shipping rates** — `lib/shipping-rates.ts` currently has Bahrain's
+   flat 2.000 BHD rate and `null` (meaning "quoted after we contact you") for every other
+   country. Update this file once the box's shipping weight and real carrier rates are
+   known.
+
+## Deployment (Vercel)
+
+1. Push this repository to a Git provider (GitHub/GitLab/Bitbucket) if it isn't already —
+   Vercel deploys from a connected repo.
+2. From the Vercel dashboard, "Add New Project" and import this repository (or run
+   `npx vercel` from this directory and follow the prompts to link/create a project).
+3. In the Vercel project's **Settings → Environment Variables**, add every variable listed
+   in the table above (except `KV_REST_API_URL`/`KV_REST_API_TOKEN`, which Vercel fills in
+   automatically once you complete step 4).
+4. In the Vercel project's **Storage** tab, create a new KV database and connect it to this
+   project — this injects the `KV_REST_API_URL`/`KV_REST_API_TOKEN` variables automatically.
+5. Set `NEXT_PUBLIC_SITE_URL` to your actual deployed URL (Vercel gives you one immediately
+   after the first deploy, e.g. `https://peep-and-beyond-web.vercel.app`; update this env
+   var with it, then redeploy so the Oreem `redirect_url` points at the right place).
+6. Trigger a deploy (push to the connected branch, or `npx vercel --prod`).
+7. Once live, do one real end-to-end smoke test on the production URL: add an item, go
+   through checkout with IBAN (confirm the owner email arrives) and, when ready, a real
+   Oreem payment (confirm the redirect and confirmation flow both work against production).
+
+## Architecture notes
+
+- **No user accounts/login anywhere** — guest checkout only, by design (this replaces an
+  earlier prototype whose checkout was broken specifically because it silently required a
+  login).
+- **No database** except the two advisory Vercel KV uses above — everything else is
+  stateless or client-side (cart in `localStorage`, language/currency preference in
+  `localStorage`).
+- **Server always recomputes price and shipping** — the client's cart is never trusted for
+  the amount actually charged or emailed.
+- Full design spec: `docs/superpowers/specs/2026-08-16-peep-and-beyond-website-design.md`.
+  Full implementation plans (3 phases): `docs/superpowers/plans/`.
