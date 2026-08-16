@@ -52,10 +52,11 @@ export async function POST(request: NextRequest) {
   }
 
   for (const item of items) {
-    if (item.customization.storyLanguage !== "ar" && item.customization.storyLanguage !== "en") {
+    const storyLanguage = item?.customization?.storyLanguage;
+    if (storyLanguage !== "ar" && storyLanguage !== "en") {
       return NextResponse.json({ error: "invalid_request" }, { status: 400 });
     }
-    if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+    if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
       return NextResponse.json({ error: "invalid_request" }, { status: 400 });
     }
   }
