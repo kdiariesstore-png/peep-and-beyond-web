@@ -30,6 +30,10 @@ custom-coded replacement the user (Khadija) can actually own, deploy, and debug.
   owner fills in later; unlisted countries show "quoted after we contact you".
 - Every successful order (either payment method) emails the full order details — including
   the IBAN receipt image — to the owner's inbox. No admin dashboard, no database of orders.
+- Every successful order gives the customer a confirmation via **both** email and a
+  WhatsApp link (see §8.3) — not a choice between the two, both happen.
+- An opt-in way to collect marketing emails (checkout checkbox + footer signup box) so the
+  owner can announce new products/promotions later, without requiring any account/login.
 
 ## 3. Non-goals (explicitly out of scope for this build)
 
@@ -39,6 +43,14 @@ custom-coded replacement the user (Khadija) can actually own, deploy, and debug.
 - Admin dashboard / order management UI.
 - Automatic international shipping cost calculation (e.g. by weight/carrier API) — rates
   are a manually maintained table.
+- Full WhatsApp Business API integration (Meta-verified account, pre-approved message
+  templates, automatic server-sent WhatsApp messages). Deferred — see §8.3 for the
+  lightweight `wa.me` approach used instead for this build.
+- **"Vote for the next story character" feature** (poll among Peep/Lolo/Coco/Bambo/Fifi,
+  restricted to customers who bought and read a story). Explicitly deferred to a Phase 2
+  spec — it's a separate subsystem (vote storage, purchaser verification via a per-order
+  emailed link, results display) that shouldn't block shipping the store itself. Revisit
+  once checkout/payment are live and stable.
 
 ## 4. Tech stack
 
@@ -123,6 +135,25 @@ Both payment paths are guest checkout — no login, unlike the broken prototype.
 7. On verified failure/cancellation: show a clear failure state with a "try again" action
    that returns to checkout with the cart intact — never a raw error page.
 
+### 8.3 Order confirmation delivery (email + WhatsApp)
+
+Every successful order (IBAN or Oreem) delivers a confirmation to the customer via email
+automatically, plus a WhatsApp confirmation with one manual tap from the owner (see caveat
+below):
+
+- **Email**: sent via Resend to the customer automatically, same order-notification system
+  as the owner's copy, with the order summary.
+- **WhatsApp**: a lightweight `wa.me` deep link — no server-side sending, no Business API
+  account required. **Important limitation:** a plain `wa.me` link cannot deliver a message
+  to the customer automatically — only a real WhatsApp Business API can do that. So for this
+  build, the owner's order-notification email includes a
+  `https://wa.me/<customer_phone>?text=<url-encoded invoice summary>` button: one tap opens
+  WhatsApp on the owner's device with a chat to the customer already pre-filled with the
+  invoice text, ready to send. It's a one-tap-send workflow for the owner, not a fully
+  automatic delivery to the customer — upgradeable later to true automatic sending once a
+  verified WhatsApp Business API account and approved message templates exist (see
+  non-goals).
+
 **Open technical risk, to validate during implementation:** the exact mechanism for
 carrying order details (name, address, box customization) across the redirect to Oreem and
 back — since Oreem's redirect only guarantees `status`/`txn_ref`/`transaction_reference`
@@ -133,7 +164,20 @@ server-side store (e.g. Vercel KV) keyed by `txn_ref`, holding the pending order
 with a ~1 hour TTL. This will be confirmed once real Oreem credentials are available for
 testing — see open questions.
 
-## 9. Error handling
+## 9. Marketing email list (newsletter)
+
+Fully separate from checkout/accounts — just an email address, no password, no login:
+
+- **Checkout opt-in**: an unchecked-by-default checkbox ("أرغب أستلم آخر العروض والمنتجات
+  الجديدة") next to the buyer's email field. If checked on order submit, that email is
+  added to the marketing list.
+- **Footer signup**: a standalone "subscribe" box (email only) for visitors who want updates
+  without buying.
+- **List/campaign tool**: Resend Audiences (Resend also handles order-notification emails,
+  so this avoids adding a second vendor). The owner sends future promotional/new-product
+  broadcasts from her Resend dashboard — no custom admin UI needed for this build.
+
+## 10. Error handling
 
 - Client-side form validation (required fields, file type/size) before any submit.
 - Every server-side failure (Oreem API error, Resend send failure, malformed upload) shows
@@ -144,7 +188,7 @@ testing — see open questions.
   logged server-side so it isn't silently lost — exact logging destination (e.g. Vercel
   logs) is sufficient for this scope since there's no admin dashboard.
 
-## 10. Testing plan
+## 11. Testing plan
 
 - Manual walkthrough in the browser for both payment paths (IBAN happy path with a real
   test file upload; Oreem happy path against their sandbox test cards from the docs;
@@ -154,15 +198,24 @@ testing — see open questions.
 - Verify Bahrain shipping is always exactly 2.000 BHD, and an unmapped country shows the
   "quoted later" state instead of a wrong number.
 - Verify order emails arrive with correct totals and, for IBAN, the receipt attached.
+- Verify the post-order WhatsApp `wa.me` link opens with a correctly pre-filled, correctly
+  encoded order summary (including Arabic text).
+- Verify checkout opt-in and footer signup both correctly add an email to the Resend
+  Audience, and that unchecked opt-in does not.
 
-## 11. Secrets / accounts needed from the owner before full implementation
+## 12. Secrets / accounts needed from the owner before full implementation
 
-- `OREEM_API_TOKEN` — real bearer token from her existing Oreem merchant account.
-- `RESEND_API_KEY` — from a new free Resend account.
+- `OREEM_API_TOKEN` — real bearer token from her existing Oreem merchant account (received;
+  stored locally in `.env.local`, git-ignored, never committed).
+- `RESEND_API_KEY` — from a new free Resend account (also used for the Audiences/newsletter
+  list — no separate marketing-email vendor needed).
 - Confirmation of the bank IBAN to display (already known: `BH04BBKU00200004090874`, to be
   reconfirmed).
 - Real international shipping rates once box weight is known (placeholder table ships
   first).
+- A phone number to use as the `wa.me` link target for WhatsApp order confirmations (the
+  owner's business number, unless the intent is a pre-filled message the *customer* sends
+  to themselves/saves — to confirm during implementation).
 
 All secrets are supplied as environment variables at deploy time — never typed into chat or
 committed to the repo.
