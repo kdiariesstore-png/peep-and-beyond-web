@@ -92,6 +92,23 @@ custom-coded replacement the user (Khadija) can actually own, deploy, and debug.
   and the amount actually sent to Oreem always use BHD — Oreem's docs confirm BHD as the
   expected `currency` value for Bahrain merchants, and the bank IBAN is a BHD account.
 
+## 6a. Stock and pricing decisions (confirmed 2026-08-16)
+
+- Price stays 21.900 BHD — the owner's internal planning spreadsheet listed a lower
+  "opening price" (17.900 BHD), but she confirmed the live prototype's 21.900 BHD is
+  correct and current; it may change again later, so it stays a single easy-to-edit
+  constant rather than hardcoded in multiple places.
+- Cup colors are pink and blue (stock: blue 4, pink 5) — not pink/yellow as an older
+  inventory sheet suggested; confirmed by the owner.
+- No PayPal — IBAN and Oreem only, confirmed.
+- **Story-language stock limit**: 25 printed Arabic copies, 25 printed English copies.
+  Orders remain open past that limit, but once a language's stock hits zero, further
+  orders for that language are flagged as a pre-order ("takes more than 10 days") both to
+  the customer (inline note on the customization form) and to the owner (in the order
+  email) — never a hard block. This is the one place the site needs persistent
+  server-side state (a small Vercel KV counter per language), since the storefront is
+  otherwise stateless.
+
 ## 7. Shipping
 
 - A shipping-rate config (e.g. `lib/shipping-rates.ts`) maps country code → flat BHD price.
