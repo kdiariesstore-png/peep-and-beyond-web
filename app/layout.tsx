@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LocaleProvider } from "../lib/i18n/locale-context";
+import { CurrencyProvider } from "../lib/currency-context";
+import { CartProvider } from "../lib/cart/cart-context";
 
 export const metadata: Metadata = {
   title: "Peep & beyond | Peep Box",
@@ -9,7 +12,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <LocaleProvider>
+          <CurrencyProvider>
+            <CartProvider>{children}</CartProvider>
+          </CurrencyProvider>
+        </LocaleProvider>
+      </body>
     </html>
   );
 }
