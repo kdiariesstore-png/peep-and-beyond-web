@@ -6,6 +6,12 @@ import {
   sendCustomerConfirmationEmail,
   addToMarketingAudience,
 } from "../../../../lib/email/resend-client";
+import {
+  getRemainingStock,
+  decrementStockAfterOrder,
+  isPreOrder,
+  PRE_ORDER_NOTE,
+} from "../../../../lib/inventory/story-stock";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
@@ -40,6 +46,14 @@ export async function POST(request: NextRequest) {
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
 
+  const notes: string[] = [];
+  for (const item of items) {
+    const remaining = await getRemainingStock(item.customization.storyLanguage);
+    if (isPreOrder(remaining)) {
+      notes.push(`${PRE_ORDER_NOTE} (${item.customization.storyLanguage})`);
+    }
+  }
+
   const receiptBuffer = Buffer.from(await (receiptFile as File).arrayBuffer());
   const emailData = {
     buyer,
@@ -48,6 +62,7 @@ export async function POST(request: NextRequest) {
     shippingBhd,
     totalBhd,
     paymentMethod: "iban" as const,
+    notes: notes.length > 0 ? notes : undefined,
   };
 
   try {
@@ -74,6 +89,14 @@ export async function POST(request: NextRequest) {
       await addToMarketingAudience(buyer.email);
     } catch (error) {
       console.error("Failed to add buyer to marketing audience", error);
+    }
+  }
+
+  for (const item of items) {
+    try {
+      await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
+    } catch (error) {
+      console.error("Failed to decrement story stock", error);
     }
   }
 
