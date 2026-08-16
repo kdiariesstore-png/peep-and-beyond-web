@@ -28,7 +28,7 @@ npm run typecheck # TypeScript check
 | `OWNER_NOTIFICATION_EMAIL` | Where order notifications are sent. |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV credentials, for the story-language stock counter and payment idempotency lock. Auto-populated by Vercel when you provision a KV database and link it to this project — you usually don't set these by hand. |
 | `NEXT_PUBLIC_SITE_URL` | The deployed site's own URL (e.g. `https://peepandbeyond.vercel.app` or your custom domain), used to build Oreem's `redirect_url`. **Required in production** — the card-payment route refuses to create a payment session (returns a friendly error) rather than redirect a paying customer to `localhost`. Falls back to `https://$VERCEL_URL` when Vercel provides it. |
-| `OWNER_WHATSAPP_NUMBER` | *Optional, blank by default.* The shop owner's WhatsApp number in international digits (e.g. `97333001122`). When set, a paid-order confirmation page shows a one-tap "message us on WhatsApp" button pre-filled with the order's reference number. When blank, the page degrades gracefully and tells the customer to confirm via Instagram `@peepandbeyond` instead — nothing breaks either way. |
+| `OWNER_WHATSAPP_NUMBER` | *Optional, blank by default.* The shop owner's WhatsApp contact — either a plain phone number in international digits (e.g. `97333001122`), **or** a full WhatsApp Business short link (e.g. `https://wa.me/message/NOEVIMNTTYKVO1`, generated under WhatsApp Business → Settings → Business tools → Short link). Currently set to Peep & beyond's short link. When set, a paid-order confirmation page shows a one-tap "message us on WhatsApp" button pre-filled with the order's reference number. When blank, the page degrades gracefully and tells the customer to confirm via Instagram `@peepandbeyond` instead — nothing breaks either way. |
 
 ## What's still pending before this is fully live
 
@@ -51,8 +51,9 @@ involve real accounts/credentials no one else should touch:
    flat 2.000 BHD rate and `null` (meaning "quoted after we contact you") for every other
    country. Update this file once the box's shipping weight and real carrier rates are
    known.
-4. **Provide a WhatsApp number** for `OWNER_WHATSAPP_NUMBER` when ready, so paying
-   customers get a one-tap "confirm my order" button instead of the Instagram fallback.
+
+`OWNER_WHATSAPP_NUMBER` is already set (Peep & beyond's WhatsApp Business short link), so
+paying customers get a one-tap "confirm my order" button rather than the Instagram fallback.
 
 **Watch the first real payment closely.** The redirect round-trip — Oreem appending its own
 query parameters to our confirmation URL and the page verifying that transaction — has not

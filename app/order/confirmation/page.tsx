@@ -219,12 +219,14 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
   // so nothing here is worth crashing a success page over — worst case the button is
   // simply absent and the Instagram fallback text still tells the customer what to do.
   let whatsappLink: string | undefined;
-  const ownerWhatsappNumber = process.env.OWNER_WHATSAPP_NUMBER;
-  // Require at least one digit: a blank-but-present value would otherwise render a
-  // wa.me link with no number at all, which is worse than the Instagram fallback.
-  if (ownerWhatsappNumber && /[0-9]/.test(ownerWhatsappNumber)) {
+  const ownerWhatsappContact = process.env.OWNER_WHATSAPP_NUMBER;
+  // Accepts either a plain phone number or a full WhatsApp Business short link (see
+  // buildCustomerToOwnerWhatsappLink) — just needs to be non-blank. A blank-but-present
+  // value would otherwise render a wa.me link with nothing after it, which is worse than
+  // the Instagram fallback.
+  if (ownerWhatsappContact && ownerWhatsappContact.trim().length > 0) {
     try {
-      whatsappLink = buildCustomerToOwnerWhatsappLink(ownerWhatsappNumber, payload.txnRef);
+      whatsappLink = buildCustomerToOwnerWhatsappLink(ownerWhatsappContact, payload.txnRef);
     } catch (error) {
       console.error("Failed to build customer-to-owner WhatsApp link", error);
       whatsappLink = undefined;
