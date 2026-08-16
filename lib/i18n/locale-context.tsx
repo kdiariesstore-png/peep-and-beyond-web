@@ -18,17 +18,20 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ar");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === "ar" || stored === "en") setLocaleState(stored);
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+    if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, locale);
-  }, [locale]);
+  }, [locale, hydrated]);
 
   const setLocale = (next: Locale) => setLocaleState(next);
 

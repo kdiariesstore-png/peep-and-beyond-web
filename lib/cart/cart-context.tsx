@@ -16,14 +16,17 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setItems(loadCart());
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     saveCart(items);
-  }, [items]);
+  }, [items, hydrated]);
 
   const addItem = (item: CartItem) => setItems((prev) => [...prev, item]);
 
