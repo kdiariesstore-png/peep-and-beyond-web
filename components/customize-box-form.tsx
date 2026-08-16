@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import type { BoxCustomization } from "../lib/types";
+import { useEffect, useState } from "react";
+import type { BoxCustomization, StoryLanguage } from "../lib/types";
 import { createDefaultCustomization } from "../lib/product";
 import { buildCartItem } from "../lib/cart/build-cart-item";
 import { useCart } from "../lib/cart/cart-context";
 import { useLocale } from "../lib/i18n/locale-context";
+
+interface StoryStockInfo {
+  remaining: number;
+  preOrder: boolean;
+}
+
+type StoryStockResponse = Record<StoryLanguage, StoryStockInfo>;
 
 export function CustomizeBoxForm({ onDone }: { onDone: () => void }) {
   const { t } = useLocale();
@@ -13,12 +20,22 @@ export function CustomizeBoxForm({ onDone }: { onDone: () => void }) {
   const [customization, setCustomization] = useState<BoxCustomization>(
     createDefaultCustomization()
   );
+  const [stock, setStock] = useState<StoryStockResponse | null>(null);
+
+  useEffect(() => {
+    fetch("/api/inventory/story-stock")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: StoryStockResponse | null) => setStock(data))
+      .catch(() => setStock(null));
+  }, []);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     addItem(buildCartItem(customization));
     onDone();
   }
+
+  const selectedLanguageStock = stock?.[customization.storyLanguage];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-6">
@@ -44,6 +61,12 @@ export function CustomizeBoxForm({ onDone }: { onDone: () => void }) {
             </button>
           ))}
         </div>
+        {selectedLanguageStock?.preOrder && (
+          <p className="mt-1 text-sm text-amber-700">
+            نفدت النسخ المطبوعة لهذه اللغة حاليًا — سيصبح طلبك طلب مسبق وقد يستغرق أكثر من
+            10 أيام.
+          </p>
+        )}
       </fieldset>
 
       <fieldset>
