@@ -14,6 +14,11 @@ export interface CreateHostedPaymentResult {
 export interface VerifyTransactionResult {
   verified: boolean;
   status: string;
+  // The amount Oreem itself confirms was paid, in BHD. Undefined when Oreem's
+  // response carries no usable amount. Callers must use this — never the amount
+  // in their own (unsigned, client-round-tripped) order payload — to decide what
+  // the customer actually paid for.
+  amountBhd?: number;
 }
 
 function getBaseUrl(): string {
@@ -87,5 +92,19 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   // transaction whose real state is unknown - fail closed instead.
   const status: string = json?.data?.status ?? "unknown";
   const verified = status === "success" || status === "paid" || status === "completed";
-  return { verified, status };
+
+  // Oreem documents data.amount as a decimal, serialized as a string ("23.900") in
+  // practice. Coerce it, but only surface it when it parses to a finite number —
+  // a bogus/absent amount must read as "unknown", not as 0 (which would look like
+  // a mismatch against every real order total).
+  // (Note the empty-string guard: Number("") is 0, which would masquerade as a real
+  // verified amount of zero and wrongly fail the caller's amount comparison.)
+  const rawAmount = json?.data?.amount;
+  const parsedAmount =
+    rawAmount === null || rawAmount === undefined || (typeof rawAmount === "string" && rawAmount.trim() === "")
+      ? NaN
+      : Number(rawAmount);
+  const amountBhd = Number.isFinite(parsedAmount) ? parsedAmount : undefined;
+
+  return { verified, status, amountBhd };
 }

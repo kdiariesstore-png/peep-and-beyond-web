@@ -71,6 +71,33 @@ describe("verifyTransaction", () => {
     );
   });
 
+  it("returns the amount Oreem confirms was paid, coerced from Oreem's decimal string", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: { status: "success", amount: "23.900" } }),
+      })
+    );
+
+    const result = await verifyTransaction("peep_abc123");
+    expect(result.verified).toBe(true);
+    expect(result.amountBhd).toBe(23.9);
+  });
+
+  it("leaves amountBhd undefined when Oreem does not report an amount", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: { status: "success" } }),
+      })
+    );
+
+    const result = await verifyTransaction("peep_abc123");
+    expect(result.amountBhd).toBeUndefined();
+  });
+
   it("reports verified=false for a failed transaction status", async () => {
     vi.stubGlobal(
       "fetch",

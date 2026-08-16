@@ -51,4 +51,26 @@ describe("encodeOrderPayload / decodeOrderPayload", () => {
     const encoded = Buffer.from(JSON.stringify({ foo: "bar" }), "utf-8").toString("base64url");
     expect(decodeOrderPayload(encoded)).toBeNull();
   });
+
+  it("returns null when items is missing or is not an array", () => {
+    const missingItems = Buffer.from(
+      JSON.stringify({ txnRef: "peep_abc123", buyer: payload.buyer, totalBhd: 23.9 }),
+      "utf-8"
+    ).toString("base64url");
+    expect(decodeOrderPayload(missingItems)).toBeNull();
+
+    const itemsNotArray = Buffer.from(
+      JSON.stringify({ txnRef: "peep_abc123", buyer: payload.buyer, items: "oops" }),
+      "utf-8"
+    ).toString("base64url");
+    expect(decodeOrderPayload(itemsNotArray)).toBeNull();
+  });
+
+  it("returns null when buyer is missing or is not an object", () => {
+    const missingBuyer = Buffer.from(
+      JSON.stringify({ txnRef: "peep_abc123", items: [] }),
+      "utf-8"
+    ).toString("base64url");
+    expect(decodeOrderPayload(missingBuyer)).toBeNull();
+  });
 });
