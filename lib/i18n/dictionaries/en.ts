@@ -26,4 +26,6 @@ export const en: Dictionary = {
   languageEnglish: "English",
   cupPink: "Pink",
   cupBlue: "Blue",
+  insideTitle: "Inside the Peep Box",
+  insideSubtitle: "Everything your child needs to start the adventure",
 };

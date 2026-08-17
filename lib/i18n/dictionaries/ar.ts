@@ -24,6 +24,8 @@ export const ar = {
   languageEnglish: "الإنجليزية",
   cupPink: "وردي",
   cupBlue: "أزرق",
+  insideTitle: "داخل بوكس بيب",
+  insideSubtitle: "كل ما يحتاجه الطفل لبدء مغامرته",
 } as const;
 
 export type Dictionary = Record<keyof typeof ar, string>;

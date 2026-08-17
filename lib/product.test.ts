@@ -6,8 +6,9 @@ describe("PEEP_BOX_PRODUCT", () => {
     expect(PEEP_BOX_PRODUCT.priceBhd).toBe(21.9);
   });
 
-  it("lists the seven box contents", () => {
-    expect(PEEP_BOX_PRODUCT.contents).toHaveLength(7);
+  it("lists eight box contents in Arabic and English, kept in sync", () => {
+    expect(PEEP_BOX_PRODUCT.contents.ar).toHaveLength(8);
+    expect(PEEP_BOX_PRODUCT.contents.en).toHaveLength(8);
   });
 });
 

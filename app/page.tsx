@@ -5,6 +5,7 @@ import { Header } from "../components/header";
 import { Hero } from "../components/hero";
 import { TrustBadges } from "../components/trust-badges";
 import { ThreeMoments } from "../components/three-moments";
+import { InsideTheBox } from "../components/inside-the-box";
 import { CustomizeBoxForm } from "../components/customize-box-form";
 import { CartDrawer } from "../components/cart-drawer";
 import { Footer } from "../components/footer";
@@ -20,15 +21,7 @@ export default function HomePage() {
         <Hero onOrderClick={() => setShowCustomize(true)} />
         <TrustBadges />
         <ThreeMoments />
-        <section id="inside" className="px-6 py-10 text-center">
-          <button
-            type="button"
-            onClick={() => setShowCustomize(true)}
-            className="rounded-full bg-leaf px-6 py-3 text-white"
-          >
-            جهّز بوكسك
-          </button>
-        </section>
+        <InsideTheBox onOrderClick={() => setShowCustomize(true)} />
       </main>
       <Footer />
 
