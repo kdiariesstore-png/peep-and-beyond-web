@@ -43,6 +43,7 @@ export const ar = {
   digitalConfirmButton: "الدفع وتأكيد الطلب",
   digitalDownloadHeading: "روابط التحميل",
   digitalDownloadLinkLabel: "تحميل الملف",
+  digitalRemoveItem: "إزالة",
 } as const;
 
 export type Dictionary = Record<keyof typeof ar, string>;

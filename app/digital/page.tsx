@@ -16,7 +16,7 @@ import type { DigitalLanguage, DigitalTopicId } from "../../lib/digital/types";
 export default function DigitalProductsPage() {
   const { locale, t } = useLocale();
   const { currency } = useCurrency();
-  const { items, addOrReplaceItem } = useDigitalCart();
+  const { items, addOrReplaceItem, removeItem } = useDigitalCart();
   const [filter, setFilter] = useState<DigitalTopicId | "all">("all");
   const [showCart, setShowCart] = useState(false);
 
@@ -24,6 +24,16 @@ export default function DigitalProductsPage() {
     filter === "all" ? DIGITAL_PRODUCTS : DIGITAL_PRODUCTS.filter((p) => p.id === filter);
 
   const subtotalBhd = items.reduce((sum, item) => sum + item.unitPriceBhd, 0);
+
+  // Resolves a cart line's display name in the current locale, covering both individual
+  // topics and the bundle (which lives outside DIGITAL_PRODUCTS).
+  function itemLabel(id: DigitalTopicId | "digital-bundle"): string {
+    if (id === "digital-bundle") {
+      return locale === "ar" ? DIGITAL_BUNDLE.nameAr : DIGITAL_BUNDLE.nameEn;
+    }
+    const product = DIGITAL_PRODUCTS.find((p) => p.id === id);
+    return product ? (locale === "ar" ? product.nameAr : product.nameEn) : id;
+  }
 
   return (
     <>
@@ -78,7 +88,30 @@ export default function DigitalProductsPage() {
         {items.length > 0 && (
           <div className="mt-10 rounded-xl bg-white/60 p-6">
             <h2 className="text-lg font-bold">{t.digitalCartTitle}</h2>
-            <p className="mt-2 font-semibold">{formatMoney(subtotalBhd, currency)}</p>
+            <ul className="mt-4 space-y-3">
+              {items.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-center justify-between gap-3 border-b border-brown/10 pb-3"
+                >
+                  <div>
+                    <p className="font-medium">{itemLabel(item.id)}</p>
+                    <p className="text-sm text-brown/60">
+                      {item.language === "ar" ? t.languageArabic : t.languageEnglish} —{" "}
+                      {formatMoney(item.unitPriceBhd, currency)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="text-sm text-brown/60 underline"
+                  >
+                    {t.digitalRemoveItem}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 font-semibold">{formatMoney(subtotalBhd, currency)}</p>
             <a
               href="/digital/checkout"
               className="mt-4 inline-block rounded-full bg-leaf px-6 py-3 text-white"

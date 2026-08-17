@@ -45,4 +45,5 @@ export const en: Dictionary = {
   digitalConfirmButton: "Pay and confirm order",
   digitalDownloadHeading: "Download links",
   digitalDownloadLinkLabel: "Download file",
+  digitalRemoveItem: "Remove",
 };
