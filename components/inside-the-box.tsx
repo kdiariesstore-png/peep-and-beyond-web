@@ -4,12 +4,13 @@ import Image from "next/image";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { PEEP_BOX_PRODUCT } from "../lib/product";
+import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable } from "../lib/product";
 
 export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   const { locale, t } = useLocale();
   const { currency } = useCurrency();
   const contents = PEEP_BOX_PRODUCT.contents[locale];
+  const available = isPhysicalBoxAvailable();
 
   return (
     <section id="inside" className="mx-auto max-w-5xl px-6 py-16">
@@ -39,11 +40,13 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
           </p>
           <button
             type="button"
-            onClick={onOrderClick}
-            className="mt-4 rounded-full bg-leaf px-6 py-3 text-white"
+            onClick={available ? onOrderClick : undefined}
+            disabled={!available}
+            className="mt-4 rounded-full bg-leaf px-6 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {t.addToCart}
+            {available ? t.addToCart : t.comingSoon}
           </button>
+          {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
         </div>
       </div>
     </section>

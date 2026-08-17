@@ -29,6 +29,14 @@ export const PEEP_BOX_PRODUCT = {
   },
 } as const;
 
+// Lets the owner temporarily close physical Peep Box ordering (e.g. a soft launch that
+// opens with digital products only) without a code change: set
+// NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE=false in Vercel and redeploy. Defaults to available
+// so an unset/forgotten env var never accidentally closes the store.
+export function isPhysicalBoxAvailable(): boolean {
+  return process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE !== "false";
+}
+
 export function createDefaultCustomization(): BoxCustomization {
   return {
     storyLanguage: "ar",

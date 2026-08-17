@@ -43,6 +43,8 @@ export const ar = {
   digitalConfirmButton: "الدفع وتأكيد الطلب",
   digitalDownloadHeading: "روابط التحميل",
   digitalDownloadLinkLabel: "تحميل الملف",
+  comingSoon: "قريبًا",
+  comingSoonNote: "الطلبات ستفتح قريبًا — تابعينا لمعرفة موعد الافتتاح.",
   digitalRemoveItem: "إزالة",
 } as const;
 
