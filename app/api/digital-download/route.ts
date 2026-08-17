@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { decodeDigitalOrderPayload, wasDigitalItemPurchased } from "../../../lib/digital/order-payload";
+import {
+  decodeDigitalOrderPayload,
+  wasDigitalItemPurchased,
+  computeTrustedDigitalTotal,
+} from "../../../lib/digital/order-payload";
 import { verifyTransaction } from "../../../lib/payments/oreem-client";
 import { watermarkPdf } from "../../../lib/digital/watermark-pdf";
 import { digitalFileName } from "../../../lib/digital/catalog";
@@ -53,16 +57,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "payment_not_verified" }, { status: 403 });
   }
 
+  // payload.totalBhd is unsigned client-controlled input and must never be trusted
+  // directly — a forged unitPriceBhd on an item (e.g. claiming the bundle costs the
+  // price of one topic) would leave totalBhd looking consistent while granting access
+  // to items never actually paid for. Compare Oreem's verified amount against the
+  // CATALOG-derived trusted total instead.
+  const trustedTotalBhd = computeTrustedDigitalTotal(payload.items);
   if (
     verification.amountBhd !== undefined &&
     !(
-      Number.isFinite(payload.totalBhd) &&
-      Math.abs(verification.amountBhd - payload.totalBhd) <= 0.001
+      Number.isFinite(trustedTotalBhd) &&
+      Math.abs(verification.amountBhd - trustedTotalBhd) <= 0.001
     )
   ) {
-    console.error("Oreem verified amount does not match digital order payload total", {
+    console.error("Oreem verified amount does not match digital order trusted total", {
       txnRef: payload.txnRef,
       verifiedAmount: verification.amountBhd,
+      trustedTotalBhd,
       payloadTotal: payload.totalBhd,
     });
     return NextResponse.json({ error: "amount_mismatch" }, { status: 403 });

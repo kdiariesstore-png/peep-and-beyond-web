@@ -1,5 +1,12 @@
 import type { DigitalBuyerDetails, DigitalCartItem, DigitalLanguage, DigitalTopicId } from "./types";
-import { DIGITAL_BUNDLE } from "./catalog";
+import { DIGITAL_BUNDLE, getDigitalProductPrice } from "./catalog";
+
+// Same rounding as lib/digital/order-total.ts's round3 (kept local rather than imported
+// to avoid coupling this module's public API to that file's internals) — 3 decimal
+// places matches BHD's minor unit (fils) and avoids floating-point drift when summing.
+function round3(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
 
 export interface DigitalPendingOrderPayload {
   txnRef: string;
@@ -77,4 +84,20 @@ export function wasDigitalItemPurchased(
     }
     return false;
   });
+}
+
+// The payload arrives back via an unsigned URL param the customer's browser round-trips
+// (see decodeDigitalOrderPayload above), so payload.totalBhd — and every item's
+// unitPriceBhd — is just whatever number the request claims, not proof of what was
+// actually charged. This recomputes the order's true total from the CATALOG price for
+// each item id, so a forged unitPriceBhd (e.g. claiming the 12.0 BHD bundle costs 2.7
+// BHD) cannot influence it. Callers must compare Oreem's independently-verified paid
+// amount against THIS value, never against payload.totalBhd directly.
+export function computeTrustedDigitalTotal(items: DigitalCartItem[]): number {
+  return round3(
+    items.reduce((sum, item) => {
+      const catalogPrice = getDigitalProductPrice(item.id);
+      return sum + (catalogPrice ?? 0);
+    }, 0)
+  );
 }

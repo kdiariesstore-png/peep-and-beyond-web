@@ -3,8 +3,10 @@ import {
   encodeDigitalOrderPayload,
   decodeDigitalOrderPayload,
   wasDigitalItemPurchased,
+  computeTrustedDigitalTotal,
   type DigitalPendingOrderPayload,
 } from "./order-payload";
+import type { DigitalCartItem } from "./types";
 
 const payload: DigitalPendingOrderPayload = {
   txnRef: "peepdigi_abc123",
@@ -85,5 +87,32 @@ describe("wasDigitalItemPurchased", () => {
     };
     expect(wasDigitalItemPurchased(bundlePayload, "child-hits", "en")).toBe(true);
     expect(wasDigitalItemPurchased(bundlePayload, "child-hits", "ar")).toBe(false);
+  });
+});
+
+describe("computeTrustedDigitalTotal", () => {
+  it("matches an honest payload's totalBhd when unitPriceBhd is not forged", () => {
+    expect(computeTrustedDigitalTotal(payload.items)).toBe(5.4);
+  });
+
+  it("ignores a forged low unitPriceBhd and recomputes from the catalog price instead", () => {
+    // A customer could hand-edit the URL to claim the whole 7-topic bundle
+    // (real catalog price 12.0 BHD) cost only 2.7 BHD, the price of one topic.
+    // The trusted total must reflect the real catalog price, not this forged claim.
+    const forgedItems: DigitalCartItem[] = [{ id: "digital-bundle", language: "ar", unitPriceBhd: 2.7 }];
+    expect(computeTrustedDigitalTotal(forgedItems)).toBe(12.0);
+  });
+
+  it("sums catalog prices across multiple items and rounds to 3 decimals", () => {
+    const items: DigitalCartItem[] = [
+      { id: "sleep-bedtime", language: "ar", unitPriceBhd: 999 },
+      { id: "potty-training", language: "en", unitPriceBhd: 999 },
+      { id: "child-hits", language: "en", unitPriceBhd: 999 },
+    ];
+    expect(computeTrustedDigitalTotal(items)).toBe(8.1);
+  });
+
+  it("returns 0 for an empty items array", () => {
+    expect(computeTrustedDigitalTotal([])).toBe(0);
   });
 });

@@ -1,4 +1,4 @@
-import { decodeDigitalOrderPayload } from "../../../lib/digital/order-payload";
+import { decodeDigitalOrderPayload, computeTrustedDigitalTotal } from "../../../lib/digital/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
 import { verifyTransaction } from "../../../lib/payments/oreem-client";
 import {
@@ -13,6 +13,21 @@ import { ClearDigitalCartOnMount } from "../../../components/digital/clear-digit
 import type { DigitalTopicId } from "../../../lib/digital/types";
 
 export const runtime = "nodejs";
+
+// The only statuses we are willing to read as "this payment definitively did not go
+// through, so it is safe to invite the customer to pay again". Anything else — a
+// still-settling "pending"/"processing", an unrecognised status, or our own
+// "verification_failed" placeholder — means we do not actually know, and inviting a
+// retry there risks a second charge on a card that may already have been debited.
+// Fail closed by default. Mirrors app/order/confirmation/page.tsx's identical guard.
+const RETRYABLE_FAILURE_STATUSES = new Set([
+  "failed",
+  "declined",
+  "cancelled",
+  "canceled",
+  "expired",
+  "rejected",
+]);
 
 const INSTAGRAM_HANDLE = "@peepandbeyond";
 
@@ -66,6 +81,22 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
   }
 
   if (!verification.verified) {
+    // Distinguish "Oreem told us the payment definitively did not complete" from every
+    // other unverified state ("we could not reach Oreem", a still-processing payment, an
+    // unrecognised status). Only the first is safe to retry; everything else gets the
+    // cautious no-retry message, since telling a customer whose card may already have
+    // been charged to "just try again" risks a double charge.
+    const isKnownRetryableFailure = RETRYABLE_FAILURE_STATUSES.has(verification.status);
+    if (!isKnownRetryableFailure) {
+      return (
+        <OrderConfirmationMessage
+          success={false}
+          title="تعذر التحقق من حالة الدفع"
+          body={`لم نتمكن من تأكيد حالة عمليتك مع مزوّد الدفع. إذا تم خصم مبلغ من بطاقتك، لا تدفعي مرة أخرى — تواصلي معنا عبر انستقرام ${INSTAGRAM_HANDLE} مع ذكر رقم المرجع: ${payload.txnRef}.`}
+          allowRetry={false}
+        />
+      );
+    }
     return (
       <OrderConfirmationMessage
         success={false}
@@ -75,16 +106,23 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
     );
   }
 
+  // payload.totalBhd is unsigned client-controlled input and must never be trusted
+  // directly — a forged unitPriceBhd on an item (e.g. claiming the bundle costs the
+  // price of one topic) would leave totalBhd looking consistent while granting access
+  // to items never actually paid for. Compare Oreem's verified amount against the
+  // CATALOG-derived trusted total instead.
+  const trustedTotalBhd = computeTrustedDigitalTotal(payload.items);
   if (
     verification.amountBhd !== undefined &&
     !(
-      Number.isFinite(payload.totalBhd) &&
-      Math.abs(verification.amountBhd - payload.totalBhd) <= 0.001
+      Number.isFinite(trustedTotalBhd) &&
+      Math.abs(verification.amountBhd - trustedTotalBhd) <= 0.001
     )
   ) {
-    console.error("Oreem verified amount does not match digital order payload total", {
+    console.error("Oreem verified amount does not match digital order trusted total", {
       txnRef: payload.txnRef,
       verifiedAmount: verification.amountBhd,
+      trustedTotalBhd,
       payloadTotal: payload.totalBhd,
     });
     return (
