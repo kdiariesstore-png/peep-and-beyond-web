@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { DigitalBuyerDetails, DigitalCartItem, DigitalLanguage, DigitalTopicId } from "./types";
 import { DIGITAL_BUNDLE, getDigitalProductPrice } from "./catalog";
 
@@ -26,13 +27,57 @@ const VALID_IDS = new Set([
   "digital-bundle",
 ]);
 
+// The payload round-trips through the customer's browser via an unsigned-looking URL
+// param, so without a signature a customer could decode it, edit `items` to claim a
+// DIFFERENT topic (or the bundle) than what was actually paid for, and re-encode. Since
+// all 7 individual topics share one price, the amount-binding check alone can't catch
+// this — it only proves the TOTAL matches, not WHICH items it was for. An HMAC over the
+// exact JSON bytes closes that: only someone holding DIGITAL_ORDER_SECRET can produce a
+// payload that verifies, so a hand-edited `items` array is rejected outright.
+function getSigningSecret(): string {
+  const secret = process.env.DIGITAL_ORDER_SECRET;
+  if (!secret) throw new Error("DIGITAL_ORDER_SECRET is not set");
+  return secret;
+}
+
+function sign(payloadJson: string): string {
+  return createHmac("sha256", getSigningSecret()).update(payloadJson).digest("base64url");
+}
+
 export function encodeDigitalOrderPayload(payload: DigitalPendingOrderPayload): string {
-  return Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
+  const json = JSON.stringify(payload);
+  const encodedPayload = Buffer.from(json, "utf-8").toString("base64url");
+  const signature = sign(json);
+  return `${encodedPayload}.${signature}`;
 }
 
 export function decodeDigitalOrderPayload(encoded: string): DigitalPendingOrderPayload | null {
   try {
-    const json = Buffer.from(encoded, "base64url").toString("utf-8");
+    // "." is not a base64url character, so splitting on the LAST "." unambiguously
+    // separates the base64url payload from its signature.
+    const separatorIndex = encoded.lastIndexOf(".");
+    if (separatorIndex === -1) return null;
+
+    const encodedPayload = encoded.slice(0, separatorIndex);
+    const signature = encoded.slice(separatorIndex + 1);
+    if (!encodedPayload || !signature) return null;
+
+    const json = Buffer.from(encodedPayload, "base64url").toString("utf-8");
+    const expectedSignature = sign(json);
+
+    const providedSignatureBuffer = Buffer.from(signature, "base64url");
+    const expectedSignatureBuffer = Buffer.from(expectedSignature, "base64url");
+    // timingSafeEqual throws on a length mismatch rather than returning false — an
+    // attacker-controlled signature of the wrong length just means "not equal", not a
+    // crash, so treat that case as an ordinary verification failure.
+    let signatureValid: boolean;
+    try {
+      signatureValid = timingSafeEqual(providedSignatureBuffer, expectedSignatureBuffer);
+    } catch {
+      signatureValid = false;
+    }
+    if (!signatureValid) return null;
+
     const parsed = JSON.parse(json);
 
     if (
@@ -46,9 +91,10 @@ export function decodeDigitalOrderPayload(encoded: string): DigitalPendingOrderP
       return null;
     }
 
-    // This payload arrives back via a URL param the customer's browser round-trips, so a
-    // valid txnRef guarantees nothing about totalBhd — the confirmation and download
-    // routes both format/compare it numerically after a real payment has been taken.
+    // The signature above only proves this payload was produced by our own server (not
+    // hand-edited by the customer) — it says nothing about whether the amount it claims
+    // was actually paid. The confirmation and download routes both independently verify
+    // the paid amount with Oreem before trusting anything here.
     if (!Number.isFinite(parsed.totalBhd)) {
       return null;
     }
@@ -86,13 +132,14 @@ export function wasDigitalItemPurchased(
   });
 }
 
-// The payload arrives back via an unsigned URL param the customer's browser round-trips
-// (see decodeDigitalOrderPayload above), so payload.totalBhd — and every item's
-// unitPriceBhd — is just whatever number the request claims, not proof of what was
-// actually charged. This recomputes the order's true total from the CATALOG price for
-// each item id, so a forged unitPriceBhd (e.g. claiming the 12.0 BHD bundle costs 2.7
-// BHD) cannot influence it. Callers must compare Oreem's independently-verified paid
-// amount against THIS value, never against payload.totalBhd directly.
+// The signature on the payload proves it wasn't hand-edited after our server produced
+// it, but it was still generated from client-submitted prices before payment — so
+// payload.totalBhd and every item's unitPriceBhd reflect whatever the cart claimed at
+// checkout time, not proof of what was actually charged. This recomputes the order's
+// true total from the CATALOG price for each item id, so a stale/forged unitPriceBhd
+// (e.g. claiming the 12.0 BHD bundle costs 2.7 BHD) cannot influence it. Callers must
+// compare Oreem's independently-verified paid amount against THIS value, never against
+// payload.totalBhd directly.
 export function computeTrustedDigitalTotal(items: DigitalCartItem[]): number {
   return round3(
     items.reduce((sum, item) => {

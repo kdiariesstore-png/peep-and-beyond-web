@@ -112,8 +112,12 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
   // to items never actually paid for. Compare Oreem's verified amount against the
   // CATALOG-derived trusted total instead.
   const trustedTotalBhd = computeTrustedDigitalTotal(payload.items);
+  // An undefined amountBhd means Oreem's response carried no usable amount for an
+  // otherwise-verified transaction — that must be treated as a binding-check FAILURE,
+  // not silently skipped, or a verified-but-amount-less response would let any item
+  // claim through unchecked.
   if (
-    verification.amountBhd !== undefined &&
+    verification.amountBhd === undefined ||
     !(
       Number.isFinite(trustedTotalBhd) &&
       Math.abs(verification.amountBhd - trustedTotalBhd) <= 0.001
