@@ -26,6 +26,23 @@ export const ar = {
   cupBlue: "أزرق",
   insideTitle: "داخل بوكس بيب",
   insideSubtitle: "كل ما يحتاجه الطفل لبدء مغامرته",
+  navDigitalProducts: "المنتجات الرقمية",
+  digitalPageTitle: "المنتجات الرقمية",
+  digitalPageSubtitle:
+    "كتيبات إرشادية للأهل بصيغة PDF، متوفرة بالعربي والإنجليزي — أفضل تجربة قراءة على آيباد أو تابلت.",
+  digitalTabletNote: "يُفضّل القراءة على آيباد أو تابلت للحصول على أفضل تجربة.",
+  digitalFilterAll: "الكل",
+  digitalBundleLabel: "الباقة الكاملة (السبعة مواضيع)",
+  digitalLanguageChoiceLabel: "لغة الكتيب",
+  digitalAddToCart: "أضف إلى السلة",
+  digitalCartTitle: "سلتك من المنتجات الرقمية",
+  digitalCartEmpty: "سلتك فارغة",
+  digitalCheckoutTitle: "بيانات الطلب",
+  digitalCheckoutSubtitle: "منتج رقمي — التسليم فوري بعد تأكيد الدفع.",
+  digitalPaymentNote: "الدفع بالبطاقة عبر أوريم (Benefit, Visa, Mastercard).",
+  digitalConfirmButton: "الدفع وتأكيد الطلب",
+  digitalDownloadHeading: "روابط التحميل",
+  digitalDownloadLinkLabel: "تحميل الملف",
 } as const;
 
 export type Dictionary = Record<keyof typeof ar, string>;
