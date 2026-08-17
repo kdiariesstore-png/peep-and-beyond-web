@@ -11,30 +11,37 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="flex items-center justify-between border-b border-brown/10 px-6 py-4">
-      <span className="text-xl font-bold">Peep &amp; beyond</span>
-      <nav className="hidden gap-6 md:flex">
-        <a href="#inside">{t.navGifts}</a>
-      </nav>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setLocale(locale === "ar" ? "en" : "ar")}
-          aria-label="toggle language"
-        >
-          {locale === "ar" ? "EN" : "العربية"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setCurrency(currency === "BHD" ? "USD" : "BHD")}
-          aria-label="toggle currency"
-        >
-          {currency === "BHD" ? "USD" : "BHD"}
-        </button>
-        <button type="button" onClick={onCartClick} aria-label="open cart">
-          🛍️ {itemCount > 0 ? itemCount : ""}
-        </button>
+    <header className="border-b border-brown/10">
+      <div className="flex items-center justify-between px-6 py-4">
+        <span className="text-xl font-bold">Peep &amp; beyond</span>
+        <nav className="hidden gap-6 md:flex">
+          <a href="#inside">{t.navGifts}</a>
+          <a href="/digital">{t.navDigitalProducts}</a>
+        </nav>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setLocale(locale === "ar" ? "en" : "ar")}
+            aria-label="toggle language"
+          >
+            {locale === "ar" ? "EN" : "العربية"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrency(currency === "BHD" ? "USD" : "BHD")}
+            aria-label="toggle currency"
+          >
+            {currency === "BHD" ? "USD" : "BHD"}
+          </button>
+          <button type="button" onClick={onCartClick} aria-label="open cart">
+            🛍️ {itemCount > 0 ? itemCount : ""}
+          </button>
+        </div>
       </div>
+      <nav className="flex gap-6 border-t border-brown/10 px-6 py-2 md:hidden">
+        <a href="#inside">{t.navGifts}</a>
+        <a href="/digital">{t.navDigitalProducts}</a>
+      </nav>
     </header>
   );
 }
