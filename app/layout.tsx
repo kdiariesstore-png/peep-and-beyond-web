@@ -3,6 +3,7 @@ import "./globals.css";
 import { LocaleProvider } from "../lib/i18n/locale-context";
 import { CurrencyProvider } from "../lib/currency-context";
 import { CartProvider } from "../lib/cart/cart-context";
+import { DigitalCartProvider } from "../lib/digital/cart-context";
 
 export const metadata: Metadata = {
   title: "Peep & beyond | Peep Box",
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <LocaleProvider>
           <CurrencyProvider>
-            <CartProvider>{children}</CartProvider>
+            <CartProvider>
+              <DigitalCartProvider>{children}</DigitalCartProvider>
+            </CartProvider>
           </CurrencyProvider>
         </LocaleProvider>
       </body>
