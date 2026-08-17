@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../../lib/cart/cart-context";
 import { useCurrency } from "../../lib/currency-context";
@@ -34,6 +34,10 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+
+  useEffect(() => {
+    setPaymentMethod(buyer.country === "BH" ? "iban" : "oreem");
+  }, [buyer.country]);
 
   function handleReceiptChange(file: File | null) {
     setReceipt(file);
@@ -105,8 +109,7 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <BuyerForm value={buyer} onChange={setBuyer} />
         <PaymentMethodSelector
-          value={paymentMethod}
-          onChange={setPaymentMethod}
+          method={paymentMethod}
           receiptError={receiptError}
           onReceiptChange={handleReceiptChange}
         />
