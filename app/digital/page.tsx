@@ -85,43 +85,44 @@ export default function DigitalProductsPage() {
           ))}
         </div>
 
-        {items.length > 0 && (
-          <div className="mt-10 rounded-xl bg-white/60 p-6">
-            <h2 className="text-lg font-bold">{t.digitalCartTitle}</h2>
-            <ul className="mt-4 space-y-3">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between gap-3 border-b border-brown/10 pb-3"
-                >
-                  <div>
-                    <p className="font-medium">{itemLabel(item.id)}</p>
-                    <p className="text-sm text-brown/60">
-                      {item.language === "ar" ? t.languageArabic : t.languageEnglish} —{" "}
-                      {formatMoney(item.unitPriceBhd, currency)}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="text-sm text-brown/60 underline"
-                  >
-                    {t.digitalRemoveItem}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 font-semibold">{formatMoney(subtotalBhd, currency)}</p>
-            <a
-              href="/digital/checkout"
-              className="mt-4 inline-block rounded-full bg-leaf px-6 py-3 text-white"
-            >
-              {t.digitalConfirmButton}
-            </a>
-          </div>
-        )}
       </main>
       <Footer />
+
+      {items.length > 0 && (
+        <div className="fixed left-4 top-24 z-40 max-h-[70vh] w-72 max-w-[85vw] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+          <h2 className="text-lg font-bold">{t.digitalCartTitle}</h2>
+          <ul className="mt-4 space-y-3">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center justify-between gap-3 border-b border-brown/10 pb-3"
+              >
+                <div>
+                  <p className="font-medium">{itemLabel(item.id)}</p>
+                  <p className="text-sm text-brown/60">
+                    {item.language === "ar" ? t.languageArabic : t.languageEnglish} —{" "}
+                    {formatMoney(item.unitPriceBhd, currency)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.id)}
+                  className="text-sm text-brown/60 underline"
+                >
+                  {t.digitalRemoveItem}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 font-semibold">{formatMoney(subtotalBhd, currency)}</p>
+          <a
+            href="/digital/checkout"
+            className="mt-4 block rounded-full bg-leaf px-6 py-3 text-center text-white"
+          >
+            {t.digitalConfirmButton}
+          </a>
+        </div>
+      )}
       <CartDrawer open={showCart} onClose={() => setShowCart(false)} />
     </>
   );
