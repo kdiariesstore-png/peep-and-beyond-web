@@ -1,6 +1,7 @@
 import type { PendingOrderPayload } from "../../../lib/order/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
 import { getPendingOrder } from "../../../lib/order/pending-order-store";
+import { resolveTxnRef } from "../../../lib/order/resolve-txn-ref";
 import { verifyTransaction, type VerifyTransactionResult } from "../../../lib/payments/oreem-client";
 import {
   sendOrderNotificationEmail,
@@ -42,6 +43,7 @@ interface ConfirmationPageProps {
     ref?: string;
     status?: string;
     transaction_reference?: string;
+    txn_ref?: string;
   };
 }
 
@@ -62,8 +64,8 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
     );
   }
 
-  const txnRef = searchParams.ref;
-  if (!txnRef || !TXN_REF_PATTERN.test(txnRef)) {
+  const txnRef = resolveTxnRef(TXN_REF_PATTERN, searchParams.ref, searchParams.txn_ref);
+  if (!txnRef) {
     return (
       <OrderConfirmationMessage success={false} title="لا يوجد طلب لعرضه" body="" />
     );

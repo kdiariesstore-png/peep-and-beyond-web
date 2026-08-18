@@ -5,6 +5,7 @@ import {
 } from "../../../lib/digital/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
 import { getPendingOrder } from "../../../lib/order/pending-order-store";
+import { resolveTxnRef } from "../../../lib/order/resolve-txn-ref";
 import { verifyTransaction } from "../../../lib/payments/oreem-client";
 import {
   sendDigitalOrderNotificationEmail,
@@ -39,6 +40,7 @@ const INSTAGRAM_HANDLE = "@peepandbeyond";
 interface ConfirmationPageProps {
   searchParams: {
     ref?: string;
+    txn_ref?: string;
   };
 }
 
@@ -68,8 +70,8 @@ function resolveDownloads(
 }
 
 export default async function DigitalConfirmationPage({ searchParams }: ConfirmationPageProps) {
-  const txnRef = searchParams.ref;
-  if (!txnRef || !TXN_REF_PATTERN.test(txnRef)) {
+  const txnRef = resolveTxnRef(TXN_REF_PATTERN, searchParams.ref, searchParams.txn_ref);
+  if (!txnRef) {
     return <OrderConfirmationMessage success={false} title="لا يوجد طلب لعرضه" body="" />;
   }
 
