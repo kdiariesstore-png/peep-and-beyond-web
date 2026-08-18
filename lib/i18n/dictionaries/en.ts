@@ -3,7 +3,7 @@ import type { Dictionary } from "./ar";
 export const en: Dictionary = {
   navShop: "Shop",
   navStories: "Stories",
-  navGifts: "Gifts",
+  navPeepBox: "Peep Box",
   navAbout: "About Peep & beyond",
   heroTitleLine1: "Open the box…",
   heroTitleLine2: "and start the adventure",

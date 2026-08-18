@@ -1,7 +1,7 @@
 export const ar = {
   navShop: "تسوّق",
   navStories: "القصص",
-  navGifts: "الهدايا",
+  navPeepBox: "بوكس بيب",
   navAbout: "عن Peep & beyond",
   heroTitleLine1: "افتحوا الصندوق…",
   heroTitleLine2: "وابدأوا المغامرة",

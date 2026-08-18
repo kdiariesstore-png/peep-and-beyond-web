@@ -15,7 +15,7 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
       <div className="flex items-center justify-between px-6 py-4">
         <span className="text-xl font-bold">Peep &amp; beyond</span>
         <nav className="hidden gap-6 md:flex">
-          <a href="#inside">{t.navGifts}</a>
+          <a href="/">{t.navPeepBox}</a>
           <a href="/digital">{t.navDigitalProducts}</a>
         </nav>
         <div className="flex items-center gap-3">
@@ -39,7 +39,7 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
         </div>
       </div>
       <nav className="flex gap-6 border-t border-brown/10 px-6 py-2 md:hidden">
-        <a href="#inside">{t.navGifts}</a>
+        <a href="/">{t.navPeepBox}</a>
         <a href="/digital">{t.navDigitalProducts}</a>
       </nav>
     </header>
