@@ -208,4 +208,33 @@ describe("GET /api/digital-download", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
   });
+
+  it("returns 200 for starting-school when the school-season bundle was bought", async () => {
+    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 3.9 });
+    readFileMock.mockResolvedValue(await makeTestPdfBytes());
+    const encoded = encodeDigitalOrderPayload({
+      txnRef: "peepdigi_schoolbundle123",
+      buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
+      items: [{ id: "school-season-bundle", language: "en", unitPriceBhd: 3.9 }],
+      totalBhd: 3.9,
+    });
+
+    const response = await GET(buildRequest({ order: encoded, product: "starting-school", language: "en" }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("application/pdf");
+  });
+
+  it("returns 403 for a topic outside the school-season bundle", async () => {
+    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 3.9 });
+    const encoded = encodeDigitalOrderPayload({
+      txnRef: "peepdigi_schoolbundle123",
+      buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
+      items: [{ id: "school-season-bundle", language: "en", unitPriceBhd: 3.9 }],
+      totalBhd: 3.9,
+    });
+
+    const response = await GET(buildRequest({ order: encoded, product: "child-hits", language: "en" }));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "not_purchased" });
+  });
 });

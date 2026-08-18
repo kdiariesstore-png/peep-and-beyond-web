@@ -5,9 +5,12 @@ export type DigitalTopicId =
   | "sharing-sibling-conflict"
   | "sleep-bedtime"
   | "starting-school"
-  | "child-hits";
+  | "child-hits"
+  | "school-season-toolkit";
 
-export type DigitalProductId = DigitalTopicId | "digital-bundle";
+export type DigitalBundleId = "digital-bundle" | "school-season-bundle";
+
+export type DigitalProductId = DigitalTopicId | DigitalBundleId;
 
 export type DigitalLanguage = "ar" | "en";
 

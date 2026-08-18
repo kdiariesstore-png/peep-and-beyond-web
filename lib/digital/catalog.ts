@@ -1,4 +1,4 @@
-import type { DigitalLanguage, DigitalProductId, DigitalTopicId } from "./types";
+import type { DigitalBundleId, DigitalLanguage, DigitalProductId, DigitalTopicId } from "./types";
 
 export interface DigitalProduct {
   id: DigitalTopicId;
@@ -7,6 +7,14 @@ export interface DigitalProduct {
   descriptionAr: string;
   descriptionEn: string;
   priceBhd: number;
+}
+
+export interface DigitalBundle {
+  id: DigitalBundleId;
+  nameAr: string;
+  nameEn: string;
+  priceBhd: number;
+  includes: DigitalTopicId[];
 }
 
 export const DIGITAL_PRODUCTS: DigitalProduct[] = [
@@ -66,18 +74,42 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     descriptionEn: "Understanding why young children hit, and calm, effective ways to respond.",
     priceBhd: 2.99,
   },
+  {
+    id: "school-season-toolkit",
+    nameAr: "مجموعة العودة للمدرسة",
+    nameEn: "The School Season Toolkit",
+    descriptionAr:
+      "سبع أدوات جاهزة للطباعة — جداول وتشيك ليست وسكريبتات — تساعد طفلك (وتساعدك) على الانتقال بهدوء للحضانة أو الروضة أو المدرسة.",
+    descriptionEn:
+      "Seven ready-to-use schedules, checklists, and scripts to help your child (and you) ease into daycare, preschool, or school.",
+    priceBhd: 2.99,
+  },
 ];
 
-export const DIGITAL_BUNDLE = {
-  id: "digital-bundle" as const,
+export const DIGITAL_BUNDLE: DigitalBundle = {
+  id: "digital-bundle",
   nameAr: "الباقة الكاملة (السبعة مواضيع)",
   nameEn: "The Complete Bundle (all 7 topics)",
   priceBhd: 13.99,
-  includes: DIGITAL_PRODUCTS.map((p) => p.id),
+  includes: DIGITAL_PRODUCTS.filter((p) => p.id !== "school-season-toolkit").map((p) => p.id),
 };
 
+// A seasonal, narrower bundle: just the new toolkit plus the existing guide it's designed
+// to sit alongside (the toolkit's own intro explicitly says so) — distinct from
+// DIGITAL_BUNDLE, which covers the 7 general-topic guides.
+export const SCHOOL_SEASON_BUNDLE: DigitalBundle = {
+  id: "school-season-bundle",
+  nameAr: "الحزمة الكاملة للعودة للمدرسة",
+  nameEn: "The Complete Back-to-School Bundle",
+  priceBhd: 3.9,
+  includes: ["school-season-toolkit", "starting-school"],
+};
+
+export const DIGITAL_BUNDLES: DigitalBundle[] = [DIGITAL_BUNDLE, SCHOOL_SEASON_BUNDLE];
+
 export function getDigitalProductPrice(id: DigitalProductId): number | null {
-  if (id === "digital-bundle") return DIGITAL_BUNDLE.priceBhd;
+  const bundle = DIGITAL_BUNDLES.find((b) => b.id === id);
+  if (bundle) return bundle.priceBhd;
   return DIGITAL_PRODUCTS.find((p) => p.id === id)?.priceBhd ?? null;
 }
 

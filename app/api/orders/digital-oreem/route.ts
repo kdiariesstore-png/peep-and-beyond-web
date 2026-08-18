@@ -17,7 +17,9 @@ const VALID_IDS = new Set<DigitalProductId>([
   "sleep-bedtime",
   "starting-school",
   "child-hits",
+  "school-season-toolkit",
   "digital-bundle",
+  "school-season-bundle",
 ]);
 
 export async function POST(request: NextRequest) {

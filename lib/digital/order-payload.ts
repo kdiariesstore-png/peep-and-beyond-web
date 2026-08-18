@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { DigitalBuyerDetails, DigitalCartItem, DigitalLanguage, DigitalTopicId } from "./types";
-import { DIGITAL_BUNDLE, getDigitalProductPrice } from "./catalog";
+import { DIGITAL_BUNDLES, getDigitalProductPrice } from "./catalog";
 
 // Same rounding as lib/digital/order-total.ts's round3 (kept local rather than imported
 // to avoid coupling this module's public API to that file's internals) — 3 decimal
@@ -24,7 +24,9 @@ const VALID_IDS = new Set([
   "sleep-bedtime",
   "starting-school",
   "child-hits",
+  "school-season-toolkit",
   "digital-bundle",
+  "school-season-bundle",
 ]);
 
 // The payload round-trips through the customer's browser via an unsigned-looking URL
@@ -117,9 +119,9 @@ export function decodeDigitalOrderPayload(encoded: string): DigitalPendingOrderP
 }
 
 // A topic/language is authorized for download if it was bought as its own line, or if a
-// bundle in that same language was bought (a bundle covers all 7 topics in one language).
-// Pure and independent of any network call, so the download route's entitlement check
-// (Task 10) can be unit tested without mocking fetch/NextRequest.
+// bundle covering that topic was bought in the same language. Pure and independent of any
+// network call, so the download route's entitlement check (Task 10) can be unit tested
+// without mocking fetch/NextRequest.
 export function wasDigitalItemPurchased(
   payload: DigitalPendingOrderPayload,
   topicId: DigitalTopicId,
@@ -128,10 +130,8 @@ export function wasDigitalItemPurchased(
   return payload.items.some((item) => {
     if (item.language !== language) return false;
     if (item.id === topicId) return true;
-    if (item.id === "digital-bundle") {
-      return (DIGITAL_BUNDLE.includes as DigitalTopicId[]).includes(topicId);
-    }
-    return false;
+    const bundle = DIGITAL_BUNDLES.find((b) => b.id === item.id);
+    return bundle ? bundle.includes.includes(topicId) : false;
   });
 }
 

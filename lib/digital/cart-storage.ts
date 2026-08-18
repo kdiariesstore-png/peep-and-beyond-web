@@ -10,7 +10,9 @@ const VALID_IDS = new Set([
   "sleep-bedtime",
   "starting-school",
   "child-hits",
+  "school-season-toolkit",
   "digital-bundle",
+  "school-season-bundle",
 ]);
 
 function isDigitalCartItem(value: unknown): value is DigitalCartItem {

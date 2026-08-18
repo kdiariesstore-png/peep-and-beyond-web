@@ -1,5 +1,5 @@
 import type { DigitalBuyerDetails, DigitalCartItem } from "./types";
-import { DIGITAL_PRODUCTS, DIGITAL_BUNDLE } from "./catalog";
+import { DIGITAL_PRODUCTS, DIGITAL_BUNDLES } from "./catalog";
 
 function escapeHtml(value: string): string {
   return value
@@ -22,10 +22,10 @@ export function buildDigitalOrderEmailSubject(data: DigitalOrderEmailData): stri
 }
 
 function describeItem(item: DigitalCartItem): string {
-  const nameAr =
-    item.id === "digital-bundle"
-      ? DIGITAL_BUNDLE.nameAr
-      : DIGITAL_PRODUCTS.find((p) => p.id === item.id)?.nameAr ?? item.id;
+  const bundle = DIGITAL_BUNDLES.find((b) => b.id === item.id);
+  const nameAr = bundle
+    ? bundle.nameAr
+    : DIGITAL_PRODUCTS.find((p) => p.id === item.id)?.nameAr ?? item.id;
   const langLabel = item.language === "ar" ? "العربية" : "English";
   return `${nameAr} — ${langLabel}`;
 }

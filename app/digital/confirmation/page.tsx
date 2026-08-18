@@ -14,7 +14,7 @@ import {
 import { addToMarketingAudience } from "../../../lib/email/resend-client";
 import { buildCustomerToOwnerWhatsappLink } from "../../../lib/email/whatsapp-link";
 import { getSiteUrl } from "../../../lib/site-url";
-import { DIGITAL_PRODUCTS, DIGITAL_BUNDLE } from "../../../lib/digital/catalog";
+import { DIGITAL_PRODUCTS, DIGITAL_BUNDLES } from "../../../lib/digital/catalog";
 import { OrderConfirmationMessage } from "../../../components/order-confirmation-message";
 import { ClearDigitalCartOnMount } from "../../../components/digital/clear-digital-cart-on-mount";
 import type { DigitalTopicId } from "../../../lib/digital/types";
@@ -53,14 +53,15 @@ interface ConfirmationPageProps {
 const TXN_REF_PATTERN = /^peepdigi_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // Expands the purchased items into a flat list of {topicId, language} download entries,
-// unrolling any "digital-bundle" line into its 7 underlying topics.
+// unrolling any bundle line into its underlying topics.
 function resolveDownloads(
   items: { id: string; language: "ar" | "en" }[]
 ): { topicId: DigitalTopicId; language: "ar" | "en" }[] {
   const downloads: { topicId: DigitalTopicId; language: "ar" | "en" }[] = [];
   for (const item of items) {
-    if (item.id === "digital-bundle") {
-      for (const topicId of DIGITAL_BUNDLE.includes) {
+    const bundle = DIGITAL_BUNDLES.find((b) => b.id === item.id);
+    if (bundle) {
+      for (const topicId of bundle.includes) {
         downloads.push({ topicId, language: item.language });
       }
     } else {

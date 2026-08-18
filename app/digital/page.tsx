@@ -6,12 +6,12 @@ import { Footer } from "../../components/footer";
 import { CartDrawer } from "../../components/cart-drawer";
 import { ProductCard } from "../../components/digital/product-card";
 import { BundleCard } from "../../components/digital/bundle-card";
-import { DIGITAL_PRODUCTS, DIGITAL_BUNDLE } from "../../lib/digital/catalog";
+import { DIGITAL_PRODUCTS, DIGITAL_BUNDLES } from "../../lib/digital/catalog";
 import { useDigitalCart } from "../../lib/digital/cart-context";
 import { useLocale } from "../../lib/i18n/locale-context";
 import { useCurrency } from "../../lib/currency-context";
 import { formatMoney } from "../../lib/currency";
-import type { DigitalLanguage, DigitalTopicId } from "../../lib/digital/types";
+import type { DigitalLanguage, DigitalProductId, DigitalTopicId } from "../../lib/digital/types";
 
 export default function DigitalProductsPage() {
   const { locale, t } = useLocale();
@@ -26,11 +26,10 @@ export default function DigitalProductsPage() {
   const subtotalBhd = items.reduce((sum, item) => sum + item.unitPriceBhd, 0);
 
   // Resolves a cart line's display name in the current locale, covering both individual
-  // topics and the bundle (which lives outside DIGITAL_PRODUCTS).
-  function itemLabel(id: DigitalTopicId | "digital-bundle"): string {
-    if (id === "digital-bundle") {
-      return locale === "ar" ? DIGITAL_BUNDLE.nameAr : DIGITAL_BUNDLE.nameEn;
-    }
+  // topics and any bundle (bundles live outside DIGITAL_PRODUCTS).
+  function itemLabel(id: DigitalProductId): string {
+    const bundle = DIGITAL_BUNDLES.find((b) => b.id === id);
+    if (bundle) return locale === "ar" ? bundle.nameAr : bundle.nameEn;
     const product = DIGITAL_PRODUCTS.find((p) => p.id === id);
     return product ? (locale === "ar" ? product.nameAr : product.nameEn) : id;
   }
@@ -43,8 +42,14 @@ export default function DigitalProductsPage() {
         <p className="mt-2 text-brown/70">{t.digitalPageSubtitle}</p>
         <p className="mt-1 text-sm text-brown/60">{t.digitalTabletNote}</p>
 
-        <div className="mt-8">
-          <BundleCard onAdd={(language) => addOrReplaceItem({ id: "digital-bundle", language, unitPriceBhd: DIGITAL_BUNDLE.priceBhd })} />
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {DIGITAL_BUNDLES.map((bundle) => (
+            <BundleCard
+              key={bundle.id}
+              bundle={bundle}
+              onAdd={(language) => addOrReplaceItem({ id: bundle.id, language, unitPriceBhd: bundle.priceBhd })}
+            />
+          ))}
         </div>
 
         <div className="mt-8 flex flex-wrap gap-2">

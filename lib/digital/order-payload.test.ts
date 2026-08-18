@@ -145,6 +145,17 @@ describe("wasDigitalItemPurchased", () => {
     expect(wasDigitalItemPurchased(bundlePayload, "child-hits", "en")).toBe(true);
     expect(wasDigitalItemPurchased(bundlePayload, "child-hits", "ar")).toBe(false);
   });
+
+  it("returns true for the toolkit or starting-school when the school-season bundle was bought, but not for an unrelated topic", () => {
+    const schoolBundlePayload: DigitalPendingOrderPayload = {
+      ...payload,
+      items: [{ id: "school-season-bundle", language: "ar", unitPriceBhd: 3.9 }],
+    };
+    expect(wasDigitalItemPurchased(schoolBundlePayload, "school-season-toolkit", "ar")).toBe(true);
+    expect(wasDigitalItemPurchased(schoolBundlePayload, "starting-school", "ar")).toBe(true);
+    expect(wasDigitalItemPurchased(schoolBundlePayload, "starting-school", "en")).toBe(false);
+    expect(wasDigitalItemPurchased(schoolBundlePayload, "child-hits", "ar")).toBe(false);
+  });
 });
 
 describe("computeTrustedDigitalTotal", () => {

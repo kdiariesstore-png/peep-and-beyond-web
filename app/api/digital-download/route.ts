@@ -24,6 +24,7 @@ const VALID_TOPIC_IDS = new Set<DigitalTopicId>([
   "sleep-bedtime",
   "starting-school",
   "child-hits",
+  "school-season-toolkit",
 ]);
 
 export async function GET(request: NextRequest) {
