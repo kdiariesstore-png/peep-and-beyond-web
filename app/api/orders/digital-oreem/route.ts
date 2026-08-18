@@ -4,6 +4,7 @@ import { calculateDigitalOrderTotal } from "../../../../lib/digital/order-total"
 import { getDigitalProductPrice } from "../../../../lib/digital/catalog";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
+import { getSiteUrl } from "../../../../lib/site-url";
 import type { DigitalBuyerDetails, DigitalCartItem, DigitalProductId } from "../../../../lib/digital/types";
 
 export const runtime = "nodejs";
@@ -18,22 +19,6 @@ const VALID_IDS = new Set<DigitalProductId>([
   "child-hits",
   "digital-bundle",
 ]);
-
-// Never silently fall back to localhost in production — same reasoning as the physical
-// box's app/api/orders/oreem/route.ts: this is where Oreem sends a paying customer back
-// to, so a localhost redirect on a live payment means money taken with no order record.
-function getSiteUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
-  if (!configured) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("NEXT_PUBLIC_SITE_URL is not set");
-    }
-    return "http://localhost:3000";
-  }
-  return configured.replace(/\/+$/, "");
-}
 
 export async function POST(request: NextRequest) {
   let body: unknown;

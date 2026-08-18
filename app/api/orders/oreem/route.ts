@@ -4,25 +4,10 @@ import { calculateOrderTotal } from "../../../../lib/order/order-total";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
 import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
+import { getSiteUrl } from "../../../../lib/site-url";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
-
-// Never silently fall back to localhost in production: this URL is where Oreem sends a
-// paying customer back to. A localhost redirect on a live payment means money taken and
-// no order record at all, so fail loudly instead (the caller turns this into a 502).
-function getSiteUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
-  if (!configured) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("NEXT_PUBLIC_SITE_URL is not set");
-    }
-    return "http://localhost:3000";
-  }
-  return configured.replace(/\/+$/, "");
-}
 
 export async function POST(request: NextRequest) {
   let body: unknown;
