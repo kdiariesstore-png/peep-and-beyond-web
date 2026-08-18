@@ -228,7 +228,7 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
             const href = `/api/digital-download?order=${encodeURIComponent(encodedOrder)}&product=${topicId}&language=${language}`;
             return (
               <li key={`${topicId}-${language}`}>
-                <a href={href} className="text-leaf underline">
+                <a href={href} target="_blank" rel="noreferrer" className="text-leaf underline">
                   {label} ({language === "ar" ? "عربي" : "English"}) — تحميل
                 </a>
               </li>
