@@ -35,7 +35,10 @@ const VALID_IDS = new Set([
 // exact JSON bytes closes that: only someone holding DIGITAL_ORDER_SECRET can produce a
 // payload that verifies, so a hand-edited `items` array is rejected outright.
 function getSigningSecret(): string {
-  const secret = process.env.DIGITAL_ORDER_SECRET;
+  // Trimmed defensively: a value pasted into Vercel's dashboard from a mobile clipboard
+  // can carry an invisible trailing newline/space, which would silently change every
+  // HMAC computed from it and make every signature check fail with no visible cause.
+  const secret = process.env.DIGITAL_ORDER_SECRET?.trim();
   if (!secret) throw new Error("DIGITAL_ORDER_SECRET is not set");
   return secret;
 }

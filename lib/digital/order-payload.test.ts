@@ -37,6 +37,13 @@ describe("encodeDigitalOrderPayload / decodeDigitalOrderPayload", () => {
     expect(encodeDigitalOrderPayload(payload)).not.toMatch(/[+/=]/);
   });
 
+  it("trims a trailing newline/space on the secret, so a value pasted from a mobile clipboard still verifies", () => {
+    process.env.DIGITAL_ORDER_SECRET = "test-signing-secret\n";
+    const encoded = encodeDigitalOrderPayload(payload);
+    process.env.DIGITAL_ORDER_SECRET = "test-signing-secret";
+    expect(decodeDigitalOrderPayload(encoded)).toEqual(payload);
+  });
+
   it("returns null for garbage input instead of throwing", () => {
     expect(decodeDigitalOrderPayload("not-valid-base64-json")).toBeNull();
   });
