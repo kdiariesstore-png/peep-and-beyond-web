@@ -42,8 +42,8 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
         <Image
           src="/images/peep-box-product.png"
           alt={t.insideTitle}
-          width={800}
-          height={600}
+          width={1254}
+          height={1254}
           className="w-full rounded-2xl"
           priority
         />
