@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { createHostedPayment, verifyTransaction } from "./oreem-client";
+import { createHostedPayment, verifyTransaction, fetchTransactionByOreemReference } from "./oreem-client";
 
 beforeEach(() => {
   process.env.OREEM_API_TOKEN = "test-token";
@@ -110,5 +110,29 @@ describe("verifyTransaction", () => {
     const result = await verifyTransaction("peep_abc123");
     expect(result.verified).toBe(false);
     expect(result.status).toBe("failed");
+  });
+});
+
+describe("fetchTransactionByOreemReference", () => {
+  it("looks the transaction up by Oreem's own reference and returns the raw response", async () => {
+    const providerBody = { data: { status: "success", amount: "2.990", txn_ref: "peepdigi_abc123" } };
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(providerBody) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchTransactionByOreemReference("AP-6a8408cf413c3f24a");
+
+    expect(result).toEqual(providerBody);
+    const [url, options] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://app.oreem.com/api/v1/transactions/AP-6a8408cf413c3f24a/verify");
+    expect(options.headers.Authorization).toBe("Bearer test-token");
+  });
+
+  it("throws a clear error when Oreem responds with a non-ok status", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 404, json: () => Promise.resolve({}) })
+    );
+
+    await expect(fetchTransactionByOreemReference("AP-unknown")).rejects.toThrow(/status 404/);
   });
 });

@@ -117,3 +117,31 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
 
   return { verified, status, amountBhd };
 }
+
+// The counterpart to verifyTransaction: looks a transaction up by Oreem's OWN transaction
+// reference (the "AP-..." value shown in the Oreem merchant dashboard and in Oreem's
+// redirect/webhook params) instead of our txn_ref. This is the reconciliation path for
+// when a payment reached Oreem but our confirmation page never completed the order — e.g.
+// the customer never made it back to our site — so we only have what the Oreem dashboard
+// shows, not our own reference. Returns the provider's raw response body: this exists
+// purely for a human to read (an admin tool), and Oreem's docs don't specify whether the
+// merchant's txn_ref is echoed back here or under what field name, so callers are expected
+// to eyeball the result rather than the caller assuming a shape.
+export async function fetchTransactionByOreemReference(
+  oreemReference: string
+): Promise<unknown> {
+  const response = await fetch(
+    `${getBaseUrl()}/api/v1/transactions/${encodeURIComponent(oreemReference)}/verify`,
+    {
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+      headers: { Authorization: `Bearer ${getToken()}` },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Oreem transaction lookup failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
