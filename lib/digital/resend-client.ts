@@ -2,7 +2,9 @@ import { Resend } from "resend";
 import {
   buildDigitalOrderEmailHtml,
   buildDigitalOrderEmailSubject,
+  buildDigitalCustomerConfirmationEmailHtml,
   type DigitalOrderEmailData,
+  type DigitalCustomerConfirmationEmailData,
 } from "./order-notification-email";
 
 function getResendClient(): Resend {
@@ -31,13 +33,13 @@ export async function sendDigitalOrderNotificationEmail(
 }
 
 export async function sendDigitalCustomerConfirmationEmail(
-  data: DigitalOrderEmailData
+  data: DigitalCustomerConfirmationEmailData
 ): Promise<void> {
   const resend = getResendClient();
   await resend.emails.send({
     from: getFromAddress(),
     to: data.buyer.email,
     subject: "تم تأكيد طلبك من Peep & beyond",
-    html: buildDigitalOrderEmailHtml(data),
+    html: buildDigitalCustomerConfirmationEmailHtml(data),
   });
 }
