@@ -21,10 +21,10 @@ const payload: DigitalPendingOrderPayload = {
     marketingOptIn: false,
   },
   items: [
-    { id: "sleep-bedtime", language: "ar", unitPriceBhd: 2.7 },
-    { id: "potty-training", language: "en", unitPriceBhd: 2.7 },
+    { id: "sleep-bedtime", language: "ar", unitPriceBhd: 2.99 },
+    { id: "potty-training", language: "en", unitPriceBhd: 2.99 },
   ],
-  totalBhd: 5.4,
+  totalBhd: 5.98,
 };
 
 describe("encodeDigitalOrderPayload / decodeDigitalOrderPayload", () => {
@@ -149,15 +149,15 @@ describe("wasDigitalItemPurchased", () => {
 
 describe("computeTrustedDigitalTotal", () => {
   it("matches an honest payload's totalBhd when unitPriceBhd is not forged", () => {
-    expect(computeTrustedDigitalTotal(payload.items)).toBe(5.4);
+    expect(computeTrustedDigitalTotal(payload.items)).toBe(5.98);
   });
 
   it("ignores a forged low unitPriceBhd and recomputes from the catalog price instead", () => {
     // A customer could hand-edit the URL to claim the whole 7-topic bundle
-    // (real catalog price 12.0 BHD) cost only 2.7 BHD, the price of one topic.
+    // (real catalog price 13.99 BHD) cost only 2.99 BHD, the price of one topic.
     // The trusted total must reflect the real catalog price, not this forged claim.
-    const forgedItems: DigitalCartItem[] = [{ id: "digital-bundle", language: "ar", unitPriceBhd: 2.7 }];
-    expect(computeTrustedDigitalTotal(forgedItems)).toBe(12.0);
+    const forgedItems: DigitalCartItem[] = [{ id: "digital-bundle", language: "ar", unitPriceBhd: 2.99 }];
+    expect(computeTrustedDigitalTotal(forgedItems)).toBe(13.99);
   });
 
   it("sums catalog prices across multiple items and rounds to 3 decimals", () => {
@@ -166,7 +166,7 @@ describe("computeTrustedDigitalTotal", () => {
       { id: "potty-training", language: "en", unitPriceBhd: 999 },
       { id: "child-hits", language: "en", unitPriceBhd: 999 },
     ];
-    expect(computeTrustedDigitalTotal(items)).toBe(8.1);
+    expect(computeTrustedDigitalTotal(items)).toBe(8.97);
   });
 
   it("returns 0 for an empty items array", () => {

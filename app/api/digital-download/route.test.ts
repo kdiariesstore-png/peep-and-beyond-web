@@ -42,7 +42,7 @@ function buildRequest(params: Record<string, string | undefined>): NextRequest {
   return new NextRequest(url);
 }
 
-const SINGLE_TOPIC_ITEM: DigitalCartItem = { id: "sleep-bedtime", language: "ar", unitPriceBhd: 2.7 };
+const SINGLE_TOPIC_ITEM: DigitalCartItem = { id: "sleep-bedtime", language: "ar", unitPriceBhd: 2.99 };
 
 beforeEach(() => {
   process.env.DIGITAL_ORDER_SECRET = "test-signing-secret";
@@ -62,7 +62,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const missingProduct = await GET(buildRequest({ order: encoded, language: "ar" }));
@@ -81,7 +81,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "fr" }));
@@ -105,7 +105,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepbox_someotherorder",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "ar" }));
@@ -120,7 +120,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "ar" }));
@@ -134,7 +134,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "ar" }));
@@ -148,7 +148,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "ar" }));
@@ -157,7 +157,7 @@ describe("GET /api/digital-download", () => {
   });
 
   it("returns 403 when the requested item was not part of what this txnRef paid for", async () => {
-    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 2.7 });
+    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 2.99 });
     // Payload legitimately paid for "sleep-bedtime", but the request asks for
     // "child-hits" — this is the exact forged-item-identity scenario the whole-branch
     // review flagged, and it must be rejected even though the payload's own signature
@@ -166,7 +166,7 @@ describe("GET /api/digital-download", () => {
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "child-hits", language: "ar" }));
@@ -175,13 +175,13 @@ describe("GET /api/digital-download", () => {
   });
 
   it("returns 200 with a watermarked PDF for a fully valid, verified request", async () => {
-    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 2.7 });
+    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 2.99 });
     readFileMock.mockResolvedValue(await makeTestPdfBytes());
     const encoded = encodeDigitalOrderPayload({
       txnRef: "peepdigi_abc123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
       items: [SINGLE_TOPIC_ITEM],
-      totalBhd: 2.7,
+      totalBhd: 2.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "sleep-bedtime", language: "ar" }));
@@ -195,13 +195,13 @@ describe("GET /api/digital-download", () => {
   });
 
   it("returns 200 for a topic covered by a purchased same-language bundle", async () => {
-    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 12.0 });
+    verifyTransactionMock.mockResolvedValue({ verified: true, status: "completed", amountBhd: 13.99 });
     readFileMock.mockResolvedValue(await makeTestPdfBytes());
     const encoded = encodeDigitalOrderPayload({
       txnRef: "peepdigi_bundle123",
       buyer: { fullName: "سارة أحمد", email: "sara@example.com", country: "BH", marketingOptIn: false },
-      items: [{ id: "digital-bundle", language: "ar", unitPriceBhd: 12.0 }],
-      totalBhd: 12.0,
+      items: [{ id: "digital-bundle", language: "ar", unitPriceBhd: 13.99 }],
+      totalBhd: 13.99,
     });
 
     const response = await GET(buildRequest({ order: encoded, product: "child-hits", language: "ar" }));
