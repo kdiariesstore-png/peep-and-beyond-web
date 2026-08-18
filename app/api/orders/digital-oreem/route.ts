@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { calculateDigitalOrderTotal } from "../../../../lib/digital/order-total";
-import { encodeDigitalOrderPayload } from "../../../../lib/digital/order-payload";
 import { getDigitalProductPrice } from "../../../../lib/digital/catalog";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
+import { storePendingOrder } from "../../../../lib/order/pending-order-store";
 import type { DigitalBuyerDetails, DigitalCartItem, DigitalProductId } from "../../../../lib/digital/types";
 
 export const runtime = "nodejs";
@@ -87,10 +87,22 @@ export async function POST(request: NextRequest) {
 
   const { totalBhd } = calculateDigitalOrderTotal(items);
   const txnRef = `peepdigi_${randomUUID()}`;
-  const encodedOrder = encodeDigitalOrderPayload({ txnRef, buyer, items, totalBhd });
+
+  // Store the order server-side and hand Oreem only a short opaque reference. Oreem's
+  // redirect_url has a length limit on their side (discovered via a real completed
+  // payment) and truncates anything past it before appending their own status params —
+  // silently corrupting any order data we tried to embed directly in the URL. This must
+  // happen BEFORE creating the payment session: if we can't reliably store the order, we
+  // must not let the customer pay for something we won't be able to retrieve afterward.
+  try {
+    await storePendingOrder(txnRef, { txnRef, buyer, items, totalBhd });
+  } catch (error) {
+    console.error("Failed to store pending digital order before payment", error);
+    return NextResponse.json({ error: "order_storage_unavailable" }, { status: 502 });
+  }
 
   try {
-    const redirectUrl = `${getSiteUrl()}/digital/confirmation?order=${encodedOrder}`;
+    const redirectUrl = `${getSiteUrl()}/digital/confirmation?ref=${txnRef}`;
     const { paymentUrl } = await createHostedPayment({
       txnRef,
       amountBhd: totalBhd,

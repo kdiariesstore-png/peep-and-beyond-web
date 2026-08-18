@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { calculateOrderTotal } from "../../../../lib/order/order-total";
-import { encodeOrderPayload } from "../../../../lib/order/order-payload";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
+import { storePendingOrder } from "../../../../lib/order/pending-order-store";
 import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
@@ -67,19 +67,25 @@ export async function POST(request: NextRequest) {
   }
 
   const txnRef = `peep_${randomUUID()}`;
-  const encodedOrder = encodeOrderPayload({
-    txnRef,
-    buyer,
-    items,
-    subtotalBhd,
-    shippingBhd,
-    totalBhd,
-  });
+
+  // Store the order server-side and hand Oreem only a short opaque reference. Oreem's
+  // redirect_url has a length limit on their side (discovered via a real completed
+  // digital-product payment) and truncates anything past it before appending their own
+  // status params — silently corrupting any order data embedded directly in the URL.
+  // This must happen BEFORE creating the payment session: if we can't reliably store the
+  // order, we must not let the customer pay for something we won't be able to retrieve.
+  try {
+    await storePendingOrder(txnRef, { txnRef, buyer, items, subtotalBhd, shippingBhd, totalBhd });
+  } catch (error) {
+    console.error("Failed to store pending order before payment", error);
+    return NextResponse.json({ error: "order_storage_unavailable" }, { status: 502 });
+  }
+
   // getSiteUrl() throws when the site URL is unconfigured in production; it shares this
   // try/catch with createHostedPayment so that case degrades to the same friendly 502
   // rather than an unhandled exception.
   try {
-    const redirectUrl = `${getSiteUrl()}/order/confirmation?order=${encodedOrder}`;
+    const redirectUrl = `${getSiteUrl()}/order/confirmation?ref=${txnRef}`;
     const { paymentUrl } = await createHostedPayment({
       txnRef,
       amountBhd: totalBhd,

@@ -26,7 +26,7 @@ npm run typecheck # TypeScript check
 | `RESEND_FROM_EMAIL` | Verified sending address (e.g. `orders@peepandbeyond.com`). |
 | `RESEND_AUDIENCE_ID` | The Resend Audience used for the marketing newsletter list. |
 | `OWNER_NOTIFICATION_EMAIL` | Where order notifications are sent. |
-| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV credentials, for the story-language stock counter and payment idempotency lock. Auto-populated by Vercel when you provision a KV database and link it to this project — you usually don't set these by hand. |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | **Required for Oreem card checkout (physical and digital) to work at all.** Vercel KV credentials, used to store each pending order server-side (keyed by a short reference) before sending the customer to pay, and to check its status afterward — the payment provider's own redirect back to the site can only carry a short reference reliably, not the full order details. Also used for the story-language stock counter and payment idempotency lock. Auto-populated by Vercel when you provision a KV database and link it to this project — you usually don't set these by hand. Without this, the Oreem "start payment" step fails immediately with a clear error (no charge happens) rather than silently losing the order after payment. |
 | `NEXT_PUBLIC_SITE_URL` | The deployed site's own URL (e.g. `https://peepandbeyond.vercel.app` or your custom domain), used to build Oreem's `redirect_url`. **Required in production** — the card-payment route refuses to create a payment session (returns a friendly error) rather than redirect a paying customer to `localhost`. Falls back to `https://$VERCEL_URL` when Vercel provides it. |
 | `OWNER_WHATSAPP_NUMBER` | *Optional, blank by default.* The shop owner's WhatsApp contact — either a plain phone number in international digits (e.g. `97333001122`), **or** a full WhatsApp Business short link (e.g. `https://wa.me/message/NOEVIMNTTYKVO1`, generated under WhatsApp Business → Settings → Business tools → Short link) — both formats work. Currently set to Peep & beyond's business number. When set, a paid-order confirmation page shows a one-tap "message us on WhatsApp" button pre-filled with the order's reference number. When blank, the page degrades gracefully and tells the customer to confirm via Instagram `@peepandbeyond` instead — nothing breaks either way. |
 | `DIGITAL_ORDER_SECRET` | **Required for the Digital Products feature.** HMAC-SHA256 signing key for the digital order payload that round-trips through the customer's browser via the `order` URL param — without it, a customer could edit which topic/bundle they claim to have paid for. Generate a real random value, e.g. `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, and set it in Vercel's project environment variables before this feature can work in production. Rotating this value invalidates every in-flight (unpaid or not-yet-downloaded) digital order link. |
@@ -87,9 +87,10 @@ page, the order email, and the stock decrement all behave before pointing custom
 - **No user accounts/login anywhere** — guest checkout only, by design (this replaces an
   earlier prototype whose checkout was broken specifically because it silently required a
   login).
-- **No database** except the two advisory Vercel KV uses above — everything else is
-  stateless or client-side (cart in `localStorage`, language/currency preference in
-  `localStorage`).
+- **No database** except Vercel KV, used for: pending-order storage between Oreem
+  checkout and confirmation (required — see the env var table above), the story-language
+  stock counter, and the payment idempotency lock. Everything else is stateless or
+  client-side (cart in `localStorage`, language/currency preference in `localStorage`).
 - **Server always recomputes price and shipping** — the client's cart is never trusted for
   the amount actually charged or emailed.
 - Full design spec: `docs/superpowers/specs/2026-08-16-peep-and-beyond-website-design.md`.

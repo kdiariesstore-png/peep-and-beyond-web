@@ -1,5 +1,6 @@
-import { decodeOrderPayload } from "../../../lib/order/order-payload";
+import type { PendingOrderPayload } from "../../../lib/order/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
+import { getPendingOrder } from "../../../lib/order/pending-order-store";
 import { verifyTransaction, type VerifyTransactionResult } from "../../../lib/payments/oreem-client";
 import {
   sendOrderNotificationEmail,
@@ -38,11 +39,17 @@ const INSTAGRAM_HANDLE = "@peepandbeyond";
 interface ConfirmationPageProps {
   searchParams: {
     method?: string;
-    order?: string;
+    ref?: string;
     status?: string;
     transaction_reference?: string;
   };
 }
+
+// Oreem only reliably echoes back what we hand it as txnRef, in exactly the shape we
+// generated it in (app/api/orders/oreem/route.ts's `peep_${randomUUID()}`). Validating
+// the shape before using it as a KV lookup key is defence in depth, not a security
+// boundary on its own — @vercel/kv's client doesn't build raw query strings from it.
+const TXN_REF_PATTERN = /^peep_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export default async function OrderConfirmationPage({ searchParams }: ConfirmationPageProps) {
   if (searchParams.method === "iban") {
@@ -55,20 +62,26 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
     );
   }
 
-  const encodedOrder = searchParams.order;
-  if (!encodedOrder) {
+  const txnRef = searchParams.ref;
+  if (!txnRef || !TXN_REF_PATTERN.test(txnRef)) {
     return (
       <OrderConfirmationMessage success={false} title="لا يوجد طلب لعرضه" body="" />
     );
   }
 
-  const payload = decodeOrderPayload(encodedOrder);
+  let payload: PendingOrderPayload | null;
+  try {
+    payload = await getPendingOrder<PendingOrderPayload>(txnRef);
+  } catch (error) {
+    console.error("Failed to read pending order", error);
+    payload = null;
+  }
   if (!payload) {
     return (
       <OrderConfirmationMessage
         success={false}
-        title="تعذر قراءة تفاصيل الطلب"
-        body="حاول العودة للمتجر والطلب مرة أخرى."
+        title="تعذر العثور على تفاصيل الطلب"
+        body={`قد يكون الرابط انتهت صلاحيته. إذا تم خصم مبلغ من بطاقتك، لا تدفعي مرة أخرى — تواصلي معنا عبر انستقرام ${INSTAGRAM_HANDLE} مع ذكر رقم المرجع: ${txnRef}.`}
       />
     );
   }

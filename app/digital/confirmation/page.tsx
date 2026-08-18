@@ -1,5 +1,10 @@
-import { decodeDigitalOrderPayload, computeTrustedDigitalTotal } from "../../../lib/digital/order-payload";
+import {
+  encodeDigitalOrderPayload,
+  computeTrustedDigitalTotal,
+  type DigitalPendingOrderPayload,
+} from "../../../lib/digital/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
+import { getPendingOrder } from "../../../lib/order/pending-order-store";
 import { verifyTransaction } from "../../../lib/payments/oreem-client";
 import {
   sendDigitalOrderNotificationEmail,
@@ -33,9 +38,16 @@ const INSTAGRAM_HANDLE = "@peepandbeyond";
 
 interface ConfirmationPageProps {
   searchParams: {
-    order?: string;
+    ref?: string;
   };
 }
+
+// Oreem only reliably echoes back what we hand it as txnRef, in exactly the shape we
+// generated it in (app/api/orders/digital-oreem/route.ts's `peepdigi_${randomUUID()}`).
+// Validating the shape before using it as a KV lookup key is defence in depth, not a
+// security boundary on its own — @vercel/kv's client doesn't build raw query strings
+// from it, so there's no injection risk either way.
+const TXN_REF_PATTERN = /^peepdigi_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // Expands the purchased items into a flat list of {topicId, language} download entries,
 // unrolling any "digital-bundle" line into its 7 underlying topics.
@@ -56,18 +68,24 @@ function resolveDownloads(
 }
 
 export default async function DigitalConfirmationPage({ searchParams }: ConfirmationPageProps) {
-  const encodedOrder = searchParams.order;
-  if (!encodedOrder) {
+  const txnRef = searchParams.ref;
+  if (!txnRef || !TXN_REF_PATTERN.test(txnRef)) {
     return <OrderConfirmationMessage success={false} title="لا يوجد طلب لعرضه" body="" />;
   }
 
-  const payload = decodeDigitalOrderPayload(encodedOrder);
+  let payload: DigitalPendingOrderPayload | null;
+  try {
+    payload = await getPendingOrder<DigitalPendingOrderPayload>(txnRef);
+  } catch (error) {
+    console.error("Failed to read pending digital order", error);
+    payload = null;
+  }
   if (!payload) {
     return (
       <OrderConfirmationMessage
         success={false}
-        title="تعذر قراءة تفاصيل الطلب"
-        body="حاول العودة للمتجر والطلب مرة أخرى."
+        title="تعذر العثور على تفاصيل الطلب"
+        body={`قد يكون الرابط انتهت صلاحيته. إذا تم خصم مبلغ من بطاقتك، تواصلي معنا عبر انستقرام ${INSTAGRAM_HANDLE} مع ذكر رقم المرجع: ${txnRef}.`}
       />
     );
   }
@@ -181,6 +199,11 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
     }
   }
 
+  // Regenerated fresh from the KV-fetched payload for the download links below — these
+  // links are clicked directly by the customer's own browser and never pass through
+  // Oreem's redirect, so they aren't subject to the truncation bug; the signature still
+  // protects them from being hand-edited to claim a different product.
+  const encodedOrder = encodeDigitalOrderPayload(payload);
   const downloads = resolveDownloads(payload.items);
   const successBody = ownerEmailSucceeded
     ? "شكرًا لتسوقك من Peep & beyond — وصلك تأكيد على بريدك الإلكتروني، وروابط التحميل بالأسفل."
