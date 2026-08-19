@@ -12,7 +12,7 @@ describe("buildCartItem", () => {
     });
 
     expect(item.customization.childName).toBe("Omar");
-    expect(item.unitPriceBhd).toBe(21.9);
+    expect(item.unitPriceBhd).toBe(24.9);
     expect(item.quantity).toBe(1);
     expect(typeof item.id).toBe("string");
     expect(item.id.length).toBeGreaterThan(0);

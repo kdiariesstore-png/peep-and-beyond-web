@@ -20,8 +20,11 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
           {t.heroTitleLine2}
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-brown/80 md:mx-0">{t.heroSubtitle}</p>
-        <p className="mt-6 text-2xl font-semibold">
-          {formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}
+        <p className="mt-6 flex items-baseline justify-center gap-3 md:justify-start">
+          <span className="text-2xl font-semibold">{formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}</span>
+          <span className="text-lg text-brown/50 line-through">
+            {formatMoney(PEEP_BOX_PRODUCT.originalPriceBhd, currency)}
+          </span>
         </p>
         <div className="mt-6 flex justify-center gap-4 md:justify-start">
           <button

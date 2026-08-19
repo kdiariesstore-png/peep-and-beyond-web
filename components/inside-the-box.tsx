@@ -35,8 +35,11 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-2xl font-semibold">
-            {formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}
+          <p className="mt-6 flex items-baseline gap-3">
+            <span className="text-2xl font-semibold">{formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}</span>
+            <span className="text-lg text-brown/50 line-through">
+              {formatMoney(PEEP_BOX_PRODUCT.originalPriceBhd, currency)}
+            </span>
           </p>
           <button
             type="button"

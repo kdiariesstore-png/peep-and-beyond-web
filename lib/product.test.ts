@@ -2,8 +2,9 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { PEEP_BOX_PRODUCT, createDefaultCustomization, isPhysicalBoxAvailable } from "./product";
 
 describe("PEEP_BOX_PRODUCT", () => {
-  it("has the correct price", () => {
-    expect(PEEP_BOX_PRODUCT.priceBhd).toBe(21.9);
+  it("has the correct launch price and original price", () => {
+    expect(PEEP_BOX_PRODUCT.priceBhd).toBe(24.9);
+    expect(PEEP_BOX_PRODUCT.originalPriceBhd).toBe(28.9);
   });
 
   it("lists eight box contents in Arabic and English, kept in sync", () => {

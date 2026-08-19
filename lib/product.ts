@@ -4,7 +4,12 @@ export const PEEP_BOX_PRODUCT = {
   id: "peep-box",
   nameAr: "بوكس بيب الكامل",
   nameEn: "The Complete Peep Box",
-  priceBhd: 21.9,
+  // The actual charged price — cart, checkout, and server-side total recomputation all
+  // read this field, so it alone controls what a customer pays.
+  priceBhd: 24.9,
+  // Display-only: the crossed-out "was" price next to the launch price above. Never read
+  // by cart/checkout/payment logic.
+  originalPriceBhd: 28.9,
   contents: {
     ar: [
       "بزل تعليمي يزيد من ثقة الطفل بنفسه مع كل قطعة",
