@@ -19,14 +19,12 @@ export function ProductCard({
   const [language, setLanguage] = useState<DigitalLanguage>(locale);
 
   const name = locale === "ar" ? product.nameAr : product.nameEn;
-  const description = locale === "ar" ? product.descriptionAr : product.descriptionEn;
   const whatsInside = locale === "ar" ? product.whatsInsideAr : product.whatsInsideEn;
 
   return (
     <article className="flex flex-col rounded-xl border border-brown/10 bg-white/60 p-5">
       <h3 className="text-lg font-semibold">{name}</h3>
-      <p className="mt-2 text-sm text-brown/70">{description}</p>
-      <div className="mt-3 flex-1 rounded-lg bg-cream/60 p-3">
+      <div className="mt-2 flex-1 rounded-lg bg-cream/60 p-3">
         <p className="text-xs font-semibold text-brown/60">{t.digitalWhatsInsideHeading}</p>
         <p className="mt-1 text-sm text-brown/70">{whatsInside}</p>
       </div>
