@@ -26,6 +26,13 @@ describe("DIGITAL_PRODUCTS", () => {
   it("includes the school-season-toolkit topic", () => {
     expect(DIGITAL_PRODUCTS.some((p) => p.id === "school-season-toolkit")).toBe(true);
   });
+
+  it("has a non-empty whatsInside paragraph in both languages for every topic", () => {
+    for (const product of DIGITAL_PRODUCTS) {
+      expect(product.whatsInsideAr.length).toBeGreaterThan(0);
+      expect(product.whatsInsideEn.length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("DIGITAL_BUNDLE", () => {
