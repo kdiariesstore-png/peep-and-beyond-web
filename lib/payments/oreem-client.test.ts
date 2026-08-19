@@ -1,5 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { createHostedPayment, verifyTransaction, fetchTransactionByOreemReference } from "./oreem-client";
+import {
+  createHostedPayment,
+  verifyTransaction,
+  fetchTransactionByOreemReference,
+  fetchShippingRates,
+} from "./oreem-client";
 
 beforeEach(() => {
   process.env.OREEM_API_TOKEN = "test-token";
@@ -134,5 +139,69 @@ describe("fetchTransactionByOreemReference", () => {
     );
 
     await expect(fetchTransactionByOreemReference("AP-unknown")).rejects.toThrow(/status 404/);
+  });
+});
+
+describe("fetchShippingRates", () => {
+  it("posts a Bahrain-origin request and returns options sorted cheapest-first", async () => {
+    const providerBody = {
+      status: "success",
+      data: [
+        {
+          delivery_service: {
+            name: "Aramex Economy",
+            code: "aramex_economy",
+            rate: { currency: "BHD", value: 8.5 },
+          },
+        },
+        {
+          delivery_service: {
+            name: "SMSA EXPRESS (XS4ARABIA)",
+            code: "smsa_xs4",
+            rate: { currency: "BHD", value: 19.2 },
+          },
+        },
+      ],
+    };
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(providerBody) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchShippingRates({
+      destCountryCode: "SA",
+      destCity: "Jeddah",
+      chargeableWeightKg: 1.96,
+    });
+
+    expect(result).toEqual([
+      { serviceName: "Aramex Economy", serviceCode: "aramex_economy", amountBhd: 8.5 },
+      { serviceName: "SMSA EXPRESS (XS4ARABIA)", serviceCode: "smsa_xs4", amountBhd: 19.2 },
+    ]);
+    const [url, options] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://app.oreem.com/api/v1/shipments/rates");
+    const body = JSON.parse(options.body);
+    expect(body.origin.country_code).toBe("BH");
+    expect(body.dest).toEqual({ country_code: "SA", city_name: "Jeddah", postal_code: null });
+    expect(body.parcels).toEqual([{ qty: 1, item_qty: 1, chargeable_weight: "1.960", weight_unit: "kg" }]);
+  });
+
+  it("returns an empty array when Oreem has no rated service for the destination", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ status: "success", data: [] }) })
+    );
+
+    const result = await fetchShippingRates({ destCountryCode: "XX", chargeableWeightKg: 1 });
+    expect(result).toEqual([]);
+  });
+
+  it("throws a clear error when Oreem responds with a non-ok status", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500, json: () => Promise.resolve({}) })
+    );
+
+    await expect(
+      fetchShippingRates({ destCountryCode: "SA", chargeableWeightKg: 1 })
+    ).rejects.toThrow(/status 500/);
   });
 });

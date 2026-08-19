@@ -1,17 +1,7 @@
 "use client";
 
 import type { BuyerDetails } from "../../lib/types";
-
-const COUNTRIES = [
-  { code: "BH", labelAr: "البحرين" },
-  { code: "SA", labelAr: "السعودية" },
-  { code: "AE", labelAr: "الإمارات" },
-  { code: "KW", labelAr: "الكويت" },
-  { code: "OM", labelAr: "عُمان" },
-  { code: "QA", labelAr: "قطر" },
-  { code: "GB", labelAr: "United Kingdom" },
-  { code: "US", labelAr: "United States" },
-];
+import { COUNTRIES } from "../../lib/countries";
 
 export function BuyerForm({
   value,

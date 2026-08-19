@@ -1,3 +1,15 @@
+export interface ShippingRateParams {
+  destCountryCode: string;
+  destCity?: string;
+  chargeableWeightKg: number;
+}
+
+export interface ShippingRateOption {
+  serviceName: string;
+  serviceCode: string;
+  amountBhd: number;
+}
+
 export interface CreateHostedPaymentParams {
   txnRef: string;
   amountBhd: number;
@@ -116,6 +128,70 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   const amountBhd = Number.isFinite(parsedAmount) ? parsedAmount : undefined;
 
   return { verified, status, amountBhd };
+}
+
+// Calls Oreem's shipping-rate calculator (POST /api/v1/shipments/rates) for a single
+// parcel shipped from our Bahrain origin to the given destination. Oreem only exports
+// from Bahrain today, so origin.country_code is always "BH"; SHIP_ORIGIN_CITY is optional
+// because the docs don't mark origin.city_name as required and rates appear to be priced
+// by country pair. delivery_code is omitted (not a specific carrier) so Oreem returns every
+// service it has rates for; the caller decides which one to use (e.g. the cheapest).
+// Returns [] when Oreem has no rated service for that destination — callers should treat
+// that the same as "no rate available" (matches the existing getShippingRate() null case).
+export async function fetchShippingRates(params: ShippingRateParams): Promise<ShippingRateOption[]> {
+  const response = await fetch(`${getBaseUrl()}/api/v1/shipments/rates`, {
+    method: "POST",
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      origin: {
+        country_code: "BH",
+        city_name: process.env.SHIP_ORIGIN_CITY ?? null,
+        postal_code: null,
+      },
+      dest: {
+        country_code: params.destCountryCode,
+        city_name: params.destCity ?? null,
+        postal_code: null,
+      },
+      parcels: [
+        {
+          qty: 1,
+          item_qty: 1,
+          chargeable_weight: params.chargeableWeightKg.toFixed(3),
+          weight_unit: "kg",
+        },
+      ],
+      delivery_code: null,
+      delivery_method_code: null,
+      cod: false,
+      currency: "BHD",
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Oreem shipping-rates request failed with status ${response.status}`);
+  }
+
+  const json = await response.json();
+  const rows = Array.isArray(json?.data) ? json.data : [];
+  const options: ShippingRateOption[] = [];
+  for (const row of rows) {
+    const service = row?.delivery_service;
+    const amount = service?.rate?.value;
+    if (typeof amount === "number" && Number.isFinite(amount) && typeof service?.code === "string") {
+      options.push({
+        serviceName: typeof service?.name === "string" ? service.name : service.code,
+        serviceCode: service.code,
+        amountBhd: amount,
+      });
+    }
+  }
+  return options.sort((a, b) => a.amountBhd - b.amountBhd);
 }
 
 // The counterpart to verifyTransaction: looks a transaction up by Oreem's OWN transaction

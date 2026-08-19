@@ -2,17 +2,7 @@
 
 import type { DigitalBuyerDetails } from "../../lib/digital/types";
 import { useLocale } from "../../lib/i18n/locale-context";
-
-const COUNTRIES = [
-  { code: "BH", labelAr: "البحرين" },
-  { code: "SA", labelAr: "السعودية" },
-  { code: "AE", labelAr: "الإمارات" },
-  { code: "KW", labelAr: "الكويت" },
-  { code: "OM", labelAr: "عُمان" },
-  { code: "QA", labelAr: "قطر" },
-  { code: "GB", labelAr: "United Kingdom" },
-  { code: "US", labelAr: "United States" },
-];
+import { COUNTRIES } from "../../lib/countries";
 
 export function DigitalBuyerForm({
   value,
@@ -21,7 +11,7 @@ export function DigitalBuyerForm({
   value: DigitalBuyerDetails;
   onChange: (value: DigitalBuyerDetails) => void;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   function update<K extends keyof DigitalBuyerDetails>(key: K, fieldValue: DigitalBuyerDetails[K]) {
     onChange({ ...value, [key]: fieldValue });
@@ -62,7 +52,7 @@ export function DigitalBuyerForm({
         >
           {COUNTRIES.map((country) => (
             <option key={country.code} value={country.code}>
-              {country.labelAr}
+              {locale === "ar" ? country.labelAr : country.labelEn}
             </option>
           ))}
         </select>
