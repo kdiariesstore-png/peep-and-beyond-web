@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { calculateOrderTotal } from "../../../../lib/order/order-total";
+import { calculateOrderTotalWithLiveShipping } from "../../../../lib/order/order-total";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
 import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
@@ -46,7 +46,11 @@ export async function POST(request: NextRequest) {
 
   items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
 
-  const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+  const { subtotalBhd, shippingBhd, totalBhd } = await calculateOrderTotalWithLiveShipping(
+    items,
+    buyer.country,
+    buyer.city
+  );
   if (shippingBhd === null || totalBhd === null) {
     return NextResponse.json({ error: "shipping_not_available" }, { status: 400 });
   }

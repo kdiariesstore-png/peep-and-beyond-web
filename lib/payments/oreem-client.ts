@@ -2,6 +2,8 @@ export interface ShippingRateParams {
   destCountryCode: string;
   destCity?: string;
   chargeableWeightKg: number;
+  // Number of identical parcels (e.g. box quantity in the order). Defaults to 1.
+  qty?: number;
 }
 
 export interface ShippingRateOption {
@@ -160,7 +162,7 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
       },
       parcels: [
         {
-          qty: 1,
+          qty: params.qty ?? 1,
           item_qty: 1,
           chargeable_weight: params.chargeableWeightKg.toFixed(3),
           weight_unit: "kg",

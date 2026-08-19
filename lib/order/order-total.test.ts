@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { calculateOrderTotal } from "./order-total";
+import { describe, expect, it, vi, afterEach } from "vitest";
+import { calculateOrderTotal, calculateOrderTotalWithLiveShipping } from "./order-total";
+import * as oreemClient from "../payments/oreem-client";
 import type { CartItem } from "../types";
 
 const item: CartItem = {
@@ -34,5 +35,32 @@ describe("calculateOrderTotal", () => {
     const result = calculateOrderTotal([], "BH");
     expect(result.subtotalBhd).toBe(0);
     expect(result.totalBhd).toBe(2.0);
+  });
+});
+
+describe("calculateOrderTotalWithLiveShipping", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("uses the flat Bahrain rate without calling Oreem", async () => {
+    const result = await calculateOrderTotalWithLiveShipping([item], "BH", "Manama");
+    expect(result).toEqual({ subtotalBhd: 43.8, shippingBhd: 2.0, totalBhd: 45.8 });
+  });
+
+  it("resolves international shipping from the live Oreem quote", async () => {
+    vi.spyOn(oreemClient, "fetchShippingRates").mockResolvedValue([
+      { serviceName: "Aramex Economy", serviceCode: "aramex_economy", amountBhd: 8.5 },
+    ]);
+
+    const result = await calculateOrderTotalWithLiveShipping([item], "SA", "Jeddah");
+    expect(result).toEqual({ subtotalBhd: 43.8, shippingBhd: 8.5, totalBhd: 52.3 });
+  });
+
+  it("leaves shipping and total null when Oreem has no rate for the destination", async () => {
+    vi.spyOn(oreemClient, "fetchShippingRates").mockResolvedValue([]);
+
+    const result = await calculateOrderTotalWithLiveShipping([item], "ZZ", undefined);
+    expect(result).toEqual({ subtotalBhd: 43.8, shippingBhd: null, totalBhd: null });
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../../lib/cart/cart-context";
 import { useCurrency } from "../../lib/currency-context";
@@ -32,8 +32,44 @@ export default function CheckoutPage() {
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // undefined = not yet quoted (still typing / Bahrain doesn't need this), null = quoted
+  // but unavailable for this destination, number = the resolved live rate.
+  const [liveShippingBhd, setLiveShippingBhd] = useState<number | null | undefined>(undefined);
+  const [shippingLoading, setShippingLoading] = useState(false);
 
-  const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+  const { subtotalBhd, shippingBhd: bahrainShippingBhd } = calculateOrderTotal(items, buyer.country);
+  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  const isBahrain = buyer.country === "BH";
+  const shippingBhd = isBahrain ? bahrainShippingBhd : (liveShippingBhd ?? null);
+  const totalBhd = shippingBhd === null ? null : subtotalBhd + shippingBhd;
+
+  // International shipping is quoted live from Oreem, keyed on country/city/box count.
+  // Debounced so typing a city doesn't fire a request per keystroke.
+  useEffect(() => {
+    if (isBahrain || boxQty === 0) {
+      setLiveShippingBhd(undefined);
+      setShippingLoading(false);
+      return;
+    }
+    setLiveShippingBhd(undefined);
+    setShippingLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/shipping/quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ countryCode: buyer.country, city: buyer.city, boxQty }),
+        });
+        const json = await response.json();
+        setLiveShippingBhd(response.ok && typeof json.shippingBhd === "number" ? json.shippingBhd : null);
+      } catch {
+        setLiveShippingBhd(null);
+      } finally {
+        setShippingLoading(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [isBahrain, buyer.country, buyer.city, boxQty]);
 
   function handleReceiptChange(file: File | null) {
     setReceipt(file);
@@ -114,7 +150,7 @@ export default function CheckoutPage() {
         {submitError && <p className="text-red-600">{submitError}</p>}
         <button
           type="submit"
-          disabled={submitting || items.length === 0}
+          disabled={submitting || shippingLoading || items.length === 0}
           className="w-full rounded-full bg-leaf py-3 text-white disabled:opacity-50"
         >
           تأكيد الطلب
@@ -125,7 +161,12 @@ export default function CheckoutPage() {
         <h2 className="text-lg font-bold">ملخص الطلب</h2>
         <p className="mt-4">{formatMoney(subtotalBhd, currency)}</p>
         <p className="text-sm text-brown/70">
-          الشحن: {shippingBhd === null ? "يُحدَّد لاحقًا" : formatMoney(shippingBhd, currency)}
+          الشحن:{" "}
+          {shippingLoading
+            ? "جارٍ حساب الشحن..."
+            : shippingBhd === null
+              ? "الشحن غير متاح حاليًا لهذه الدولة — تواصلي معنا"
+              : formatMoney(shippingBhd, currency)}
         </p>
         <p className="mt-2 font-semibold">
           الإجمالي: {totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}

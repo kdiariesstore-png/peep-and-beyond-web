@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { calculateOrderTotal } from "../../../../lib/order/order-total";
+import { calculateOrderTotalWithLiveShipping } from "../../../../lib/order/order-total";
 import { validateReceiptFile } from "../../../../lib/order/validate-receipt";
 import {
   sendOrderNotificationEmail,
@@ -63,7 +63,11 @@ export async function POST(request: NextRequest) {
 
   items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
 
-  const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+  const { subtotalBhd, shippingBhd, totalBhd } = await calculateOrderTotalWithLiveShipping(
+    items,
+    buyer.country,
+    buyer.city
+  );
 
   const notes: string[] = [];
   for (const item of items) {

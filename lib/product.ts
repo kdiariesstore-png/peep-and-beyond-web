@@ -1,4 +1,5 @@
 import type { BoxCustomization } from "./types";
+import { computeChargeableWeightKg } from "./payments/chargeable-weight";
 
 export const PEEP_BOX_PRODUCT = {
   id: "peep-box",
@@ -33,6 +34,23 @@ export const PEEP_BOX_PRODUCT = {
     ],
   },
 } as const;
+
+// Measured by the owner: actual packaged weight, and the outer package's
+// length/width/height (cm) as shipped (bubble wrap + box). Used to compute the
+// chargeable weight Oreem's shipping-rate calculator bills per box.
+const PEEP_BOX_PACKAGE = {
+  actualWeightKg: 1.1,
+  lengthCm: 34,
+  widthCm: 35,
+  heightCm: 14,
+} as const;
+
+export const PEEP_BOX_CHARGEABLE_WEIGHT_KG = computeChargeableWeightKg(
+  PEEP_BOX_PACKAGE.actualWeightKg,
+  PEEP_BOX_PACKAGE.lengthCm,
+  PEEP_BOX_PACKAGE.widthCm,
+  PEEP_BOX_PACKAGE.heightCm
+);
 
 // Lets the owner temporarily close physical Peep Box ordering (e.g. a soft launch that
 // opens with digital products only) without a code change: set

@@ -1,5 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { PEEP_BOX_PRODUCT, createDefaultCustomization, isPhysicalBoxAvailable } from "./product";
+import {
+  PEEP_BOX_PRODUCT,
+  PEEP_BOX_CHARGEABLE_WEIGHT_KG,
+  createDefaultCustomization,
+  isPhysicalBoxAvailable,
+} from "./product";
 
 describe("PEEP_BOX_PRODUCT", () => {
   it("has the correct launch price and original price", () => {
@@ -10,6 +15,13 @@ describe("PEEP_BOX_PRODUCT", () => {
   it("lists eight box contents in Arabic and English, kept in sync", () => {
     expect(PEEP_BOX_PRODUCT.contents.ar).toHaveLength(8);
     expect(PEEP_BOX_PRODUCT.contents.en).toHaveLength(8);
+  });
+});
+
+describe("PEEP_BOX_CHARGEABLE_WEIGHT_KG", () => {
+  it("uses the volumetric weight from the 34x35x14 package, since it exceeds the 1.1kg actual weight", () => {
+    // (34*35*14)/5000 = 3.332kg
+    expect(PEEP_BOX_CHARGEABLE_WEIGHT_KG).toBeCloseTo(3.332, 5);
   });
 });
 
