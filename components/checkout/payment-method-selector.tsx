@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { PaymentMethod } from "../../lib/types";
 import { isGccCountry } from "../../lib/countries";
 
@@ -8,6 +9,8 @@ const RECEIPT_ERROR_MESSAGES: Record<string, string> = {
   receipt_invalid_type: "نوع الملف غير مدعوم — استخدم JPG أو PNG أو WebP أو PDF.",
   receipt_too_large: "حجم الملف كبير جدًا — الحد الأقصى 4 ميغابايت.",
 };
+
+const IBAN = "BH04BBKU00200004090874";
 
 export function PaymentMethodSelector({
   method,
@@ -23,6 +26,17 @@ export function PaymentMethodSelector({
   onReceiptChange: (file: File | null) => void;
 }) {
   const isLocal = isGccCountry(countryCode);
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopyIban() {
+    try {
+      await navigator.clipboard.writeText(IBAN);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be denied by the browser; the IBAN is still selectable text.
+    }
+  }
 
   return (
     <fieldset className="space-y-3">
@@ -54,9 +68,19 @@ export function PaymentMethodSelector({
       {method === "iban" && (
         <div className="rounded border border-brown/20 p-4">
           <strong>تحويل بنكي (IBAN)</strong>
-          <p className="text-sm text-brown/70">
-            حوّل إلى BH04BBKU00200004090874 ثم أرفق الإيصال.
-          </p>
+          <p className="text-sm text-brown/70">حوّل إلى الرقم التالي ثم أرفق الإيصال:</p>
+          <div className="mt-1 flex items-center gap-2">
+            <code className="rounded bg-brown/5 px-2 py-1 text-sm" dir="ltr">
+              {IBAN}
+            </code>
+            <button
+              type="button"
+              onClick={handleCopyIban}
+              className="rounded-full border border-brown/20 px-3 py-1 text-xs text-brown"
+            >
+              {copied ? "تم النسخ ✓" : "نسخ"}
+            </button>
+          </div>
           <p className="mt-2 text-xs text-brown/60">
             {isLocal
               ? "التحويل داخل البحرين يصل عادة خلال نفس اليوم أو اليوم التالي."
