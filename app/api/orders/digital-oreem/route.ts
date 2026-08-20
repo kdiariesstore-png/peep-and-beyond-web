@@ -18,6 +18,7 @@ const VALID_IDS = new Set<DigitalProductId>([
   "starting-school",
   "child-hits",
   "school-season-toolkit",
+  "activity-book",
   "digital-bundle",
   "school-season-bundle",
 ]);

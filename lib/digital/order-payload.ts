@@ -25,6 +25,7 @@ const VALID_IDS = new Set([
   "starting-school",
   "child-hits",
   "school-season-toolkit",
+  "activity-book",
   "digital-bundle",
   "school-season-bundle",
 ]);

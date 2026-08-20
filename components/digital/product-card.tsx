@@ -16,7 +16,10 @@ export function ProductCard({
 }) {
   const { locale, t } = useLocale();
   const { currency } = useCurrency();
-  const [language, setLanguage] = useState<DigitalLanguage>(locale);
+  const availableLanguages = product.availableLanguages ?? ["ar", "en"];
+  const [language, setLanguage] = useState<DigitalLanguage>(
+    availableLanguages.includes(locale) ? locale : availableLanguages[0]
+  );
 
   const name = locale === "ar" ? product.nameAr : product.nameEn;
   const whatsInside = locale === "ar" ? product.whatsInsideAr : product.whatsInsideEn;
@@ -30,24 +33,26 @@ export function ProductCard({
       </div>
       <p className="mt-4 font-semibold">{formatMoney(product.priceBhd, currency)}</p>
 
-      <fieldset className="mt-3">
-        <legend className="text-sm text-brown/60">{t.digitalLanguageChoiceLabel}</legend>
-        <div className="mt-1 flex gap-2">
-          {(["ar", "en"] as const).map((lang) => (
-            <button
-              type="button"
-              key={lang}
-              aria-pressed={language === lang}
-              onClick={() => setLanguage(lang)}
-              className={`rounded-full border px-3 py-1 text-sm ${
-                language === lang ? "border-leaf bg-leaf text-white" : "border-brown/20 bg-white text-brown"
-              }`}
-            >
-              {lang === "ar" ? t.languageArabic : t.languageEnglish}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      {availableLanguages.length > 1 && (
+        <fieldset className="mt-3">
+          <legend className="text-sm text-brown/60">{t.digitalLanguageChoiceLabel}</legend>
+          <div className="mt-1 flex gap-2">
+            {availableLanguages.map((lang) => (
+              <button
+                type="button"
+                key={lang}
+                aria-pressed={language === lang}
+                onClick={() => setLanguage(lang)}
+                className={`rounded-full border px-3 py-1 text-sm ${
+                  language === lang ? "border-leaf bg-leaf text-white" : "border-brown/20 bg-white text-brown"
+                }`}
+              >
+                {lang === "ar" ? t.languageArabic : t.languageEnglish}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <button
         type="button"

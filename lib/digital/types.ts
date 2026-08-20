@@ -6,7 +6,8 @@ export type DigitalTopicId =
   | "sleep-bedtime"
   | "starting-school"
   | "child-hits"
-  | "school-season-toolkit";
+  | "school-season-toolkit"
+  | "activity-book";
 
 export type DigitalBundleId = "digital-bundle" | "school-season-bundle";
 

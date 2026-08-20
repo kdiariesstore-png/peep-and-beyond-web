@@ -9,12 +9,19 @@ import {
 } from "./catalog";
 
 describe("DIGITAL_PRODUCTS", () => {
-  it("has exactly 8 topics, each priced at 2.990 BHD with Arabic and English names", () => {
-    expect(DIGITAL_PRODUCTS).toHaveLength(8);
+  it("has exactly 9 topics, each with Arabic and English names", () => {
+    expect(DIGITAL_PRODUCTS).toHaveLength(9);
     for (const product of DIGITAL_PRODUCTS) {
-      expect(product.priceBhd).toBe(2.99);
       expect(product.nameAr.length).toBeGreaterThan(0);
       expect(product.nameEn.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("prices the 7 general-topic guides plus the toolkit at 2.990 BHD", () => {
+    const flatPriced = DIGITAL_PRODUCTS.filter((p) => p.id !== "activity-book");
+    expect(flatPriced).toHaveLength(8);
+    for (const product of flatPriced) {
+      expect(product.priceBhd).toBe(2.99);
     }
   });
 
@@ -33,13 +40,27 @@ describe("DIGITAL_PRODUCTS", () => {
       expect(product.whatsInsideEn.length).toBeGreaterThan(0);
     }
   });
+
+  it("marks the activity book as English-only, priced at 3.900 BHD", () => {
+    const activityBook = DIGITAL_PRODUCTS.find((p) => p.id === "activity-book");
+    expect(activityBook?.priceBhd).toBe(3.9);
+    expect(activityBook?.availableLanguages).toEqual(["en"]);
+  });
+
+  it("leaves availableLanguages unset (both languages) for every other topic", () => {
+    for (const product of DIGITAL_PRODUCTS) {
+      if (product.id === "activity-book") continue;
+      expect(product.availableLanguages).toBeUndefined();
+    }
+  });
 });
 
 describe("DIGITAL_BUNDLE", () => {
-  it("is priced at 13.990 BHD and includes the 7 general-topic guides, not the seasonal toolkit", () => {
+  it("is priced at 13.990 BHD and includes the 7 general-topic guides, not the seasonal toolkit or the activity book", () => {
     expect(DIGITAL_BUNDLE.priceBhd).toBe(13.99);
     expect(DIGITAL_BUNDLE.includes).toHaveLength(7);
     expect(DIGITAL_BUNDLE.includes).not.toContain("school-season-toolkit");
+    expect(DIGITAL_BUNDLE.includes).not.toContain("activity-book");
   });
 });
 
