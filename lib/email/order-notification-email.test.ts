@@ -97,4 +97,24 @@ describe("buildOrderEmailHtml", () => {
     const html = buildOrderEmailHtml({ ...data, notes: ["طلب مسبق: نفدت نسخ القصة العربية"] });
     expect(html).toContain("طلب مسبق: نفدت نسخ القصة العربية");
   });
+
+  it("prints the delivery address block with the full address and a human-readable country name", () => {
+    const html = buildOrderEmailHtml(data);
+    expect(html).toContain("عنوان التوصيل");
+    expect(html).toContain("شارع 10، مبنى 5");
+    expect(html).toContain("المنامة");
+    expect(html).toContain("البحرين");
+  });
+
+  it("includes per-item customization details for packing", () => {
+    const html = buildOrderEmailHtml(data);
+    expect(html).toContain("اسم الطفل: سارة");
+    expect(html).toContain("لون الكوب: وردي");
+    expect(html).toContain("بطاقة إهداء: لا");
+  });
+
+  it("falls back to the raw country code when it isn't a known ISO code", () => {
+    const html = buildOrderEmailHtml({ ...data, buyer: { ...data.buyer, country: "ZZ" } });
+    expect(html).toContain("ZZ");
+  });
 });
