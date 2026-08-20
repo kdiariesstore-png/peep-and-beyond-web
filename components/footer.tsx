@@ -63,6 +63,9 @@ export function Footer() {
         <a href="https://youtube.com/@peepbeyond" target="_blank" rel="noreferrer">
           YouTube
         </a>
+        <a href="https://wa.me/message/NOEVIMNTTYKVO1" target="_blank" rel="noreferrer">
+          WhatsApp
+        </a>
       </div>
       <p className="mt-6 text-xs text-cream/50">
         Peep &amp; beyond by Khadija AbdulRasool © 2026
