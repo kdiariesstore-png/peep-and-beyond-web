@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { LocaleProvider } from "../lib/i18n/locale-context";
 import { CurrencyProvider } from "../lib/currency-context";
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </CartProvider>
           </CurrencyProvider>
         </LocaleProvider>
+        <Analytics />
       </body>
     </html>
   );
