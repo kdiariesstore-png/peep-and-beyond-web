@@ -15,6 +15,8 @@ export interface DigitalProduct {
   // (every product so far has an -ar.pdf and an -en.pdf) — set this when a product only
   // ships in one language, so the product card doesn't offer a language that has no file.
   availableLanguages?: DigitalLanguage[];
+  // Optional cover image (path under /public) shown at the top of the product card.
+  coverImage?: string;
 }
 
 export interface DigitalBundle {
@@ -26,6 +28,21 @@ export interface DigitalBundle {
 }
 
 export const DIGITAL_PRODUCTS: DigitalProduct[] = [
+  {
+    id: "activity-book",
+    nameAr: "كتاب الأنشطة التحضيري",
+    nameEn: "Preschool Activity Book",
+    descriptionAr: "كتاب أنشطة تفاعلي باللغة الإنجليزية لتعليم طفلك الحروف والأرقام بطريقة ممتعة.",
+    descriptionEn:
+      "An interactive English-language activity book to help your child learn letters, numbers, and more through fun, hands-on pages.",
+    whatsInsideAr:
+      "كتاب باللغة الإنجليزية من 81 صفحة يضم أنشطة الحروف الأبجدية، والأرقام من 0 إلى 20، وتتبع الخطوط، والمتاهات، والتلوين، والمطابقة، والألغاز، وألعابًا ممتعة — مخصص للأطفال من سن 3 إلى 5 سنوات.",
+    whatsInsideEn:
+      "An 81-page English activity book: ABC letters, numbers 0–20, tracing, mazes, coloring, matching, quizzes, and fun games — designed for kids ages 3–5.",
+    priceBhd: 3.9,
+    availableLanguages: ["en"],
+    coverImage: "/images/activity-book-cover.png",
+  },
   {
     id: "picky-eating",
     nameAr: "الأكل الانتقائي",
@@ -123,20 +140,6 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     whatsInsideEn:
       "A 14-day gradual return-to-routine schedule, an age-by-age school supplies checklist, a gradual sleep-adjustment schedule, an age-by-age independence-skills schedule, a short section written for you (the parent) before the first day, a last-3-days checklist, and a set of social-skills conversation cards for making new friends.",
     priceBhd: 2.99,
-  },
-  {
-    id: "activity-book",
-    nameAr: "كتاب الأنشطة التحضيري",
-    nameEn: "Preschool Activity Book",
-    descriptionAr: "كتاب أنشطة تفاعلي باللغة الإنجليزية لتعليم طفلك الحروف والأرقام بطريقة ممتعة.",
-    descriptionEn:
-      "An interactive English-language activity book to help your child learn letters, numbers, and more through fun, hands-on pages.",
-    whatsInsideAr:
-      "كتاب باللغة الإنجليزية من 81 صفحة يضم أنشطة الحروف الأبجدية، والأرقام من 0 إلى 20، وتتبع الخطوط، والمتاهات، والتلوين، والمطابقة، والألغاز، وألعابًا ممتعة — مخصص للأطفال من سن 3 إلى 5 سنوات.",
-    whatsInsideEn:
-      "An 81-page English activity book: ABC letters, numbers 0–20, tracing, mazes, coloring, matching, quizzes, and fun games — designed for kids ages 3–5.",
-    priceBhd: 3.9,
-    availableLanguages: ["en"],
   },
 ];
 

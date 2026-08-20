@@ -53,9 +53,17 @@ export function Footer() {
       {status === "done" && <p className="mt-2 text-sm">تم الاشتراك بنجاح!</p>}
       {status === "error" && <p className="mt-2 text-sm">تعذر الاشتراك، حاول مرة أخرى.</p>}
 
-      <a href="https://instagram.com/peepandbeyond" className="mt-4 block text-sm">
-        @peepandbeyond
-      </a>
+      <div className="mt-4 flex justify-center gap-4 text-sm">
+        <a href="https://www.instagram.com/peepandbeyond" target="_blank" rel="noreferrer">
+          Instagram
+        </a>
+        <a href="https://www.tiktok.com/@thepeepversebyme" target="_blank" rel="noreferrer">
+          TikTok
+        </a>
+        <a href="https://youtube.com/@peepbeyond" target="_blank" rel="noreferrer">
+          YouTube
+        </a>
+      </div>
       <p className="mt-6 text-xs text-cream/50">
         Peep &amp; beyond by Khadija AbdulRasool © 2026
       </p>

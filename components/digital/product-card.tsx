@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { DigitalProduct } from "../../lib/digital/catalog";
 import type { DigitalLanguage } from "../../lib/digital/types";
 import { useLocale } from "../../lib/i18n/locale-context";
@@ -26,6 +27,15 @@ export function ProductCard({
 
   return (
     <article className="flex flex-col rounded-xl border border-brown/10 bg-white/60 p-5">
+      {product.coverImage && (
+        <Image
+          src={product.coverImage}
+          alt={name}
+          width={400}
+          height={518}
+          className="mb-3 w-full rounded-lg object-cover"
+        />
+      )}
       <h3 className="text-lg font-semibold">{name}</h3>
       <div className="mt-2 flex-1 rounded-lg bg-cream/60 p-3">
         <p className="text-xs font-semibold text-brown/60">{t.digitalWhatsInsideHeading}</p>
