@@ -5,12 +5,14 @@ import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
 import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable } from "../lib/product";
+import { useBoxPrice } from "../lib/use-box-price";
 
 export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   const { locale, t } = useLocale();
   const { currency } = useCurrency();
   const contents = PEEP_BOX_PRODUCT.contents[locale];
   const available = isPhysicalBoxAvailable();
+  const boxPrice = useBoxPrice();
 
   return (
     <section id="inside" className="mx-auto max-w-5xl px-6 py-16">
@@ -36,10 +38,12 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
             ))}
           </ul>
           <p className="mt-6 flex items-baseline gap-3">
-            <span className="text-2xl font-semibold">{formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}</span>
-            <span className="text-lg text-brown/50 line-through">
-              {formatMoney(PEEP_BOX_PRODUCT.originalPriceBhd, currency)}
-            </span>
+            <span className="text-2xl font-semibold">{formatMoney(boxPrice.priceBhd, currency)}</span>
+            {boxPrice.isLaunchPrice && (
+              <span className="text-lg text-brown/50 line-through">
+                {formatMoney(boxPrice.originalPriceBhd, currency)}
+              </span>
+            )}
           </p>
           <button
             type="button"
@@ -50,6 +54,7 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
             {available ? t.addToCart : t.comingSoon}
           </button>
           {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
+          {available && <p className="mt-3 text-sm text-brown/60">{t.boxLeadTimeNote}</p>}
         </div>
       </div>
     </section>

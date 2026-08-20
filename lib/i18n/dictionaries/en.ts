@@ -49,4 +49,5 @@ export const en: Dictionary = {
   comingSoonNote: "Orders open soon — stay tuned for the launch date.",
   digitalRemoveItem: "Remove",
   digitalWhatsInsideHeading: "What you'll find inside",
+  boxLeadTimeNote: "Preparing and delivering your order may take more than 7 days.",
 };

@@ -5,6 +5,10 @@ import {
   createDefaultCustomization,
   isPhysicalBoxAvailable,
 } from "./product";
+import { ORDERS_OPEN_AT } from "./inventory/launch-pricing";
+
+const AFTER_OPEN = new Date(ORDERS_OPEN_AT.getTime() + 1000);
+const BEFORE_OPEN = new Date(ORDERS_OPEN_AT.getTime() - 1000);
 
 describe("PEEP_BOX_PRODUCT", () => {
   it("has the correct launch price and original price", () => {
@@ -40,18 +44,22 @@ describe("isPhysicalBoxAvailable", () => {
     }
   });
 
-  it("defaults to available when the env var is unset", () => {
-    expect(isPhysicalBoxAvailable()).toBe(true);
+  it("defaults to available (once orders are open) when the env var is unset", () => {
+    expect(isPhysicalBoxAvailable(AFTER_OPEN)).toBe(true);
   });
 
   it("is unavailable only when explicitly set to \"false\"", () => {
     process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE = "false";
-    expect(isPhysicalBoxAvailable()).toBe(false);
+    expect(isPhysicalBoxAvailable(AFTER_OPEN)).toBe(false);
   });
 
   it("stays available for any other value", () => {
     process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE = "true";
-    expect(isPhysicalBoxAvailable()).toBe(true);
+    expect(isPhysicalBoxAvailable(AFTER_OPEN)).toBe(true);
+  });
+
+  it("is unavailable before the launch clock's opening time, even without the env var set", () => {
+    expect(isPhysicalBoxAvailable(BEFORE_OPEN)).toBe(false);
   });
 });
 

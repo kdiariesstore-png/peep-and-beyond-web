@@ -1,5 +1,6 @@
 import type { BoxCustomization } from "./types";
 import { computeChargeableWeightKg } from "./payments/chargeable-weight";
+import { ordersAreOpen } from "./inventory/launch-pricing";
 
 export const PEEP_BOX_PRODUCT = {
   id: "peep-box",
@@ -55,9 +56,12 @@ export const PEEP_BOX_CHARGEABLE_WEIGHT_KG = computeChargeableWeightKg(
 // Lets the owner temporarily close physical Peep Box ordering (e.g. a soft launch that
 // opens with digital products only) without a code change: set
 // NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE=false in Vercel and redeploy. Defaults to available
-// so an unset/forgotten env var never accidentally closes the store.
-export function isPhysicalBoxAvailable(): boolean {
-  return process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE !== "false";
+// so an unset/forgotten env var never accidentally closes the store. Also gated on the
+// launch clock (ORDERS_OPEN_AT) so the box opens automatically at the announced time
+// instead of relying on the owner to flip the env var at the exact minute.
+export function isPhysicalBoxAvailable(now: Date = new Date()): boolean {
+  if (process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE === "false") return false;
+  return ordersAreOpen(now);
 }
 
 export function createDefaultCustomization(): BoxCustomization {

@@ -4,12 +4,14 @@ import Image from "next/image";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable } from "../lib/product";
+import { isPhysicalBoxAvailable } from "../lib/product";
+import { useBoxPrice } from "../lib/use-box-price";
 
 export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
   const { t } = useLocale();
   const { currency } = useCurrency();
   const available = isPhysicalBoxAvailable();
+  const boxPrice = useBoxPrice();
 
   return (
     <section className="mx-auto grid max-w-5xl items-center gap-8 px-6 py-16 md:grid-cols-2">
@@ -21,10 +23,12 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-brown/80 md:mx-0">{t.heroSubtitle}</p>
         <p className="mt-6 flex items-baseline justify-center gap-3 md:justify-start">
-          <span className="text-2xl font-semibold">{formatMoney(PEEP_BOX_PRODUCT.priceBhd, currency)}</span>
-          <span className="text-lg text-brown/50 line-through">
-            {formatMoney(PEEP_BOX_PRODUCT.originalPriceBhd, currency)}
-          </span>
+          <span className="text-2xl font-semibold">{formatMoney(boxPrice.priceBhd, currency)}</span>
+          {boxPrice.isLaunchPrice && (
+            <span className="text-lg text-brown/50 line-through">
+              {formatMoney(boxPrice.originalPriceBhd, currency)}
+            </span>
+          )}
         </p>
         <div className="mt-6 flex justify-center gap-4 md:justify-start">
           <button
@@ -40,6 +44,7 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
           </a>
         </div>
         {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
+        {available && <p className="mt-3 text-sm text-brown/60">{t.boxLeadTimeNote}</p>}
       </div>
       <div className="order-first md:order-last">
         <Image

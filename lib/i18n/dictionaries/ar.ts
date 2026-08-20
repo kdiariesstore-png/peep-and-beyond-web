@@ -47,6 +47,7 @@ export const ar = {
   comingSoonNote: "الطلبات ستفتح قريبًا — تابعينا لمعرفة موعد الافتتاح.",
   digitalRemoveItem: "إزالة",
   digitalWhatsInsideHeading: "ماذا ستجدين في هذا الدليل",
+  boxLeadTimeNote: "تجهيز وتوصيل الطلب قد يستغرق أكثر من 7 أيام.",
 } as const;
 
 export type Dictionary = Record<keyof typeof ar, string>;

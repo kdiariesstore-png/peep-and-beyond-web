@@ -6,6 +6,10 @@ import {
 } from "../../../../lib/inventory/story-stock";
 
 export const runtime = "nodejs";
+// Without this, Next.js statically optimizes this plain GET and caches the response at
+// build time — freezing "remaining stock" at whatever it read during `next build` instead
+// of the live KV count. Discovered while adding /api/box-price, which had the same bug.
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {

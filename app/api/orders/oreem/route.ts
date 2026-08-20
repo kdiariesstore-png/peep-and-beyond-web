@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { calculateOrderTotalWithLiveShipping } from "../../../../lib/order/order-total";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
-import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
+import { isPhysicalBoxAvailable } from "../../../../lib/product";
+import { claimBoxOrderPricing } from "../../../../lib/inventory/launch-pricing";
 import { getSiteUrl } from "../../../../lib/site-url";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
@@ -44,7 +45,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
+  if (!isPhysicalBoxAvailable()) {
+    return NextResponse.json({ error: "box_not_available" }, { status: 403 });
+  }
+
+  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  const { unitPriceBhd } = await claimBoxOrderPricing(boxQty);
+  items = items.map((item) => ({ ...item, unitPriceBhd }));
 
   const { subtotalBhd, shippingBhd, totalBhd } = await calculateOrderTotalWithLiveShipping(
     items,

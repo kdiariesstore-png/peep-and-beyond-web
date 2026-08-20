@@ -12,7 +12,8 @@ import {
   isPreOrder,
   PRE_ORDER_NOTE,
 } from "../../../../lib/inventory/story-stock";
-import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
+import { isPhysicalBoxAvailable } from "../../../../lib/product";
+import { claimBoxOrderPricing } from "../../../../lib/inventory/launch-pricing";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
@@ -61,7 +62,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
+  if (!isPhysicalBoxAvailable()) {
+    return NextResponse.json({ error: "box_not_available" }, { status: 403 });
+  }
+
+  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  const { unitPriceBhd } = await claimBoxOrderPricing(boxQty);
+  items = items.map((item) => ({ ...item, unitPriceBhd }));
 
   const { subtotalBhd, shippingBhd, totalBhd } = await calculateOrderTotalWithLiveShipping(
     items,

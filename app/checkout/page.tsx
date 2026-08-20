@@ -9,6 +9,7 @@ import { calculateOrderTotal } from "../../lib/order/order-total";
 import { validateReceiptFile } from "../../lib/order/validate-receipt";
 import { BuyerForm } from "../../components/checkout/buyer-form";
 import { PaymentMethodSelector } from "../../components/checkout/payment-method-selector";
+import { useBoxPrice } from "../../lib/use-box-price";
 import type { BuyerDetails, PaymentMethod } from "../../lib/types";
 
 const EMPTY_BUYER: BuyerDetails = {
@@ -37,8 +38,13 @@ export default function CheckoutPage() {
   const [liveShippingBhd, setLiveShippingBhd] = useState<number | null | undefined>(undefined);
   const [shippingLoading, setShippingLoading] = useState(false);
 
-  const { subtotalBhd, shippingBhd: bahrainShippingBhd } = calculateOrderTotal(items, buyer.country);
+  const boxPrice = useBoxPrice();
+  const { shippingBhd: bahrainShippingBhd } = calculateOrderTotal(items, buyer.country);
   const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  // Recomputed from the live current price rather than each item's stored unitPriceBhd,
+  // since the launch price can flip between add-to-cart and checkout — this is what will
+  // actually be charged (claimBoxOrderPricing decides the final price server-side).
+  const subtotalBhd = boxPrice.priceBhd * boxQty;
   const isBahrain = buyer.country === "BH";
   const shippingBhd = isBahrain ? bahrainShippingBhd : (liveShippingBhd ?? null);
   const totalBhd = shippingBhd === null ? null : subtotalBhd + shippingBhd;
@@ -170,6 +176,9 @@ export default function CheckoutPage() {
         </p>
         <p className="mt-2 font-semibold">
           الإجمالي: {totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}
+        </p>
+        <p className="mt-4 text-xs text-brown/60">
+          ⏳ تجهيز وتوصيل الطلب قد يستغرق أكثر من 7 أيام.
         </p>
       </aside>
     </main>
