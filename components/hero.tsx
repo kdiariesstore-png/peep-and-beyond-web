@@ -3,7 +3,7 @@
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { isPhysicalBoxAvailable, PEEP_BOX_EXTERIOR_IMAGES } from "../lib/product";
+import { isPhysicalBoxAvailable, PEEP_BOX_GALLERY_IMAGES } from "../lib/product";
 import { useBoxPrice } from "../lib/use-box-price";
 import { AutoImageCarousel } from "./auto-image-carousel";
 
@@ -46,7 +46,7 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
         {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
       </div>
       <div className="order-first md:order-last">
-        <AutoImageCarousel images={PEEP_BOX_EXTERIOR_IMAGES} alt={t.insideTitle} />
+        <AutoImageCarousel images={PEEP_BOX_GALLERY_IMAGES} alt={t.insideTitle} />
       </div>
     </section>
   );

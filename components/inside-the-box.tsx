@@ -3,7 +3,7 @@
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable, PEEP_BOX_EXTERIOR_IMAGES } from "../lib/product";
+import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable, PEEP_BOX_GALLERY_IMAGES } from "../lib/product";
 import { useBoxPrice } from "../lib/use-box-price";
 import { AutoImageCarousel } from "./auto-image-carousel";
 
@@ -17,7 +17,7 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   return (
     <section id="inside" className="mx-auto max-w-5xl px-6 py-16">
       <div className="grid items-center gap-8 md:grid-cols-2">
-        <AutoImageCarousel images={PEEP_BOX_EXTERIOR_IMAGES} alt={t.insideTitle} />
+        <AutoImageCarousel images={PEEP_BOX_GALLERY_IMAGES} alt={t.insideTitle} />
         <div>
           <h2 className="text-2xl font-bold">{t.insideTitle}</h2>
           <p className="mt-2 text-brown/70">{t.insideSubtitle}</p>

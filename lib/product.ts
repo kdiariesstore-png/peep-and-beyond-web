@@ -36,10 +36,18 @@ export const PEEP_BOX_PRODUCT = {
   },
 } as const;
 
-// Exterior/packaging photos of the physical box, shown as an auto-rotating carousel on
-// the homepage. Add more paths here as more photos become available — a single entry
-// just renders as a static image with no rotation.
-export const PEEP_BOX_EXTERIOR_IMAGES: string[] = ["/images/peep-box-product.png"];
+// Real photos of the box's contents, shown as an auto-rotating gallery on the homepage.
+// Add more paths here as more photos become available — a single entry just renders as a
+// static image with no rotation.
+export const PEEP_BOX_GALLERY_IMAGES: string[] = [
+  "/images/peep-box-product.png",
+  "/images/peep-box-gallery-storybook.jpg",
+  "/images/peep-box-gallery-puzzle.jpg",
+  "/images/peep-box-gallery-coloring-book.jpg",
+  "/images/peep-box-gallery-forest-map.jpg",
+  "/images/peep-box-gallery-cups.jpg",
+  "/images/peep-box-gallery-welcome-card.jpg",
+];
 
 // Measured by the owner: actual packaged weight, and the outer package's
 // length/width/height (cm) as shipped (bubble wrap + box). Used to compute the
