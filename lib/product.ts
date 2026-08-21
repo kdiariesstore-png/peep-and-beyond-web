@@ -45,6 +45,7 @@ export const PEEP_BOX_GALLERY_IMAGES: string[] = [
   "/images/peep-box-gallery-puzzle.jpg",
   "/images/peep-box-gallery-coloring-book.jpg",
   "/images/peep-box-gallery-forest-map.jpg",
+  "/images/peep-box-gallery-alphabet-cards.jpg",
   "/images/peep-box-gallery-cups.jpg",
   "/images/peep-box-gallery-welcome-card.jpg",
 ];
