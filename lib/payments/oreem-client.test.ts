@@ -181,7 +181,7 @@ describe("fetchShippingRates", () => {
     expect(url).toBe("https://app.oreem.com/api/v1/shipments/rates");
     const body = JSON.parse(options.body);
     expect(body.origin.country_code).toBe("BH");
-    expect(body.dest).toEqual({ country_code: "SA", city_name: "Jeddah", postal_code: null });
+    expect(body.dest).toEqual({ country_code: "SA", city_name: "Jeddah", postal_code: "00000" });
     expect(body.parcels).toEqual([{ qty: 1, item_qty: 1, chargeable_weight: "1.960", weight_unit: "kg" }]);
     // Not requesting one specific carrier — omit the key rather than send it as null,
     // since Oreem's own working example never sends delivery_code as null.
@@ -238,6 +238,34 @@ describe("fetchShippingRates", () => {
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.origin.city_name).toBe("Manama");
+  });
+
+  it("sends a placeholder dest.postal_code for non-Bahrain destinations (Oreem rejects null)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: "success", data: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", chargeableWeightKg: 1 });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.dest.postal_code).toBe("00000");
+  });
+
+  it("keeps dest.postal_code null for a Bahrain destination", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: "success", data: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchShippingRates({ destCountryCode: "BH", destCity: "Manama", chargeableWeightKg: 1 });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.dest.postal_code).toBeNull();
   });
 });
 

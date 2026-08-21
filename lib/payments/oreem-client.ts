@@ -165,7 +165,14 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
       dest: {
         country_code: params.destCountryCode,
         city_name: params.destCity ?? null,
-        postal_code: null,
+        // Oreem's validation confirmed in production: "The dest.postal_code field is
+        // required unless dest.country_code is in BH" — a null postal_code is rejected
+        // (422) for every non-Bahrain destination. We don't collect a real postal code
+        // from the buyer, and Oreem's own docs example uses "00000" as a placeholder, so
+        // this sends the same placeholder rather than adding a postal-code field to
+        // checkout just to satisfy a presence check the rate calculation doesn't actually
+        // use for precision.
+        postal_code: params.destCountryCode === "BH" ? null : "00000",
       },
       parcels: [
         {
