@@ -19,7 +19,6 @@ const EMPTY_BUYER: BuyerDetails = {
   country: "BH",
   city: "",
   address: "",
-  preferredContact: "email",
   marketingOptIn: false,
 };
 

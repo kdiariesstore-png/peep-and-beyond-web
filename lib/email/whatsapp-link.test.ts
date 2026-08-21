@@ -10,7 +10,6 @@ const data: OrderEmailData = {
     country: "BH",
     city: "المنامة",
     address: "شارع 10",
-    preferredContact: "whatsapp",
     marketingOptIn: false,
   },
   items: [],

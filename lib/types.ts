@@ -27,7 +27,6 @@ export interface BuyerDetails {
   country: string;
   city: string;
   address: string;
-  preferredContact: "email" | "whatsapp";
   marketingOptIn: boolean;
 }
 

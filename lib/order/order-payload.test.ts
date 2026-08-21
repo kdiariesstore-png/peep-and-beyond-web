@@ -10,7 +10,6 @@ const payload: PendingOrderPayload = {
     country: "BH",
     city: "المنامة",
     address: "شارع 10",
-    preferredContact: "email",
     marketingOptIn: false,
   },
   items: [

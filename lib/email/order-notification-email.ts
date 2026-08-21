@@ -61,7 +61,6 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
     data.paymentMethod === "iban"
       ? "تحويل بنكي (IBAN)"
       : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
-  const contactLabel = data.buyer.preferredContact === "whatsapp" ? "واتساب" : "البريد الإلكتروني";
   const notesHtml =
     data.notes && data.notes.length > 0
       ? `<p style="margin:12px 0; padding:8px; background:#fef3c7; color:#92400e;"><strong>ملاحظات:</strong> ${data.notes.map(escapeHtml).join(" — ")}</p>`
@@ -77,7 +76,7 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
         <p style="margin:0; font-size:20px; font-weight:bold;">${escapeHtml(data.buyer.fullName)}</p>
         <p style="margin:6px 0; font-size:16px;">📞 ${escapeHtml(data.buyer.phone)}</p>
         <p style="margin:6px 0; font-size:16px; line-height:1.5;">${escapeHtml(data.buyer.address)}<br>${escapeHtml(data.buyer.city)} — ${escapeHtml(countryName(data.buyer.country))}</p>
-        <p style="margin:6px 0 0; font-size:13px; color:#6b7280;">التواصل المفضّل: ${contactLabel} (${escapeHtml(data.buyer.email)})</p>
+        <p style="margin:6px 0 0; font-size:13px; color:#6b7280;">${escapeHtml(data.buyer.email)}</p>
       </div>
 
       <h3 style="margin:16px 0 8px;">محتويات الطلب</h3>

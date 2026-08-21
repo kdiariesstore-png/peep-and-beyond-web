@@ -117,20 +117,6 @@ export function BuyerForm({
         />
       </label>
 
-      <fieldset>
-        <legend>أين تفضل استلام الفاتورة وتحديثات الشحن؟</legend>
-        {(["email", "whatsapp"] as const).map((channel) => (
-          <button
-            type="button"
-            key={channel}
-            aria-pressed={value.preferredContact === channel}
-            onClick={() => update("preferredContact", channel)}
-          >
-            {channel === "email" ? "البريد الإلكتروني" : "الواتساب"}
-          </button>
-        ))}
-      </fieldset>
-
       <label className="flex items-center gap-2">
         <input
           type="checkbox"
