@@ -17,6 +17,10 @@ export interface DigitalProduct {
   availableLanguages?: DigitalLanguage[];
   // Optional cover image (path under /public) shown at the top of the product card.
   coverImage?: string;
+  // Optional sample interior pages (paths under /public), one per activity type mentioned
+  // in whatsInside, shown as a prev/next carousel so a buyer can see what's inside before
+  // paying for a PDF they can't otherwise preview.
+  previewImages?: string[];
 }
 
 export interface DigitalBundle {
@@ -42,6 +46,16 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     priceBhd: 3.9,
     availableLanguages: ["en"],
     coverImage: "/images/activity-book-cover.png",
+    previewImages: [
+      "/images/activity-book-preview-letters.jpg",
+      "/images/activity-book-preview-numbers.jpg",
+      "/images/activity-book-preview-tracing.jpg",
+      "/images/activity-book-preview-maze.jpg",
+      "/images/activity-book-preview-matching.jpg",
+      "/images/activity-book-preview-coloring.jpg",
+      "/images/activity-book-preview-quiz.jpg",
+      "/images/activity-book-preview-games.jpg",
+    ],
   },
   {
     id: "picky-eating",

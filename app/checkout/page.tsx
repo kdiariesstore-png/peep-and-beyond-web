@@ -221,9 +221,6 @@ export default function CheckoutPage() {
         <p className="mt-2 font-semibold">
           الإجمالي: {totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}
         </p>
-        <p className="mt-4 text-xs text-brown/60">
-          ⏳ تجهيز وتوصيل الطلب قد يستغرق أكثر من 7 أيام.
-        </p>
       </aside>
     </main>
   );

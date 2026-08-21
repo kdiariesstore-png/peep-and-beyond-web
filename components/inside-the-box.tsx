@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable } from "../lib/product";
+import { PEEP_BOX_PRODUCT, isPhysicalBoxAvailable, PEEP_BOX_EXTERIOR_IMAGES } from "../lib/product";
 import { useBoxPrice } from "../lib/use-box-price";
+import { AutoImageCarousel } from "./auto-image-carousel";
 
 export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   const { locale, t } = useLocale();
@@ -17,13 +17,7 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   return (
     <section id="inside" className="mx-auto max-w-5xl px-6 py-16">
       <div className="grid items-center gap-8 md:grid-cols-2">
-        <Image
-          src="/images/peep-box-product.png"
-          alt={t.insideTitle}
-          width={1254}
-          height={1254}
-          className="w-full rounded-2xl"
-        />
+        <AutoImageCarousel images={PEEP_BOX_EXTERIOR_IMAGES} alt={t.insideTitle} />
         <div>
           <h2 className="text-2xl font-bold">{t.insideTitle}</h2>
           <p className="mt-2 text-brown/70">{t.insideSubtitle}</p>
@@ -54,7 +48,6 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
             {available ? t.addToCart : t.comingSoon}
           </button>
           {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
-          {available && <p className="mt-3 text-sm text-brown/60">{t.boxLeadTimeNote}</p>}
         </div>
       </div>
     </section>

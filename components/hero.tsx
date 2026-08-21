@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { isPhysicalBoxAvailable } from "../lib/product";
+import { isPhysicalBoxAvailable, PEEP_BOX_EXTERIOR_IMAGES } from "../lib/product";
 import { useBoxPrice } from "../lib/use-box-price";
+import { AutoImageCarousel } from "./auto-image-carousel";
 
 export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
   const { t } = useLocale();
@@ -44,17 +44,9 @@ export function Hero({ onOrderClick }: { onOrderClick: () => void }) {
           </a>
         </div>
         {!available && <p className="mt-3 text-sm text-brown/60">{t.comingSoonNote}</p>}
-        {available && <p className="mt-3 text-sm text-brown/60">{t.boxLeadTimeNote}</p>}
       </div>
       <div className="order-first md:order-last">
-        <Image
-          src="/images/peep-box-product.png"
-          alt={t.insideTitle}
-          width={1254}
-          height={1254}
-          className="w-full rounded-2xl"
-          priority
-        />
+        <AutoImageCarousel images={PEEP_BOX_EXTERIOR_IMAGES} alt={t.insideTitle} />
       </div>
     </section>
   );

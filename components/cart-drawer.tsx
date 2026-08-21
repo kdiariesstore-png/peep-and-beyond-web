@@ -55,6 +55,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
       {items.length > 0 && (
         <>
           <p className="mt-6 font-semibold">{formatMoney(subtotalBhd, currency)}</p>
+          <p className="mt-1 text-xs text-brown/60">⏳ {t.boxLeadTimeNote}</p>
           <a href="/checkout" className="mt-4 block rounded-full bg-leaf py-3 text-center text-white">
             إتمام الطلب
           </a>

@@ -21,6 +21,8 @@ export function ProductCard({
   const [language, setLanguage] = useState<DigitalLanguage>(
     availableLanguages.includes(locale) ? locale : availableLanguages[0]
   );
+  const previewImages = product.previewImages ?? [];
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   const name = locale === "ar" ? product.nameAr : product.nameEn;
   const whatsInside = locale === "ar" ? product.whatsInsideAr : product.whatsInsideEn;
@@ -37,6 +39,40 @@ export function ProductCard({
         />
       )}
       <h3 className="text-lg font-semibold">{name}</h3>
+
+      {previewImages.length > 0 && (
+        <div className="relative mt-3">
+          <Image
+            src={previewImages[previewIndex]}
+            alt={`${name} — ${previewIndex + 1}/${previewImages.length}`}
+            width={400}
+            height={518}
+            className="w-full rounded-lg border border-brown/10 object-cover"
+          />
+          <button
+            type="button"
+            aria-label={t.digitalPreviewPrev}
+            onClick={() =>
+              setPreviewIndex((i) => (i - 1 + previewImages.length) % previewImages.length)
+            }
+            className="absolute start-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-2 py-1 text-lg leading-none shadow"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label={t.digitalPreviewNext}
+            onClick={() => setPreviewIndex((i) => (i + 1) % previewImages.length)}
+            className="absolute end-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-2 py-1 text-lg leading-none shadow"
+          >
+            ›
+          </button>
+          <p className="mt-1 text-center text-xs text-brown/50">
+            {previewIndex + 1} / {previewImages.length}
+          </p>
+        </div>
+      )}
+
       <div className="mt-2 flex-1 rounded-lg bg-cream/60 p-3">
         <p className="text-xs font-semibold text-brown/60">{t.digitalWhatsInsideHeading}</p>
         <p className="mt-1 text-sm text-brown/70">{whatsInside}</p>

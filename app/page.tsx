@@ -9,6 +9,9 @@ import { InsideTheBox } from "../components/inside-the-box";
 import { CustomizeBoxForm } from "../components/customize-box-form";
 import { CartDrawer } from "../components/cart-drawer";
 import { Footer } from "../components/footer";
+import { CountdownTimer } from "../components/countdown-timer";
+import { isPhysicalBoxAvailable } from "../lib/product";
+import { LAUNCH_PRICE_DEADLINE } from "../lib/inventory/launch-pricing";
 
 export default function HomePage() {
   const [showCustomize, setShowCustomize] = useState(false);
@@ -18,6 +21,7 @@ export default function HomePage() {
     <>
       <Header onCartClick={() => setShowCart(true)} />
       <main>
+        {isPhysicalBoxAvailable() && <CountdownTimer targetDate={LAUNCH_PRICE_DEADLINE} />}
         <Hero onOrderClick={() => setShowCustomize(true)} />
         <TrustBadges />
         <ThreeMoments />
