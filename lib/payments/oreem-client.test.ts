@@ -182,6 +182,10 @@ describe("fetchShippingRates", () => {
     expect(body.origin.country_code).toBe("BH");
     expect(body.dest).toEqual({ country_code: "SA", city_name: "Jeddah", postal_code: null });
     expect(body.parcels).toEqual([{ qty: 1, item_qty: 1, chargeable_weight: "1.960", weight_unit: "kg" }]);
+    // Not requesting one specific carrier — omit the key rather than send it as null,
+    // since Oreem's own working example never sends delivery_code as null.
+    expect(body).not.toHaveProperty("delivery_code");
+    expect(body.delivery_method_code).toBeNull();
   });
 
   it("returns an empty array when Oreem has no rated service for the destination", async () => {

@@ -171,7 +171,11 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
           weight_unit: "kg",
         },
       ],
-      delivery_code: null,
+      // Oreem's own working example always sends a concrete delivery_code (never null) —
+      // unlike delivery_method_code, which the same example does send as null. Omitting
+      // the key entirely (rather than sending delivery_code: null) is the closer match to
+      // "not asking for one specific carrier," and avoids a validation rule that accepts
+      // an absent key but rejects an explicit null.
       delivery_method_code: null,
       cod: false,
       currency: "BHD",
