@@ -39,6 +39,13 @@ describe("quoteShippingBhd", () => {
     expect(result).toBeNull();
   });
 
+  it("returns null without calling Oreem when the destination city is missing or blank", async () => {
+    const spy = vi.spyOn(oreemClient, "fetchShippingRates");
+    expect(await quoteShippingBhd("SA", undefined, 1)).toBeNull();
+    expect(await quoteShippingBhd("SA", "   ", 1)).toBeNull();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
   it("returns null (fails closed) when the Oreem lookup throws", async () => {
     vi.spyOn(oreemClient, "fetchShippingRates").mockRejectedValue(new Error("network error"));
     const result = await quoteShippingBhd("SA", "Jeddah", 1);

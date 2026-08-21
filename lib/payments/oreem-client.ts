@@ -152,7 +152,10 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
     body: JSON.stringify({
       origin: {
         country_code: "BH",
-        city_name: process.env.SHIP_ORIGIN_CITY ?? null,
+        // Oreem's docs example always sends a real city for both origin and dest (only
+        // postal_code is shown nullable) — a null city_name here is a likely cause of the
+        // 422s seen in production, so this always sends a real city rather than null.
+        city_name: process.env.SHIP_ORIGIN_CITY ?? "Manama",
         postal_code: null,
       },
       dest: {
@@ -176,7 +179,19 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
   });
 
   if (!response.ok) {
-    throw new Error(`Oreem shipping-rates request failed with status ${response.status}`);
+    // Oreem's 4xx responses carry the actual validation reason (e.g. a missing/invalid
+    // field) in the body — without it, every failure just looks like "status 422" with no
+    // way to tell a bad request apart from an auth or server problem. Best-effort: body
+    // reads can themselves fail (already-consumed stream, non-JSON error page).
+    let detail = "";
+    try {
+      detail = await response.text();
+    } catch {
+      // ignore — fall back to the bare status in the error message below
+    }
+    throw new Error(
+      `Oreem shipping-rates request failed with status ${response.status}${detail ? `: ${detail}` : ""}`
+    );
   }
 
   const json = await response.json();

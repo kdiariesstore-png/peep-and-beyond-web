@@ -18,6 +18,10 @@ export async function quoteShippingBhd(
 ): Promise<number | null> {
   if (boxQty <= 0) return 0;
   if (countryCode === "BH") return getShippingRate("BH");
+  // Oreem's shipments/rates endpoint requires a real destination city (a null/blank
+  // city_name is rejected with a 422) — skip the call entirely rather than let every
+  // international quote fail once the buyer hasn't typed a city yet.
+  if (!city || city.trim().length === 0) return null;
 
   try {
     const options = await fetchShippingRates({

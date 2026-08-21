@@ -204,4 +204,34 @@ describe("fetchShippingRates", () => {
       fetchShippingRates({ destCountryCode: "SA", chargeableWeightKg: 1 })
     ).rejects.toThrow(/status 500/);
   });
+
+  it("includes Oreem's validation detail from the response body in the error message", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 422,
+        text: () => Promise.resolve('{"message":"The dest.city_name field is required."}'),
+      })
+    );
+
+    await expect(
+      fetchShippingRates({ destCountryCode: "SA", chargeableWeightKg: 1 })
+    ).rejects.toThrow(/dest\.city_name field is required/);
+  });
+
+  it("defaults the origin city to Manama when SHIP_ORIGIN_CITY is unset", async () => {
+    delete process.env.SHIP_ORIGIN_CITY;
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: "success", data: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", chargeableWeightKg: 1 });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.origin.city_name).toBe("Manama");
+  });
 });

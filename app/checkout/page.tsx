@@ -49,10 +49,14 @@ export default function CheckoutPage() {
   const shippingBhd = isBahrain ? bahrainShippingBhd : (liveShippingBhd ?? null);
   const totalBhd = shippingBhd === null ? null : subtotalBhd + shippingBhd;
 
+  const hasCity = buyer.city.trim().length > 0;
+
   // International shipping is quoted live from Oreem, keyed on country/city/box count.
-  // Debounced so typing a city doesn't fire a request per keystroke.
+  // Debounced so typing a city doesn't fire a request per keystroke. Oreem's rates
+  // endpoint requires a real destination city, so this waits until one is typed instead
+  // of firing (and failing) on every keystroke before the city field is filled in.
   useEffect(() => {
-    if (isBahrain || boxQty === 0) {
+    if (isBahrain || boxQty === 0 || !hasCity) {
       setLiveShippingBhd(undefined);
       setShippingLoading(false);
       return;
@@ -75,7 +79,7 @@ export default function CheckoutPage() {
       }
     }, 600);
     return () => clearTimeout(timer);
-  }, [isBahrain, buyer.country, buyer.city, boxQty]);
+  }, [isBahrain, hasCity, buyer.country, buyer.city, boxQty]);
 
   function handleReceiptChange(file: File | null) {
     setReceipt(file);
@@ -168,11 +172,13 @@ export default function CheckoutPage() {
         <p className="mt-4">{formatMoney(subtotalBhd, currency)}</p>
         <p className="text-sm text-brown/70">
           الشحن:{" "}
-          {shippingLoading
-            ? "جارٍ حساب الشحن..."
-            : shippingBhd === null
-              ? "الشحن غير متاح حاليًا لهذه الدولة — تواصلي معنا"
-              : formatMoney(shippingBhd, currency)}
+          {!isBahrain && !hasCity
+            ? "أدخلي المدينة لحساب الشحن"
+            : shippingLoading
+              ? "جارٍ حساب الشحن..."
+              : shippingBhd === null
+                ? "الشحن غير متاح حاليًا لهذه الدولة — تواصلي معنا"
+                : formatMoney(shippingBhd, currency)}
         </p>
         <p className="mt-2 font-semibold">
           الإجمالي: {totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}
