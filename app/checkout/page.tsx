@@ -37,6 +37,8 @@ export default function CheckoutPage() {
   // but unavailable for this destination, number = the resolved live rate.
   const [liveShippingBhd, setLiveShippingBhd] = useState<number | null | undefined>(undefined);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [cityOptionsLoading, setCityOptionsLoading] = useState(false);
 
   const boxPrice = useBoxPrice();
   const { shippingBhd: bahrainShippingBhd } = calculateOrderTotal(items, buyer.country);
@@ -50,6 +52,38 @@ export default function CheckoutPage() {
   const totalBhd = shippingBhd === null ? null : subtotalBhd + shippingBhd;
 
   const hasCity = buyer.city.trim().length > 0;
+
+  // Offers Oreem's own recognized city names for the selected country, so the buyer
+  // picks a spelling Oreem's rates endpoint actually knows instead of free-typing one
+  // that silently mismatches and reads as "shipping unavailable". Falls back to the
+  // free-text field (empty cityOptions) if Oreem has no list for this country or the
+  // lookup fails.
+  useEffect(() => {
+    let cancelled = false;
+    setCityOptions([]);
+    setCityOptionsLoading(true);
+    fetch(`/api/shipping/cities?country=${encodeURIComponent(buyer.country)}`)
+      .then((response) => response.json())
+      .then((json) => {
+        if (cancelled) return;
+        const cities: string[] = Array.isArray(json?.cities)
+          ? json.cities.filter((c: unknown): c is string => typeof c === "string")
+          : [];
+        setCityOptions(cities);
+        if (cities.length > 0) {
+          setBuyer((current) => (cities.includes(current.city) ? current : { ...current, city: "" }));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCityOptions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setCityOptionsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [buyer.country]);
 
   // International shipping is quoted live from Oreem, keyed on country/city/box count.
   // Debounced so typing a city doesn't fire a request per keystroke. Oreem's rates
@@ -149,7 +183,12 @@ export default function CheckoutPage() {
   return (
     <main className="mx-auto grid max-w-4xl gap-8 p-6 md:grid-cols-2">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <BuyerForm value={buyer} onChange={setBuyer} />
+        <BuyerForm
+          value={buyer}
+          onChange={setBuyer}
+          cityOptions={cityOptions}
+          cityOptionsLoading={cityOptionsLoading}
+        />
         <PaymentMethodSelector
           method={paymentMethod}
           onMethodChange={setPaymentMethod}

@@ -4,6 +4,7 @@ import {
   verifyTransaction,
   fetchTransactionByOreemReference,
   fetchShippingRates,
+  fetchCities,
 } from "./oreem-client";
 
 beforeEach(() => {
@@ -237,5 +238,33 @@ describe("fetchShippingRates", () => {
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.origin.city_name).toBe("Manama");
+  });
+});
+
+describe("fetchCities", () => {
+  it("returns the list of city names Oreem recognizes for a country", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ status: "success", data: [{ name: "Manama" }, { name: "Riffa" }] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchCities("BH");
+
+    expect(result).toEqual([{ name: "Manama" }, { name: "Riffa" }]);
+    const [url, options] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://app.oreem.com/api/v1/shipments/cities?country_code=BH");
+    expect(options.headers.Authorization).toBe("Bearer test-token");
+  });
+
+  it("returns an empty array when Oreem responds with a non-ok status", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    expect(await fetchCities("XX")).toEqual([]);
+  });
+
+  it("returns an empty array (never throws) when the request itself fails", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network error")));
+    expect(await fetchCities("BH")).toEqual([]);
   });
 });

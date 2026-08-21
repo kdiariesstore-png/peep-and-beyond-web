@@ -12,6 +12,10 @@ export interface ShippingRateOption {
   amountBhd: number;
 }
 
+export interface CityOption {
+  name: string;
+}
+
 export interface CreateHostedPaymentParams {
   txnRef: string;
   amountBhd: number;
@@ -213,6 +217,34 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
     }
   }
   return options.sort((a, b) => a.amountBhd - b.amountBhd);
+}
+
+// Oreem's own list of city names it recognizes for a country (GET /shipments/cities) —
+// letting the buyer pick from this instead of free-typing a city avoids the mismatched
+// spelling that makes a perfectly good destination look "unavailable" (Oreem's rates
+// endpoint matches on its own city_name values, not on whatever the buyer happens to type).
+// Returns [] (never throws) on any failure so a flaky lookup or an unlisted country just
+// falls back to the free-text field rather than breaking checkout.
+export async function fetchCities(countryCode: string): Promise<CityOption[]> {
+  try {
+    const response = await fetch(
+      `${getBaseUrl()}/api/v1/shipments/cities?country_code=${encodeURIComponent(countryCode)}`,
+      {
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
+    if (!response.ok) return [];
+    const json = await response.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    return rows
+      .map((row: unknown) => (row as Record<string, unknown>)?.name)
+      .filter((name: unknown): name is string => typeof name === "string" && name.length > 0)
+      .map((name: string) => ({ name }));
+  } catch {
+    return [];
+  }
 }
 
 // The counterpart to verifyTransaction: looks a transaction up by Oreem's OWN transaction
