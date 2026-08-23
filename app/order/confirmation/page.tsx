@@ -64,6 +64,16 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
     );
   }
 
+  if (searchParams.method === "cod") {
+    return (
+      <OrderConfirmationMessage
+        success={true}
+        title="تم استلام طلبك!"
+        body="سنتواصل معك لتأكيد التوصيل — الدفع نقدًا للمندوب عند استلام الطلب."
+      />
+    );
+  }
+
   const txnRef = resolveTxnRef(TXN_REF_PATTERN, searchParams.ref, searchParams.txn_ref);
   if (!txnRef) {
     return (

@@ -51,6 +51,11 @@ describe("buildOrderEmailHtml", () => {
     expect(html).toContain("يُحدَّد لاحقًا");
   });
 
+  it("shows a cash-on-delivery label for cod orders", () => {
+    const html = buildOrderEmailHtml({ ...data, paymentMethod: "cod" });
+    expect(html).toContain("الدفع عند الاستلام");
+  });
+
   it("includes the Oreem transaction reference when provided", () => {
     const html = buildOrderEmailHtml({
       ...data,

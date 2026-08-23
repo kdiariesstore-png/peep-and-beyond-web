@@ -52,6 +52,15 @@ export default function CheckoutPage() {
 
   const hasCity = buyer.city.trim().length > 0;
 
+  // Cash on delivery is Bahrain-only — if the buyer had it selected and then switches to
+  // another country, fall back to IBAN rather than silently submitting an order with a
+  // payment method the country picker no longer even shows.
+  useEffect(() => {
+    if (!isBahrain) {
+      setPaymentMethod((current) => (current === "cod" ? "iban" : current));
+    }
+  }, [isBahrain]);
+
   // Offers Oreem's own recognized city names for the selected country, so the buyer
   // picks a spelling Oreem's rates endpoint actually knows instead of free-typing one
   // that silently mismatches and reads as "shipping unavailable". Falls back to the
@@ -149,6 +158,28 @@ export default function CheckoutPage() {
         }
         clear();
         router.push("/order/confirmation?method=iban");
+      } catch {
+        setSubmitError("تعذر إرسال الطلب. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    if (paymentMethod === "cod") {
+      setSubmitting(true);
+      try {
+        const response = await fetch("/api/orders/cod", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buyer, items }),
+        });
+        if (!response.ok) {
+          setSubmitError("تعذر إرسال الطلب. حاول مرة أخرى.");
+          return;
+        }
+        clear();
+        router.push("/order/confirmation?method=cod");
       } catch {
         setSubmitError("تعذر إرسال الطلب. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.");
       } finally {

@@ -60,7 +60,9 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
   const paymentText =
     data.paymentMethod === "iban"
       ? "تحويل بنكي (IBAN)"
-      : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
+      : data.paymentMethod === "cod"
+        ? "الدفع عند الاستلام"
+        : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
   const notesHtml =
     data.notes && data.notes.length > 0
       ? `<p style="margin:12px 0; padding:8px; background:#fef3c7; color:#92400e;"><strong>ملاحظات:</strong> ${data.notes.map(escapeHtml).join(" — ")}</p>`

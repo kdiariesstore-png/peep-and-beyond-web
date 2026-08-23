@@ -26,6 +26,7 @@ export function PaymentMethodSelector({
   onReceiptChange: (file: File | null) => void;
 }) {
   const isLocal = isGccCountry(countryCode);
+  const isBahrain = countryCode === "BH";
   const [copied, setCopied] = useState(false);
 
   async function handleCopyIban() {
@@ -63,6 +64,18 @@ export function PaymentMethodSelector({
         >
           بطاقة عبر أوريم
         </button>
+        {isBahrain && (
+          <button
+            type="button"
+            aria-pressed={method === "cod"}
+            onClick={() => onMethodChange("cod")}
+            className={`rounded-full border px-4 py-1.5 text-sm ${
+              method === "cod" ? "border-leaf bg-leaf text-white" : "border-brown/20 bg-white text-brown"
+            }`}
+          >
+            الدفع عند الاستلام
+          </button>
+        )}
       </div>
 
       {method === "iban" && (
@@ -111,6 +124,15 @@ export function PaymentMethodSelector({
           <p className="text-sm text-brown/70">دفع آمن ببطاقات Benefit وVisa وMastercard.</p>
           <p className="mt-2 text-xs text-brown/60">
             الدفع بالبطاقة فوري ومتاح من أي دولة.
+          </p>
+        </div>
+      )}
+
+      {method === "cod" && isBahrain && (
+        <div className="rounded border border-brown/20 p-4">
+          <strong>الدفع عند الاستلام</strong>
+          <p className="text-sm text-brown/70">
+            ادفعي نقدًا للمندوب عند استلام طلبك — متاح داخل البحرين فقط.
           </p>
         </div>
       )}
