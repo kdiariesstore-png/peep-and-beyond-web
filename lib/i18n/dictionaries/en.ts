@@ -51,6 +51,7 @@ export const en: Dictionary = {
   digitalWhatsInsideHeading: "What you'll find inside",
   digitalPreviewPrev: "Previous page",
   digitalPreviewNext: "Next page",
+  digitalBackCoverAlt: "back cover",
   boxLeadTimeNote: "Delivery takes 7 to 10 days.",
   countdownLabel: "Launch price ends in:",
   countdownDays: "days",

@@ -27,17 +27,31 @@ export function ProductCard({
   const name = locale === "ar" ? product.nameAr : product.nameEn;
   const whatsInside = locale === "ar" ? product.whatsInsideAr : product.whatsInsideEn;
   const coverImage = (language === "ar" && product.coverImageAr) || product.coverImage;
+  const backCoverImage = (language === "ar" && product.backCoverImageAr) || product.backCoverImage;
 
   return (
     <article className="flex flex-col rounded-xl border border-brown/10 bg-white/60 p-5">
-      {coverImage && (
-        <Image
-          src={coverImage}
-          alt={name}
-          width={400}
-          height={518}
-          className="mb-3 w-full rounded-lg object-cover"
-        />
+      {(coverImage || backCoverImage) && (
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          {coverImage && (
+            <Image
+              src={coverImage}
+              alt={name}
+              width={400}
+              height={518}
+              className="w-full rounded-lg object-cover"
+            />
+          )}
+          {backCoverImage && (
+            <Image
+              src={backCoverImage}
+              alt={`${name} — ${t.digitalBackCoverAlt}`}
+              width={400}
+              height={518}
+              className="w-full rounded-lg object-cover"
+            />
+          )}
+        </div>
       )}
       <h3 className="text-lg font-semibold">{name}</h3>
 

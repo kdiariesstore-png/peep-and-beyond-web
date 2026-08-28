@@ -20,6 +20,10 @@ export interface DigitalProduct {
   // Optional Arabic-edition cover, shown instead of coverImage when the buyer has the
   // Arabic reading language selected. Falls back to coverImage when omitted.
   coverImageAr?: string;
+  // Optional back-cover image, shown right after the front cover. Same Arabic-edition
+  // fallback behavior as coverImage/coverImageAr.
+  backCoverImage?: string;
+  backCoverImageAr?: string;
   // Optional sample interior pages (paths under /public), one per activity type mentioned
   // in whatsInside, shown as a prev/next carousel so a buyer can see what's inside before
   // paying for a PDF they can't otherwise preview.
@@ -173,6 +177,8 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     priceBhd: 2.5,
     coverImage: "/images/peep-storybook-cover-en.jpg",
     coverImageAr: "/images/peep-storybook-cover-ar.jpg",
+    backCoverImage: "/images/peep-storybook-backcover-en.jpg",
+    backCoverImageAr: "/images/peep-storybook-backcover-ar.jpg",
     previewImages: [
       "/images/peep-storybook-preview-1-en.jpg",
       "/images/peep-storybook-preview-2-en.jpg",

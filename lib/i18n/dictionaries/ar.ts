@@ -49,6 +49,7 @@ export const ar = {
   digitalWhatsInsideHeading: "ماذا ستجدين في هذا الدليل",
   digitalPreviewPrev: "الصفحة السابقة",
   digitalPreviewNext: "الصفحة التالية",
+  digitalBackCoverAlt: "الغلاف الخلفي",
   boxLeadTimeNote: "التوصيل يأخذ من 7 إلى 10 أيام.",
   countdownLabel: "ينتهي سعر الإطلاق خلال:",
   countdownDays: "يوم",
