@@ -26,12 +26,13 @@ export function ProductCard({
 
   const name = locale === "ar" ? product.nameAr : product.nameEn;
   const whatsInside = locale === "ar" ? product.whatsInsideAr : product.whatsInsideEn;
+  const coverImage = (language === "ar" && product.coverImageAr) || product.coverImage;
 
   return (
     <article className="flex flex-col rounded-xl border border-brown/10 bg-white/60 p-5">
-      {product.coverImage && (
+      {coverImage && (
         <Image
-          src={product.coverImage}
+          src={coverImage}
           alt={name}
           width={400}
           height={518}

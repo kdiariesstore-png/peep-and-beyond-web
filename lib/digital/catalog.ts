@@ -17,6 +17,9 @@ export interface DigitalProduct {
   availableLanguages?: DigitalLanguage[];
   // Optional cover image (path under /public) shown at the top of the product card.
   coverImage?: string;
+  // Optional Arabic-edition cover, shown instead of coverImage when the buyer has the
+  // Arabic reading language selected. Falls back to coverImage when omitted.
+  coverImageAr?: string;
   // Optional sample interior pages (paths under /public), one per activity type mentioned
   // in whatsInside, shown as a prev/next carousel so a buyer can see what's inside before
   // paying for a PDF they can't otherwise preview.
@@ -160,15 +163,16 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     nameAr: "قصة بيب المصورة — قفزة السعادة (نسخة رقمية)",
     nameEn: "Peep the Dinosaur — A Leap of Joy (Digital Edition)",
     descriptionAr:
-      "النسخة الرقمية من قصة بيب، منسّقة كصفحات متقابلة — الرسمة في جهة والنص في الجهة الأخرى — لتجربة قراءة تشبه الكتاب المطبوع على أي شاشة.",
+      "قصة ما قبل النوم مناسبة للأعمار من 3 إلى 6 سنوات، مثالية للقراءة الجهرية مع الطفل. النسخة الرقمية منسّقة كصفحات متقابلة — الرسمة في جهة والنص في الجهة الأخرى — لتجربة قراءة تشبه الكتاب المطبوع على أي شاشة.",
     descriptionEn:
-      "The digital edition of Peep's storybook, laid out as facing spreads — illustration on one side, text on the other — for a print-book reading feel on any screen.",
+      "A bedtime story for ages 3–6, perfect for reading aloud together. The digital edition is laid out as facing spreads — illustration on one side, text on the other — for a print-book reading feel on any screen.",
     whatsInsideAr:
-      "قصة بيب الديناصور المصورة كاملة بصفحات متقابلة (٢٠ صفحة)، بالإضافة إلى صفحة تعارف الأصدقاء وخريطة الغابة السحرية وأنشطة تلوين وأسئلة ومتاهة في نهاية الكتاب.",
+      "قصة ما قبل النوم، مناسبة للأعمار من 3 إلى 6 سنوات ومثالية للقراءة الجهرية مع الطفل. قصة بيب الديناصور المصورة كاملة بصفحات متقابلة (٢٠ صفحة)، بالإضافة إلى صفحة تعارف الأصدقاء وخريطة الغابة السحرية وأنشطة تلوين وأسئلة ومتاهة في نهاية الكتاب.",
     whatsInsideEn:
-      "The complete illustrated Peep the Dinosaur story laid out as facing spreads (20 pages), plus a friends' introduction page, a magical forest map, and coloring, quiz, and maze activities at the end.",
+      "A bedtime story for ages 3–6, perfect for reading aloud together. The complete illustrated Peep the Dinosaur story laid out as facing spreads (20 pages), plus a friends' introduction page, a magical forest map, and coloring, quiz, and maze activities at the end.",
     priceBhd: 2.5,
     coverImage: "/images/peep-storybook-cover-en.jpg",
+    coverImageAr: "/images/peep-storybook-cover-ar.jpg",
     previewImages: [
       "/images/peep-storybook-preview-1-en.jpg",
       "/images/peep-storybook-preview-2-en.jpg",
