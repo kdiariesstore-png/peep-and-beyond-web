@@ -155,6 +155,26 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
       "A 14-day gradual return-to-routine schedule, an age-by-age school supplies checklist, a gradual sleep-adjustment schedule, an age-by-age independence-skills schedule, a short section written for you (the parent) before the first day, a last-3-days checklist, and a set of social-skills conversation cards for making new friends.",
     priceBhd: 2.99,
   },
+  {
+    id: "peep-storybook",
+    nameAr: "قصة بيب المصورة — قفزة السعادة (نسخة رقمية)",
+    nameEn: "Peep the Dinosaur — A Leap of Joy (Digital Edition)",
+    descriptionAr:
+      "النسخة الرقمية من قصة بيب، منسّقة كصفحات متقابلة — الرسمة في جهة والنص في الجهة الأخرى — لتجربة قراءة تشبه الكتاب المطبوع على أي شاشة.",
+    descriptionEn:
+      "The digital edition of Peep's storybook, laid out as facing spreads — illustration on one side, text on the other — for a print-book reading feel on any screen.",
+    whatsInsideAr:
+      "قصة بيب الديناصور المصورة كاملة بصفحات متقابلة (٢٠ صفحة)، بالإضافة إلى صفحة تعارف الأصدقاء وخريطة الغابة السحرية وأنشطة تلوين وأسئلة ومتاهة في نهاية الكتاب.",
+    whatsInsideEn:
+      "The complete illustrated Peep the Dinosaur story laid out as facing spreads (20 pages), plus a friends' introduction page, a magical forest map, and coloring, quiz, and maze activities at the end.",
+    priceBhd: 2.5,
+    coverImage: "/images/peep-storybook-cover-en.jpg",
+    previewImages: [
+      "/images/peep-storybook-preview-1-en.jpg",
+      "/images/peep-storybook-preview-2-en.jpg",
+      "/images/peep-storybook-preview-3-en.jpg",
+    ],
+  },
 ];
 
 export const DIGITAL_BUNDLE: DigitalBundle = {
@@ -163,7 +183,7 @@ export const DIGITAL_BUNDLE: DigitalBundle = {
   nameEn: "The Complete Bundle (all 7 topics)",
   priceBhd: 13.99,
   includes: DIGITAL_PRODUCTS.filter(
-    (p) => p.id !== "school-season-toolkit" && p.id !== "activity-book"
+    (p) => p.id !== "school-season-toolkit" && p.id !== "activity-book" && p.id !== "peep-storybook"
   ).map((p) => p.id),
 };
 
