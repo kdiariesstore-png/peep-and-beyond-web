@@ -11,9 +11,10 @@ import {
   isPreOrder,
   PRE_ORDER_NOTE,
 } from "../../../../lib/inventory/story-stock";
-import { isPhysicalBoxAvailable } from "../../../../lib/product";
+import { isPhysicalBoxAvailable, PEEP_STORY_PRODUCT } from "../../../../lib/product";
 import { claimBoxOrderPricing } from "../../../../lib/inventory/launch-pricing";
-import type { BuyerDetails, CartItem } from "../../../../lib/types";
+import { isValidCartItemsPayload, getItemStoryLanguage } from "../../../../lib/cart/cart-item-helpers";
+import type { BuyerDetails } from "../../../../lib/types";
 
 export const runtime = "nodejs";
 
@@ -34,12 +35,12 @@ export async function POST(request: NextRequest) {
   if (!buyerCandidate || typeof buyerCandidate !== "object") {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-  if (!Array.isArray(itemsCandidate)) {
+  if (!isValidCartItemsPayload(itemsCandidate)) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const buyer = buyerCandidate as BuyerDetails;
-  let items = itemsCandidate as CartItem[];
+  let items = itemsCandidate;
 
   if (items.length === 0) {
     return NextResponse.json({ error: "empty_cart" }, { status: 400 });
@@ -48,32 +49,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "cod_not_available" }, { status: 400 });
   }
 
-  for (const item of items) {
-    const storyLanguage = item?.customization?.storyLanguage;
-    if (storyLanguage !== "ar" && storyLanguage !== "en") {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-    if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-  }
-
-  if (!isPhysicalBoxAvailable()) {
+  const hasBoxItem = items.some((item) => item.productId === "peep-box");
+  if (hasBoxItem && !isPhysicalBoxAvailable()) {
     return NextResponse.json({ error: "box_not_available" }, { status: 403 });
   }
 
-  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  const { unitPriceBhd } = await claimBoxOrderPricing(boxQty);
-  items = items.map((item) => ({ ...item, unitPriceBhd }));
+  // Never trust client-supplied prices: box lines get the server-claimed launch price,
+  // story lines get the catalog's fixed price.
+  const boxQty = items
+    .filter((item) => item.productId === "peep-box")
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const { unitPriceBhd: boxUnitPriceBhd } = await claimBoxOrderPricing(boxQty);
+  items = items.map((item) =>
+    item.productId === "peep-box"
+      ? { ...item, unitPriceBhd: boxUnitPriceBhd }
+      : { ...item, unitPriceBhd: PEEP_STORY_PRODUCT.priceBhd }
+  );
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
 
   const notes: string[] = [];
   for (const item of items) {
     try {
-      const remaining = await getRemainingStock(item.customization.storyLanguage);
+      const language = getItemStoryLanguage(item);
+      const remaining = await getRemainingStock(language);
       if (isPreOrder(remaining)) {
-        notes.push(`${PRE_ORDER_NOTE} (${item.customization.storyLanguage})`);
+        notes.push(`${PRE_ORDER_NOTE} (${language})`);
       }
     } catch (error) {
       console.error("Failed to check story stock for pre-order flag", error);
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
 
   for (const item of items) {
     try {
-      await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
+      await decrementStockAfterOrder(getItemStoryLanguage(item), item.quantity);
     } catch (error) {
       console.error("Failed to decrement story stock", error);
     }

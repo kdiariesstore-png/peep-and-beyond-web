@@ -67,6 +67,40 @@ export const PEEP_BOX_CHARGEABLE_WEIGHT_KG = computeChargeableWeightKg(
   PEEP_BOX_PACKAGE.heightCm
 );
 
+// The same story printed inside every Peep Box, sold on its own — same printed booklet,
+// same print-stock pool (see lib/inventory/story-stock.ts), just without the rest of the
+// box's contents. Description text and cover art come directly from the owner's own book
+// cover / promo graphics.
+export const PEEP_STORY_PRODUCT = {
+  id: "peep-story",
+  nameAr: "قصة بيب المصورة — قفزة السعادة",
+  nameEn: "Peep the Dinosaur — A Leap of Joy",
+  priceBhd: 5,
+  descriptionAr:
+    "قد يكون بيب صغيرًا، لكن قفزاته المرحة تحمل سحرًا يجعل الأزهار تتفتح. وعندما يجد نفسه في غابة غريبة تبدأ قفزة بسيطة مليئة بالأصدقاء الجدد والشجاعة واللطف والسعادة. انضموا إلى بيب ليكتشف أن أصغرنا يستطيع أن يترك أثرًا جميلًا أينما ذهب.",
+  descriptionEn:
+    "Peep, a small dinosaur with joyful leaps, brings flowers to bloom. His adventure in an unfamiliar forest leads to new friends and lessons in courage, kindness, and joy. Join Peep in discovering that even the smallest can make a beautiful impact.",
+  coverImageAr: "/images/peep-story-cover-ar.jpg",
+  coverImageEn: "/images/peep-story-cover-en.jpg",
+} as const;
+
+// Estimated (the owner didn't have a scale handy) — a slim ~24-page softcover picture
+// book in a padded mailer. Update with real measurements once available; Oreem's rate
+// calculator is only as accurate as this number.
+const PEEP_STORY_PACKAGE = {
+  actualWeightKg: 0.2,
+  lengthCm: 22,
+  widthCm: 22,
+  heightCm: 2,
+} as const;
+
+export const PEEP_STORY_CHARGEABLE_WEIGHT_KG = computeChargeableWeightKg(
+  PEEP_STORY_PACKAGE.actualWeightKg,
+  PEEP_STORY_PACKAGE.lengthCm,
+  PEEP_STORY_PACKAGE.widthCm,
+  PEEP_STORY_PACKAGE.heightCm
+);
+
 // Lets the owner temporarily close physical Peep Box ordering (e.g. a soft launch that
 // opens with digital products only) without a code change: set
 // NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE=false in Vercel and redeploy. Defaults to available

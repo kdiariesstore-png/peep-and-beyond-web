@@ -5,6 +5,7 @@ import type { CartItem } from "../types";
 
 const item: CartItem = {
   id: "1",
+  productId: "peep-box",
   customization: {
     storyLanguage: "ar",
     cardLanguage: "ar",

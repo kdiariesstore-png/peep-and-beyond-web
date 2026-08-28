@@ -14,6 +14,11 @@ function isCartItem(value: unknown): value is CartItem {
   if (typeof candidate.unitPriceBhd !== "number") return false;
   if (typeof candidate.quantity !== "number") return false;
 
+  if (candidate.productId === "peep-story") {
+    return candidate.storyLanguage === "ar" || candidate.storyLanguage === "en";
+  }
+  if (candidate.productId !== "peep-box") return false;
+
   const customization = candidate.customization;
   if (typeof customization !== "object" || customization === null) return false;
   const c = customization as Record<string, unknown>;

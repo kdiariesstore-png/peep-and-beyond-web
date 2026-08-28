@@ -41,11 +41,15 @@ export default function CheckoutPage() {
 
   const boxPrice = useBoxPrice();
   const { shippingBhd: bahrainShippingBhd } = calculateOrderTotal(items, buyer.country);
-  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  // Recomputed from the live current price rather than each item's stored unitPriceBhd,
-  // since the launch price can flip between add-to-cart and checkout — this is what will
-  // actually be charged (claimBoxOrderPricing decides the final price server-side).
-  const subtotalBhd = boxPrice.priceBhd * boxQty;
+  // Box lines are recomputed from the live current price rather than the item's stored
+  // unitPriceBhd, since the launch price can flip between add-to-cart and checkout — this
+  // is what will actually be charged (claimBoxOrderPricing decides the final price
+  // server-side). Story lines have a fixed catalog price, so their stored price is used
+  // as-is.
+  const subtotalBhd = items.reduce((sum, item) => {
+    const unitPriceBhd = item.productId === "peep-box" ? boxPrice.priceBhd : item.unitPriceBhd;
+    return sum + unitPriceBhd * item.quantity;
+  }, 0);
   const isBahrain = buyer.country === "BH";
   const shippingBhd = isBahrain ? bahrainShippingBhd : (liveShippingBhd ?? null);
   const totalBhd = shippingBhd === null ? null : subtotalBhd + shippingBhd;
@@ -98,7 +102,7 @@ export default function CheckoutPage() {
   // endpoint requires a real destination city, so this waits until one is typed instead
   // of firing (and failing) on every keystroke before the city field is filled in.
   useEffect(() => {
-    if (isBahrain || boxQty === 0 || !hasCity) {
+    if (isBahrain || items.length === 0 || !hasCity) {
       setLiveShippingBhd(undefined);
       setShippingLoading(false);
       return;
@@ -110,7 +114,7 @@ export default function CheckoutPage() {
         const response = await fetch("/api/shipping/quote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ countryCode: buyer.country, city: buyer.city, boxQty }),
+          body: JSON.stringify({ countryCode: buyer.country, city: buyer.city, items }),
         });
         const json = await response.json();
         setLiveShippingBhd(response.ok && typeof json.shippingBhd === "number" ? json.shippingBhd : null);
@@ -121,7 +125,7 @@ export default function CheckoutPage() {
       }
     }, 600);
     return () => clearTimeout(timer);
-  }, [isBahrain, hasCity, buyer.country, buyer.city, boxQty]);
+  }, [isBahrain, hasCity, buyer.country, buyer.city, items]);
 
   function handleReceiptChange(file: File | null) {
     setReceipt(file);

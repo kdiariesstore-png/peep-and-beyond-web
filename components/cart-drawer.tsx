@@ -4,10 +4,11 @@ import { useCart } from "../lib/cart/cart-context";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
+import { PEEP_STORY_PRODUCT } from "../lib/product";
 
 export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { items, removeItem, updateQuantity } = useCart();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const { currency } = useCurrency();
 
   if (!open) return null;
@@ -29,7 +30,14 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
         <ul className="mt-6 space-y-4">
           {items.map((item) => (
             <li key={item.id} className="border-b border-brown/10 pb-4">
-              <p className="font-semibold">{item.customization.childName || "—"}</p>
+              {item.productId === "peep-story" ? (
+                <p className="font-semibold">
+                  {locale === "ar" ? PEEP_STORY_PRODUCT.nameAr : PEEP_STORY_PRODUCT.nameEn} —{" "}
+                  {item.storyLanguage === "ar" ? t.languageArabic : t.languageEnglish}
+                </p>
+              ) : (
+                <p className="font-semibold">{item.customization.childName || "—"}</p>
+              )}
               <p className="text-sm text-brown/60">
                 {formatMoney(item.unitPriceBhd, currency)}
               </p>

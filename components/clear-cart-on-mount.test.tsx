@@ -9,6 +9,7 @@ const STORAGE_KEY = "peep-cart-v1";
 
 const persistedItem: CartItem = {
   id: "item-1",
+  productId: "peep-box",
   customization: {
     storyLanguage: "ar",
     cardLanguage: "ar",

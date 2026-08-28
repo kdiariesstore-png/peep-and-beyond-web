@@ -6,6 +6,7 @@ import { Hero } from "../components/hero";
 import { TrustBadges } from "../components/trust-badges";
 import { ThreeMoments } from "../components/three-moments";
 import { InsideTheBox } from "../components/inside-the-box";
+import { StoryProduct } from "../components/story-product";
 import { CustomizeBoxForm } from "../components/customize-box-form";
 import { CartDrawer } from "../components/cart-drawer";
 import { Footer } from "../components/footer";
@@ -26,6 +27,7 @@ export default function HomePage() {
         <TrustBadges />
         <ThreeMoments />
         <InsideTheBox onOrderClick={() => setShowCustomize(true)} />
+        <StoryProduct />
       </main>
       <Footer />
 

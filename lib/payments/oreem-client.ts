@@ -1,9 +1,15 @@
+export interface ShippingRateParcel {
+  chargeableWeightKg: number;
+  // Number of identical parcels at this weight (e.g. box quantity in the order).
+  qty: number;
+}
+
 export interface ShippingRateParams {
   destCountryCode: string;
   destCity?: string;
-  chargeableWeightKg: number;
-  // Number of identical parcels (e.g. box quantity in the order). Defaults to 1.
-  qty?: number;
+  // One entry per distinct package weight in the order (e.g. boxes and standalone
+  // stories ship as separate parcel lines within the same rate request).
+  parcels: ShippingRateParcel[];
 }
 
 export interface ShippingRateOption {
@@ -136,8 +142,8 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   return { verified, status, amountBhd };
 }
 
-// Calls Oreem's shipping-rate calculator (POST /api/v1/shipments/rates) for a single
-// parcel shipped from our Bahrain origin to the given destination. Oreem only exports
+// Calls Oreem's shipping-rate calculator (POST /api/v1/shipments/rates) for one or more
+// parcels shipped from our Bahrain origin to the given destination. Oreem only exports
 // from Bahrain today, so origin.country_code is always "BH"; SHIP_ORIGIN_CITY is optional
 // because the docs don't mark origin.city_name as required and rates appear to be priced
 // by country pair. delivery_code is omitted (not a specific carrier) so Oreem returns every
@@ -174,14 +180,12 @@ export async function fetchShippingRates(params: ShippingRateParams): Promise<Sh
         // use for precision.
         postal_code: params.destCountryCode === "BH" ? null : "00000",
       },
-      parcels: [
-        {
-          qty: params.qty ?? 1,
-          item_qty: 1,
-          chargeable_weight: params.chargeableWeightKg.toFixed(3),
-          weight_unit: "kg",
-        },
-      ],
+      parcels: params.parcels.map((parcel) => ({
+        qty: parcel.qty,
+        item_qty: 1,
+        chargeable_weight: parcel.chargeableWeightKg.toFixed(3),
+        weight_unit: "kg",
+      })),
       // Oreem's own working example always sends a concrete delivery_code (never null) —
       // unlike delivery_method_code, which the same example does send as null. Omitting
       // the key entirely (rather than sending delivery_code: null) is the closer match to

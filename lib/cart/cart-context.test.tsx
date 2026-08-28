@@ -13,6 +13,7 @@ function TestHarness() {
         onClick={() =>
           addItem({
             id: "item-1",
+            productId: "peep-box",
             customization: {
               storyLanguage: "ar",
               cardLanguage: "ar",

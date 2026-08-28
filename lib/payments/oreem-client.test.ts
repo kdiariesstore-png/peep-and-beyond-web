@@ -170,7 +170,7 @@ describe("fetchShippingRates", () => {
     const result = await fetchShippingRates({
       destCountryCode: "SA",
       destCity: "Jeddah",
-      chargeableWeightKg: 1.96,
+      parcels: [{ chargeableWeightKg: 1.96, qty: 1 }],
     });
 
     expect(result).toEqual([
@@ -189,13 +189,37 @@ describe("fetchShippingRates", () => {
     expect(body.delivery_method_code).toBeNull();
   });
 
+  it("sends one parcel entry per distinct weight for a mixed box + story order", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: "success", data: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchShippingRates({
+      destCountryCode: "SA",
+      destCity: "Jeddah",
+      parcels: [
+        { chargeableWeightKg: 1.96, qty: 2 },
+        { chargeableWeightKg: 0.2, qty: 3 },
+      ],
+    });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.parcels).toEqual([
+      { qty: 2, item_qty: 1, chargeable_weight: "1.960", weight_unit: "kg" },
+      { qty: 3, item_qty: 1, chargeable_weight: "0.200", weight_unit: "kg" },
+    ]);
+  });
+
   it("returns an empty array when Oreem has no rated service for the destination", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ status: "success", data: [] }) })
     );
 
-    const result = await fetchShippingRates({ destCountryCode: "XX", chargeableWeightKg: 1 });
+    const result = await fetchShippingRates({ destCountryCode: "XX", parcels: [{ chargeableWeightKg: 1, qty: 1 }] });
     expect(result).toEqual([]);
   });
 
@@ -206,7 +230,7 @@ describe("fetchShippingRates", () => {
     );
 
     await expect(
-      fetchShippingRates({ destCountryCode: "SA", chargeableWeightKg: 1 })
+      fetchShippingRates({ destCountryCode: "SA", parcels: [{ chargeableWeightKg: 1, qty: 1 }] })
     ).rejects.toThrow(/status 500/);
   });
 
@@ -221,7 +245,7 @@ describe("fetchShippingRates", () => {
     );
 
     await expect(
-      fetchShippingRates({ destCountryCode: "SA", chargeableWeightKg: 1 })
+      fetchShippingRates({ destCountryCode: "SA", parcels: [{ chargeableWeightKg: 1, qty: 1 }] })
     ).rejects.toThrow(/dest\.city_name field is required/);
   });
 
@@ -233,7 +257,7 @@ describe("fetchShippingRates", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", chargeableWeightKg: 1 });
+    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", parcels: [{ chargeableWeightKg: 1, qty: 1 }] });
 
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);
@@ -247,7 +271,7 @@ describe("fetchShippingRates", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", chargeableWeightKg: 1 });
+    await fetchShippingRates({ destCountryCode: "SA", destCity: "Jeddah", parcels: [{ chargeableWeightKg: 1, qty: 1 }] });
 
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);
@@ -261,7 +285,7 @@ describe("fetchShippingRates", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await fetchShippingRates({ destCountryCode: "BH", destCity: "Manama", chargeableWeightKg: 1 });
+    await fetchShippingRates({ destCountryCode: "BH", destCity: "Manama", parcels: [{ chargeableWeightKg: 1, qty: 1 }] });
 
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);

@@ -1,4 +1,5 @@
 import type { BuyerDetails, CartItem } from "../types";
+import { isValidCartItemsPayload } from "../cart/cart-item-helpers";
 
 export interface PendingOrderPayload {
   txnRef: string;
@@ -44,16 +45,10 @@ export function decodeOrderPayload(encoded: string): PendingOrderPayload | null 
       return null;
     }
 
-    // Mirrors the per-item validation in app/api/orders/oreem/route.ts: items reaching
-    // this point drive the stock decrement and the order emails.
-    for (const item of parsed.items) {
-      const storyLanguage = item?.customization?.storyLanguage;
-      if (storyLanguage !== "ar" && storyLanguage !== "en") {
-        return null;
-      }
-      if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
-        return null;
-      }
+    // Mirrors the per-item validation in the order API routes: items reaching this
+    // point drive the stock decrement and the order emails.
+    if (!isValidCartItemsPayload(parsed.items)) {
+      return null;
     }
 
     return parsed as PendingOrderPayload;

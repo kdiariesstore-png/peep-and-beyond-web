@@ -1,6 +1,7 @@
 import type { CartItem } from "../types";
 import { getShippingRate } from "../shipping-rates";
 import { quoteShippingBhd } from "./quote-shipping";
+import { buildShippingParcels } from "../cart/cart-item-helpers";
 
 export interface OrderTotal {
   subtotalBhd: number;
@@ -27,16 +28,15 @@ export function calculateOrderTotal(items: CartItem[], countryCode: string): Ord
 }
 
 // Server-only (calls Oreem's shipping-rate API for non-Bahrain destinations via
-// quoteShippingBhd). Box quantity is the sum of item quantities in the cart, since every
-// cart item here is a physical Peep Box.
+// quoteShippingBhd). Boxes and standalone stories ship as separate parcel lines within
+// the same rate request (see buildShippingParcels).
 export async function calculateOrderTotalWithLiveShipping(
   items: CartItem[],
   countryCode: string,
   city: string | undefined
 ): Promise<OrderTotal> {
   const subtotalBhd = calculateSubtotalBhd(items);
-  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  const shippingBhd = await quoteShippingBhd(countryCode, city, boxQty);
+  const shippingBhd = await quoteShippingBhd(countryCode, city, buildShippingParcels(items));
   const totalBhd = shippingBhd === null ? null : round3(subtotalBhd + shippingBhd);
   return { subtotalBhd, shippingBhd, totalBhd };
 }

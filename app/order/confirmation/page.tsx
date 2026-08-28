@@ -15,6 +15,7 @@ import {
   isPreOrder,
   PRE_ORDER_NOTE,
 } from "../../../lib/inventory/story-stock";
+import { getItemStoryLanguage } from "../../../lib/cart/cart-item-helpers";
 import { OrderConfirmationMessage } from "../../../components/order-confirmation-message";
 import { ClearCartOnMount } from "../../../components/clear-cart-on-mount";
 import type { OrderEmailData } from "../../../lib/email/order-notification-email";
@@ -196,9 +197,10 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
   if (isFirstProcessing) {
     for (const item of payload.items) {
       try {
-        const remaining = await getRemainingStock(item.customization.storyLanguage);
+        const language = getItemStoryLanguage(item);
+        const remaining = await getRemainingStock(language);
         if (isPreOrder(remaining)) {
-          notes.push(`${PRE_ORDER_NOTE} (${item.customization.storyLanguage})`);
+          notes.push(`${PRE_ORDER_NOTE} (${language})`);
         }
       } catch (error) {
         console.error("Failed to check story stock for pre-order flag", error);
@@ -231,7 +233,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
 
     for (const item of payload.items) {
       try {
-        await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
+        await decrementStockAfterOrder(getItemStoryLanguage(item), item.quantity);
       } catch (error) {
         console.error("Failed to decrement story stock after Oreem order", error);
       }

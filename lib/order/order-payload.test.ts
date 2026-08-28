@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { encodeOrderPayload, decodeOrderPayload, type PendingOrderPayload } from "./order-payload";
+import type { BoxCartItem } from "../types";
+
+const boxItem: BoxCartItem = {
+  id: "1",
+  productId: "peep-box",
+  customization: {
+    storyLanguage: "ar",
+    cardLanguage: "ar",
+    cupColor: "pink",
+    childName: "سارة",
+    giftCard: false,
+  },
+  unitPriceBhd: 21.9,
+  quantity: 1,
+};
 
 const payload: PendingOrderPayload = {
   txnRef: "peep_abc123",
@@ -12,20 +27,7 @@ const payload: PendingOrderPayload = {
     address: "شارع 10",
     marketingOptIn: false,
   },
-  items: [
-    {
-      id: "1",
-      customization: {
-        storyLanguage: "ar",
-        cardLanguage: "ar",
-        cupColor: "pink",
-        childName: "سارة",
-        giftCard: false,
-      },
-      unitPriceBhd: 21.9,
-      quantity: 1,
-    },
-  ],
+  items: [boxItem],
   subtotalBhd: 21.9,
   shippingBhd: 2.0,
   totalBhd: 23.9,
@@ -92,7 +94,7 @@ describe("encodeOrderPayload / decodeOrderPayload", () => {
     const withItem = (item: unknown) =>
       Buffer.from(JSON.stringify({ ...payload, items: [item] }), "utf-8").toString("base64url");
 
-    const goodItem = payload.items[0];
+    const goodItem = boxItem;
 
     expect(
       decodeOrderPayload(

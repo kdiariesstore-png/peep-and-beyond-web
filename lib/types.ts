@@ -13,12 +13,27 @@ export interface BoxCustomization {
   giftCard: boolean;
 }
 
-export interface CartItem {
+export type PhysicalProductId = "peep-box" | "peep-story";
+
+export interface BoxCartItem {
   id: string;
+  productId: "peep-box";
   customization: BoxCustomization;
   unitPriceBhd: number;
   quantity: number;
 }
+
+// The story sold on its own (the same printed booklet that ships inside a Peep Box) —
+// only a language choice, none of the box's other customization.
+export interface StoryCartItem {
+  id: string;
+  productId: "peep-story";
+  storyLanguage: StoryLanguage;
+  unitPriceBhd: number;
+  quantity: number;
+}
+
+export type CartItem = BoxCartItem | StoryCartItem;
 
 export interface BuyerDetails {
   fullName: string;

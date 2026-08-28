@@ -30,6 +30,20 @@ function countryName(countryCode: string): string {
 }
 
 function itemRowHtml(item: CartItem): string {
+  if (item.productId === "peep-story") {
+    const langLabel = item.storyLanguage === "ar" ? "العربية" : "English";
+    return `
+      <tr>
+        <td style="padding:8px 6px; border-bottom:1px solid #e5e5e5; vertical-align:top;">
+          <strong>قصة بيب المصورة (مطبوعة، لوحدها)</strong> × ${item.quantity}
+          <div style="margin-top:4px; font-size:13px; color:#555;">
+            اللغة: ${langLabel}
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
   const langLabel = item.customization.storyLanguage === "ar" ? "العربية" : "English";
   const cardLangLabel = item.customization.cardLanguage === "ar" ? "العربية" : "English";
   const cupLabel = item.customization.cupColor === "pink" ? "وردي" : "أزرق";

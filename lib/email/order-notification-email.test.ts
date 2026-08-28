@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { buildOrderEmailHtml, buildOrderEmailSubject, type OrderEmailData } from "./order-notification-email";
+import type { BoxCartItem } from "../types";
+
+const boxItem: BoxCartItem = {
+  id: "1",
+  productId: "peep-box",
+  customization: {
+    storyLanguage: "ar",
+    cardLanguage: "ar",
+    cupColor: "pink",
+    childName: "سارة",
+    giftCard: false,
+  },
+  unitPriceBhd: 21.9,
+  quantity: 1,
+};
 
 const data: OrderEmailData = {
   buyer: {
@@ -11,20 +26,7 @@ const data: OrderEmailData = {
     address: "شارع 10، مبنى 5",
     marketingOptIn: true,
   },
-  items: [
-    {
-      id: "1",
-      customization: {
-        storyLanguage: "ar",
-        cardLanguage: "ar",
-        cupColor: "pink",
-        childName: "سارة",
-        giftCard: false,
-      },
-      unitPriceBhd: 21.9,
-      quantity: 1,
-    },
-  ],
+  items: [boxItem],
   subtotalBhd: 21.9,
   shippingBhd: 2.0,
   totalBhd: 23.9,
@@ -49,6 +51,19 @@ describe("buildOrderEmailHtml", () => {
   it("shows 'to be confirmed' when shipping is unknown", () => {
     const html = buildOrderEmailHtml({ ...data, shippingBhd: null, totalBhd: null });
     expect(html).toContain("يُحدَّد لاحقًا");
+  });
+
+  it("renders a standalone story line distinctly from a box line", () => {
+    const html = buildOrderEmailHtml({
+      ...data,
+      items: [
+        ...data.items,
+        { id: "2", productId: "peep-story", storyLanguage: "en", unitPriceBhd: 5, quantity: 2 },
+      ],
+    });
+    expect(html).toContain("قصة بيب المصورة (مطبوعة، لوحدها)");
+    expect(html).toContain("× 2");
+    expect(html).toContain("اللغة: English");
   });
 
   it("shows a cash-on-delivery label for cod orders", () => {
@@ -78,9 +93,9 @@ describe("buildOrderEmailHtml", () => {
       },
       items: [
         {
-          ...data.items[0],
+          ...boxItem,
           customization: {
-            ...data.items[0].customization,
+            ...boxItem.customization,
             childName: '<b>Bold</b>',
           },
         },

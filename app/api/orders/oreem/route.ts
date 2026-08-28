@@ -3,10 +3,11 @@ import { randomUUID } from "node:crypto";
 import { calculateOrderTotalWithLiveShipping } from "../../../../lib/order/order-total";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
-import { isPhysicalBoxAvailable } from "../../../../lib/product";
+import { isPhysicalBoxAvailable, PEEP_STORY_PRODUCT } from "../../../../lib/product";
 import { claimBoxOrderPricing } from "../../../../lib/inventory/launch-pricing";
 import { getSiteUrl } from "../../../../lib/site-url";
-import type { BuyerDetails, CartItem } from "../../../../lib/types";
+import { isValidCartItemsPayload } from "../../../../lib/cart/cart-item-helpers";
+import type { BuyerDetails } from "../../../../lib/types";
 
 export const runtime = "nodejs";
 
@@ -24,34 +25,33 @@ export async function POST(request: NextRequest) {
   if (!buyerCandidate || typeof buyerCandidate !== "object") {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-  if (!Array.isArray(itemsCandidate)) {
+  if (!isValidCartItemsPayload(itemsCandidate)) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const buyer = buyerCandidate as BuyerDetails;
-  let items = itemsCandidate as CartItem[];
+  let items = itemsCandidate;
 
   if (items.length === 0) {
     return NextResponse.json({ error: "empty_cart" }, { status: 400 });
   }
 
-  for (const item of items) {
-    const storyLanguage = item?.customization?.storyLanguage;
-    if (storyLanguage !== "ar" && storyLanguage !== "en") {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-    if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-  }
-
-  if (!isPhysicalBoxAvailable()) {
+  const hasBoxItem = items.some((item) => item.productId === "peep-box");
+  if (hasBoxItem && !isPhysicalBoxAvailable()) {
     return NextResponse.json({ error: "box_not_available" }, { status: 403 });
   }
 
-  const boxQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  const { unitPriceBhd } = await claimBoxOrderPricing(boxQty);
-  items = items.map((item) => ({ ...item, unitPriceBhd }));
+  // Never trust client-supplied prices: box lines get the server-claimed launch price,
+  // story lines get the catalog's fixed price.
+  const boxQty = items
+    .filter((item) => item.productId === "peep-box")
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const { unitPriceBhd: boxUnitPriceBhd } = await claimBoxOrderPricing(boxQty);
+  items = items.map((item) =>
+    item.productId === "peep-box"
+      ? { ...item, unitPriceBhd: boxUnitPriceBhd }
+      : { ...item, unitPriceBhd: PEEP_STORY_PRODUCT.priceBhd }
+  );
 
   const { subtotalBhd, shippingBhd, totalBhd } = await calculateOrderTotalWithLiveShipping(
     items,
