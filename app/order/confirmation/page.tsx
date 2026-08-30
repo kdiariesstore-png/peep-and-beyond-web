@@ -17,6 +17,7 @@ import {
 import { OrderConfirmationMessage } from "../../../components/order-confirmation-message";
 import { ClearCartOnMount } from "../../../components/clear-cart-on-mount";
 import type { OrderEmailData } from "../../../lib/email/order-notification-email";
+import { itemIncludesStory } from "../../../lib/product";
 
 export const runtime = "nodejs";
 
@@ -183,6 +184,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
 
   if (isFirstProcessing) {
     for (const item of payload.items) {
+      if (!itemIncludesStory(item)) continue;
       try {
         const remaining = await getRemainingStock(item.customization.storyLanguage);
         if (isPreOrder(remaining)) {
@@ -218,6 +220,7 @@ export default async function OrderConfirmationPage({ searchParams }: Confirmati
     }
 
     for (const item of payload.items) {
+      if (!itemIncludesStory(item)) continue;
       try {
         await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
       } catch (error) {

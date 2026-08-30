@@ -13,9 +13,23 @@ export interface BoxCustomization {
   giftCard: boolean;
 }
 
+export type PhysicalBoxKind = "ready-made" | "build-your-own" | "ready-to-gift";
+export type BuilderProductId =
+  | "story"
+  | "puzzle"
+  | "magnetic-map"
+  | "coloring-book"
+  | "alphabet-cards"
+  | "cup"
+  | "stickers"
+  | "welcome-card";
+
 export interface CartItem {
   id: string;
+  /** Missing on carts saved before the builder launch; those are ready-made boxes. */
+  kind?: PhysicalBoxKind;
   customization: BoxCustomization;
+  selectedProductIds?: BuilderProductId[];
   unitPriceBhd: number;
   quantity: number;
 }

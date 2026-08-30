@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { calculateOrderTotal } from "../../../../lib/order/order-total";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
-import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
+import { normalizePhysicalCartItems } from "../../../../lib/cart/validate-cart";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
@@ -43,23 +43,10 @@ export async function POST(request: NextRequest) {
   }
 
   const buyer = buyerCandidate as BuyerDetails;
-  let items = itemsCandidate as CartItem[];
-
-  if (items.length === 0) {
-    return NextResponse.json({ error: "empty_cart" }, { status: 400 });
+  const items = normalizePhysicalCartItems(itemsCandidate);
+  if (!items) {
+    return NextResponse.json({ error: "invalid_cart" }, { status: 400 });
   }
-
-  for (const item of items) {
-    const storyLanguage = item?.customization?.storyLanguage;
-    if (storyLanguage !== "ar" && storyLanguage !== "en") {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-    if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-  }
-
-  items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
   if (shippingBhd === null || totalBhd === null) {

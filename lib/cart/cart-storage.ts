@@ -1,4 +1,5 @@
 import type { CartItem } from "../types";
+import { isValidPhysicalCartItem } from "./validate-cart";
 
 const STORAGE_KEY = "peep-cart-v1";
 
@@ -24,7 +25,7 @@ function isCartItem(value: unknown): value is CartItem {
   if (typeof c.childName !== "string") return false;
   if (typeof c.giftCard !== "boolean") return false;
 
-  return true;
+  return isValidPhysicalCartItem(value);
 }
 
 export function deserializeCart(raw: string | null): CartItem[] {

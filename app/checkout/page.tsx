@@ -10,6 +10,7 @@ import { validateReceiptFile } from "../../lib/order/validate-receipt";
 import { BuyerForm } from "../../components/checkout/buyer-form";
 import { PaymentMethodSelector } from "../../components/checkout/payment-method-selector";
 import type { BuyerDetails, PaymentMethod } from "../../lib/types";
+import { BUILDER_PRODUCTS, isBuilderKind } from "../../lib/product";
 
 const EMPTY_BUYER: BuyerDetails = {
   fullName: "",
@@ -105,8 +106,11 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="mx-auto grid max-w-4xl gap-8 p-6 md:grid-cols-2">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-14">
+      <a href="/" className="text-sm font-bold text-leaf">← العودة للمتجر</a>
+      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_380px]">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl bg-white/70 p-5 shadow-sm sm:p-8">
+        <div><p className="section-kicker">الخطوة الأخيرة</p><h1 className="mt-2 text-3xl font-black">إتمام الطلب</h1><p className="mt-2 text-sm text-brown/60">بياناتك محمية، ولن يتم تغيير المبلغ بعد تأكيدك.</p></div>
         <BuyerForm value={buyer} onChange={setBuyer} />
         <PaymentMethodSelector
           method={paymentMethod}
@@ -117,22 +121,21 @@ export default function CheckoutPage() {
         <button
           type="submit"
           disabled={submitting || items.length === 0}
-          className="w-full rounded-full bg-leaf py-3 text-white disabled:opacity-50"
+          className="button-primary w-full disabled:opacity-50"
         >
           تأكيد الطلب
         </button>
       </form>
 
-      <aside className="rounded-xl bg-white/60 p-6">
-        <h2 className="text-lg font-bold">ملخص الطلب</h2>
-        <p className="mt-4">{formatMoney(subtotalBhd, currency)}</p>
-        <p className="text-sm text-brown/70">
-          الشحن: {shippingBhd === null ? "يُحدَّد لاحقًا" : formatMoney(shippingBhd, currency)}
-        </p>
-        <p className="mt-2 font-semibold">
-          الإجمالي: {totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}
-        </p>
+      <aside className="h-fit rounded-3xl bg-brown p-6 text-cream lg:sticky lg:top-28">
+        <h2 className="text-xl font-black">ملخص الطلب</h2>
+        <ul className="mt-5 space-y-4">{items.map((item) => <li key={item.id} className="border-b border-cream/15 pb-4"><div className="flex justify-between gap-4"><span className="font-bold">{isBuilderKind(item.kind) ? (item.kind === "ready-to-gift" ? "بوكس للإهداء" : "بوكس من اختيارك") : "بوكس بيب الكامل"} × {item.quantity}</span><span>{formatMoney(item.unitPriceBhd * item.quantity, currency)}</span></div>{isBuilderKind(item.kind) && <p className="mt-2 text-xs leading-5 text-cream/60">{(item.selectedProductIds ?? []).map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr).filter(Boolean).join(" · ")}</p>}</li>)}</ul>
+        <div className="mt-5 space-y-3 text-sm"><div className="flex justify-between"><span>المجموع الفرعي</span><span>{formatMoney(subtotalBhd, currency)}</span></div>
+        <div className="flex justify-between"><span>الشحن</span><span>{shippingBhd === null ? "يُحدَّد لاحقًا" : formatMoney(shippingBhd, currency)}</span></div>
+        <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}</span></div></div>
+        <div className="mt-6 rounded-2xl bg-cream/10 p-4 text-xs leading-6 text-cream/70">🔒 دفع آمن عبر أوريم أو تحويل بنكي · توصيل البحرين 2 د.ب</div>
       </aside>
+      </div>
     </main>
   );
 }

@@ -9,4 +9,32 @@ html {
 body {
   background-color: #fbf3e7;
   color: #3b2a1e;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: #cbd9bd; color: #3b2a1e; }
+
+@layer components {
+  .hero-surface {
+    background:
+      radial-gradient(circle at 12% 15%, rgba(210, 184, 145, .22), transparent 28rem),
+      linear-gradient(180deg, #fbf3e7 0%, #f6ecde 100%);
+  }
+
+  .section-kicker { @apply text-xs font-black uppercase tracking-[0.2em] text-leaf; }
+  .button-primary { @apply rounded-full bg-leaf px-6 py-3 font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#5e8050] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-leaf focus:ring-offset-2 focus:ring-offset-cream; }
+  .button-secondary { @apply rounded-full border border-brown/20 bg-white/45 px-6 py-3 font-black text-brown transition hover:border-brown/40 hover:bg-white; }
+  .path-card { @apply flex min-h-full flex-col overflow-hidden rounded-[1.75rem] border border-brown/10 bg-white/70 shadow-[0_14px_50px_rgba(59,42,30,.08)] transition hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(59,42,30,.13)]; }
+  .product-choice { @apply overflow-hidden rounded-3xl border-2 border-transparent bg-white/70 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-leaf; }
+  .product-choice-active { @apply border-leaf bg-[#f6faf3] shadow-md; }
+  .field { @apply mt-2 block w-full rounded-xl border border-brown/15 bg-cream px-4 py-3 font-normal outline-none transition placeholder:text-brown/35 focus:border-leaf focus:ring-2 focus:ring-leaf/15; }
+  .choice-pill { @apply rounded-full border border-brown/15 bg-cream px-4 py-2 text-sm font-bold transition; }
+  .choice-pill-active { @apply border-leaf bg-leaf text-white; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }

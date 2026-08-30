@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { PEEP_BOX_PRODUCT, createDefaultCustomization, isPhysicalBoxAvailable } from "./product";
+import { BUILDER_BASE_PRICE_BHD, BUILDER_MIN_PRODUCTS, BUILDER_PRODUCTS, PEEP_BOX_PRODUCT, calculateBuilderPrice, createDefaultCustomization, isPhysicalBoxAvailable } from "./product";
 
 describe("PEEP_BOX_PRODUCT", () => {
   it("has the correct price", () => {
@@ -9,6 +9,18 @@ describe("PEEP_BOX_PRODUCT", () => {
   it("lists eight box contents in Arabic and English, kept in sync", () => {
     expect(PEEP_BOX_PRODUCT.contents.ar).toHaveLength(8);
     expect(PEEP_BOX_PRODUCT.contents.en).toHaveLength(8);
+  });
+});
+
+describe("builder catalog", () => {
+  it("starts at BHD 4 and exposes enough products for the five-item minimum", () => {
+    expect(BUILDER_BASE_PRICE_BHD).toBe(4);
+    expect(BUILDER_MIN_PRODUCTS).toBe(5);
+    expect(BUILDER_PRODUCTS.length).toBeGreaterThanOrEqual(BUILDER_MIN_PRODUCTS);
+  });
+
+  it("calculates a running total from the trusted catalog", () => {
+    expect(calculateBuilderPrice(["story", "puzzle", "stickers"])).toBe(13.5);
   });
 });
 

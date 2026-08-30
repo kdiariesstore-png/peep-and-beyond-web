@@ -11,12 +11,13 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="border-b border-brown/10">
-      <div className="flex items-center justify-between px-6 py-4">
-        <span className="text-xl font-bold">Peep &amp; beyond</span>
+    <header className="sticky top-0 z-40 border-b border-brown/10 bg-cream/90 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <a href="/" className="text-lg font-black tracking-tight sm:text-xl">Peep &amp; beyond</a>
         <nav className="hidden gap-6 md:flex">
-          <a href="#inside">{t.navGifts}</a>
-          <a href="/digital">{t.navDigitalProducts}</a>
+          <a href="/#choose" className="font-semibold hover:text-leaf">{locale === "ar" ? "اختر بوكسك" : "Choose your box"}</a>
+          <a href="/#inside" className="font-semibold hover:text-leaf">{t.navGifts}</a>
+          <a href="/digital" className="font-semibold hover:text-leaf">{t.navDigitalProducts}</a>
         </nav>
         <div className="flex items-center gap-3">
           <button
@@ -33,13 +34,14 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
           >
             {currency === "BHD" ? "USD" : "BHD"}
           </button>
-          <button type="button" onClick={onCartClick} aria-label="open cart">
-            🛍️ {itemCount > 0 ? itemCount : ""}
+          <button type="button" onClick={onCartClick} aria-label="open cart" className="relative grid h-10 w-10 place-items-center rounded-full bg-brown text-cream">
+            <span aria-hidden>🛍</span>{itemCount > 0 && <span className="absolute -end-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-leaf px-1 text-[10px] font-bold text-white">{itemCount}</span>}
           </button>
         </div>
       </div>
-      <nav className="flex gap-6 border-t border-brown/10 px-6 py-2 md:hidden">
-        <a href="#inside">{t.navGifts}</a>
+      <nav className="mx-auto flex max-w-7xl gap-5 overflow-x-auto border-t border-brown/10 px-4 py-2 text-sm font-semibold md:hidden">
+        <a href="/#choose" className="whitespace-nowrap">{locale === "ar" ? "اختر بوكسك" : "Choose a box"}</a>
+        <a href="/#inside" className="whitespace-nowrap">{t.navGifts}</a>
         <a href="/digital">{t.navDigitalProducts}</a>
       </nav>
     </header>

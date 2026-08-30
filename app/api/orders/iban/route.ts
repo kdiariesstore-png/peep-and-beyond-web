@@ -12,7 +12,8 @@ import {
   isPreOrder,
   PRE_ORDER_NOTE,
 } from "../../../../lib/inventory/story-stock";
-import { PEEP_BOX_PRODUCT } from "../../../../lib/product";
+import { itemIncludesStory } from "../../../../lib/product";
+import { normalizePhysicalCartItems } from "../../../../lib/cart/validate-cart";
 import type { BuyerDetails, CartItem } from "../../../../lib/types";
 
 export const runtime = "nodejs";
@@ -45,28 +46,19 @@ export async function POST(request: NextRequest) {
   try {
     buyer = JSON.parse(buyerJson) as BuyerDetails;
     if (!buyer || typeof buyer !== "object") throw new Error("invalid buyer");
-    items = JSON.parse(itemsJson) as CartItem[];
-    if (!Array.isArray(items)) throw new Error("items is not an array");
+    const parsedItems = JSON.parse(itemsJson) as CartItem[];
+    const normalized = normalizePhysicalCartItems(parsedItems);
+    if (!normalized) throw new Error("invalid items");
+    items = normalized;
   } catch {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-
-  for (const item of items) {
-    const storyLanguage = item?.customization?.storyLanguage;
-    if (storyLanguage !== "ar" && storyLanguage !== "en") {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-    if (!Number.isInteger(item?.quantity) || (item?.quantity ?? 0) < 1) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-    }
-  }
-
-  items = items.map((item) => ({ ...item, unitPriceBhd: PEEP_BOX_PRODUCT.priceBhd }));
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
 
   const notes: string[] = [];
   for (const item of items) {
+    if (!itemIncludesStory(item)) continue;
     try {
       const remaining = await getRemainingStock(item.customization.storyLanguage);
       if (isPreOrder(remaining)) {
@@ -121,6 +113,7 @@ export async function POST(request: NextRequest) {
   }
 
   for (const item of items) {
+    if (!itemIncludesStory(item)) continue;
     try {
       await decrementStockAfterOrder(item.customization.storyLanguage, item.quantity);
     } catch (error) {

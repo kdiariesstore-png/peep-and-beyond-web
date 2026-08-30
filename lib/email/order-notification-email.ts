@@ -1,4 +1,5 @@
 import type { BuyerDetails, CartItem, PaymentMethod } from "../types";
+import { BUILDER_PRODUCTS, isBuilderKind } from "../product";
 
 function escapeHtml(value: string): string {
   return value
@@ -28,6 +29,14 @@ function describeItem(item: CartItem): string {
   const langLabel = item.customization.storyLanguage === "ar" ? "العربية" : "English";
   const cupLabel = item.customization.cupColor === "pink" ? "وردي" : "أزرق";
   const childName = escapeHtml(item.customization.childName || "بدون اسم");
+  if (isBuilderKind(item.kind)) {
+    const boxLabel = item.kind === "ready-to-gift" ? "بوكس بيب الجاهز للإهداء" : "بوكس بيب من اختيار العميل";
+    const selectedNames = (item.selectedProductIds ?? [])
+      .map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr)
+      .filter(Boolean)
+      .join("، ");
+    return `${boxLabel} × ${item.quantity} — ${childName} · ${langLabel} · المنتجات: ${selectedNames}`;
+  }
   return `بوكس بيب الكامل × ${item.quantity} — ${childName} · ${langLabel} · ${cupLabel}`;
 }
 
