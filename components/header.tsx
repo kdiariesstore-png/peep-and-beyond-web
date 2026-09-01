@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { useCart } from "../lib/cart/cart-context";
@@ -16,7 +17,12 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
         {locale === "ar" ? "بطاقة إهداء مجانية  •  توصيل البحرين 2 د.ب  •  صنع بحب في البحرين" : "Free gift card  •  Bahrain delivery BHD 2  •  Made with love in Bahrain"}
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <a href="/" className="flex items-center gap-2 text-lg font-black tracking-tight sm:text-xl"><span className="grid h-9 w-9 place-items-center rounded-full bg-gold/20 text-lg" aria-hidden>🦕</span><span>Peep &amp; Beyond</span></a>
+        <a href="/" className="flex items-center gap-2 text-lg font-black tracking-tight sm:text-xl">
+          <span className="relative h-10 w-10 overflow-hidden rounded-full bg-cream ring-1 ring-brown/10">
+            <Image src="/images/peep-logo.webp" alt="" fill className="object-cover" sizes="40px" priority />
+          </span>
+          <span>Peep &amp; Beyond</span>
+        </a>
         <nav className="hidden gap-6 md:flex">
           <a href="/#choose" className="font-semibold hover:text-leaf">{locale === "ar" ? "اختر بوكسك" : "Choose your box"}</a>
           <a href="/#products" className="font-semibold hover:text-leaf">{locale === "ar" ? "المنتجات" : "Products"}</a>

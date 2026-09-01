@@ -16,11 +16,11 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
     <section id="inside" className="px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-10 overflow-hidden rounded-[2rem] bg-[#e6ede1] p-5 shadow-sm sm:p-8 md:grid-cols-2 lg:p-12">
         <Image
-          src="/images/peep-box-product.png"
+          src="/images/peep-box-detail.webp"
           alt={t.insideTitle}
           width={800}
           height={600}
-          className="aspect-[4/3] w-full rounded-[1.5rem] object-cover shadow-lg"
+          className="aspect-[4/3] w-full rounded-[1.5rem] bg-cream object-contain shadow-lg"
         />
         <div>
           <p className="section-kicker">{locale === "ar" ? "الاختيار الجاهز" : "The ready-made favorite"}</p>

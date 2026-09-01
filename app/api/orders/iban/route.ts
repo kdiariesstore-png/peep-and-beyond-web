@@ -55,6 +55,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+  if (shippingBhd === null || totalBhd === null) {
+    return NextResponse.json({ error: "shipping_not_available" }, { status: 400 });
+  }
 
   const notes: string[] = [];
   for (const item of items) {

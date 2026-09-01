@@ -1,7 +1,7 @@
 /**
  * Country code -> flat shipping price in BHD.
- * `null` means "no rate set yet" -> checkout shows a "quoted after we contact you" message.
- * The owner will supply real international rates once the box's shipping weight is known.
+ * `null` means "no verified rate set yet". Checkout and both payment routes fail closed:
+ * the customer must request a shipping quote before payment.
  */
 const SHIPPING_RATES: Record<string, number | null> = {
   BH: 2.0,

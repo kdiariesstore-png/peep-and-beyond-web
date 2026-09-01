@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     description: "قصة ولعب وتعلّم في هدية تختار تفاصيلها بنفسك.",
     url: "https://www.peepandbeyond.com",
     siteName: "Peep & beyond",
-    images: [{ url: "/og.png", width: 1536, height: 1024, alt: "Peep & beyond — A little box. A big feeling." }],
+    images: [{ url: "/images/peep-box-detail.webp", width: 1100, height: 716, alt: "بوكس بيب الحقيقي مع منتجاته" }],
     locale: "ar_BH",
     type: "website",
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Peep & beyond | بوكس بطريقتك",
     description: "قصة ولعب وتعلّم في هدية تختار تفاصيلها بنفسك.",
-    images: ["/og.png"],
+    images: ["/images/peep-box-detail.webp"],
   },
 };
 

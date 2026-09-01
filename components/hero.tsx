@@ -33,11 +33,11 @@ export function Hero() {
       <div className="relative order-first lg:order-last">
         <div className="absolute -inset-3 rotate-2 rounded-[2.5rem] bg-[#dfe8d8]" aria-hidden />
         <Image
-          src="/images/peep-box-product.png"
+          src="/images/peep-box-real.webp"
           alt={ar ? "بوكس بيب مفتوح مع منتجاته" : "An open Peep Box with its products"}
-          width={800}
-          height={600}
-          className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-xl"
+          width={920}
+          height={1150}
+          className="relative aspect-[4/5] w-full rounded-[2rem] bg-cream object-contain shadow-xl"
           priority
         />
       </div>

@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
+  const internationalQuoteRequired = shippingBhd === null || totalBhd === null;
 
   useEffect(() => {
     setPaymentMethod(buyer.country === "BH" ? "iban" : "oreem");
@@ -53,6 +54,11 @@ export default function CheckoutPage() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setSubmitError(null);
+
+    if (internationalQuoteRequired) {
+      setSubmitError("لا يمكن إتمام الدفع قبل تحديد سعر الشحن الدولي حسب الدولة والوزن.");
+      return;
+    }
 
     if (paymentMethod === "iban") {
       const result = validateReceiptFile(receipt ? { type: receipt.type, size: receipt.size } : null);
@@ -112,15 +118,23 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl bg-white/70 p-5 shadow-sm sm:p-8">
         <div><p className="section-kicker">الخطوة الأخيرة</p><h1 className="mt-2 text-3xl font-black">إتمام الطلب</h1><p className="mt-2 text-sm text-brown/60">بياناتك محمية، ولن يتم تغيير المبلغ بعد تأكيدك.</p></div>
         <BuyerForm value={buyer} onChange={setBuyer} />
-        <PaymentMethodSelector
-          method={paymentMethod}
-          receiptError={receiptError}
-          onReceiptChange={handleReceiptChange}
-        />
+        {internationalQuoteRequired ? (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
+            <p className="font-black">الشحن الدولي يحتاج تسعيرة قبل الدفع</p>
+            <p className="mt-1">لن يقبل الموقع الطلب أو الدفع من دون سعر شحن. أرسل لنا الدولة والمنتجات المطلوبة لنحسب الوزن والسعر أولًا.</p>
+            <a href="https://instagram.com/peepandbeyond" target="_blank" rel="noreferrer" className="mt-3 inline-block font-black text-leaf underline underline-offset-4">اطلب تسعيرة الشحن عبر @peepandbeyond</a>
+          </div>
+        ) : (
+          <PaymentMethodSelector
+            method={paymentMethod}
+            receiptError={receiptError}
+            onReceiptChange={handleReceiptChange}
+          />
+        )}
         {submitError && <p className="text-red-600">{submitError}</p>}
         <button
           type="submit"
-          disabled={submitting || items.length === 0}
+          disabled={submitting || items.length === 0 || internationalQuoteRequired}
           className="button-primary w-full disabled:opacity-50"
         >
           تأكيد الطلب
@@ -131,8 +145,8 @@ export default function CheckoutPage() {
         <h2 className="text-xl font-black">ملخص الطلب</h2>
         <ul className="mt-5 space-y-4">{items.map((item) => <li key={item.id} className="border-b border-cream/15 pb-4"><div className="flex justify-between gap-4"><span className="font-bold">{isIndividualProductKind(item.kind) ? getBuilderProduct(item.selectedProductIds?.[0]!)?.nameAr : isBuilderKind(item.kind) ? (item.kind === "ready-to-gift" ? "بوكس بيب المميز" : "بوكس من اختيارك") : "بوكس بيب الكامل"} × {item.quantity}</span><span>{formatMoney(item.unitPriceBhd * item.quantity, currency)}</span></div>{isBuilderKind(item.kind) && <p className="mt-2 text-xs leading-5 text-cream/60">{(item.selectedProductIds ?? []).map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr).filter(Boolean).join(" · ")}</p>}{isIndividualProductKind(item.kind) && checkoutOptionLabel(item) && <p className="mt-2 text-xs text-cream/60">{checkoutOptionLabel(item)}</p>}</li>)}</ul>
         <div className="mt-5 space-y-3 text-sm"><div className="flex justify-between"><span>المجموع الفرعي</span><span>{formatMoney(subtotalBhd, currency)}</span></div>
-        <div className="flex justify-between"><span>الشحن</span><span>{shippingBhd === null ? "يُحدَّد لاحقًا" : formatMoney(shippingBhd, currency)}</span></div>
-        <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}</span></div></div>
+        <div className="flex justify-between"><span>الشحن</span><span>{shippingBhd === null ? "يلزم طلب تسعيرة" : formatMoney(shippingBhd, currency)}</span></div>
+        <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "بعد تسعير الشحن" : formatMoney(totalBhd, currency)}</span></div></div>
         <div className="mt-6 rounded-2xl bg-cream/10 p-4 text-xs leading-6 text-cream/70">🔒 دفع آمن عبر أوريم أو تحويل بنكي · توصيل البحرين 2 د.ب</div>
       </aside>
       </div>

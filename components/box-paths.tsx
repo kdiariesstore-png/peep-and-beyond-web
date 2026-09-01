@@ -35,7 +35,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       pricePrefix: ar ? "سعر البوكس من" : "Box from",
       href: "/build?style=gift",
       cta: ar ? "جهّز هديتك" : "Create a gift",
-      image: "/images/peep-box-product.png",
+      image: "/images/peep-box-detail.webp",
       accent: "bg-[#e4eadf]",
       featured: true,
     },
@@ -63,7 +63,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
                     {ar ? "الأكثر مرونة" : "Most flexible"}
                   </span>
                 )}
-                <Image src={path.image} alt="" fill className={path.featured ? "object-cover" : "object-contain p-3"} sizes="(max-width: 1024px) 100vw, 33vw" />
+                <Image src={path.image} alt="" fill className="object-contain p-2" sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf">{path.eyebrow}</p>
@@ -82,7 +82,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
               <span className="absolute start-4 top-4 z-10 rounded-full bg-cream px-3 py-1 text-xs font-bold text-brown">
                 {ar ? "جاهز فورًا" : "Ready now"}
               </span>
-              <Image src="/images/peep-box-product.png" alt="" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
+              <Image src="/images/peep-box-detail.webp" alt="" fill className="object-contain p-2" sizes="(max-width: 1024px) 100vw, 33vw" />
             </div>
             <div className="flex flex-1 flex-col p-6">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#cbd9bd]">{ar ? "اختيارنا الكامل" : "Our complete pick"}</p>

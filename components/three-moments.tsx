@@ -8,14 +8,14 @@ export function ThreeMoments() {
   const moments =
     locale === "ar"
       ? [
-          { title: "اقرأ", body: "قصة مصوّرة ممتعة تنمّي الخيال وتفتح باب الحوار.", image: "/images/scene-read.png" },
-          { title: "العب", body: "خريطة مغناطيسية وملصقات بيب لوقت لعب مليء بالخيال.", image: "/images/scene-play.png" },
-          { title: "تعلّم", body: "بطاقات الحروف العربية أو الإنجليزية تدعم التعلّم والاستكشاف.", image: "/images/scene-learn.png" },
+          { title: "اقرأ", body: "قصة مصوّرة ممتعة تنمّي الخيال وتفتح باب الحوار.", image: "/images/products/story.webp" },
+          { title: "العب", body: "خريطة مغناطيسية وبزل بيب لوقت لعب مليء بالخيال.", image: "/images/products/puzzle.webp" },
+          { title: "تعلّم", body: "بطاقات الحروف العربية أو الإنجليزية تدعم التعلّم والاستكشاف.", image: "/images/products/alphabet-cards.webp" },
         ]
       : [
-          { title: "Read", body: "A fun illustrated story that grows imagination and opens conversation.", image: "/images/scene-read.png" },
-          { title: "Play", body: "A magnetic map and Peep stickers for imaginative play.", image: "/images/scene-play.png" },
-          { title: "Learn", body: "Arabic or English letter cards support learning and discovery.", image: "/images/scene-learn.png" },
+          { title: "Read", body: "A fun illustrated story that grows imagination and opens conversation.", image: "/images/products/story.webp" },
+          { title: "Play", body: "A Peep puzzle and magnetic map for imaginative play.", image: "/images/products/puzzle.webp" },
+          { title: "Learn", body: "Arabic or English letter cards support learning and discovery.", image: "/images/products/alphabet-cards.webp" },
         ];
 
   return (
@@ -33,7 +33,7 @@ export function ThreeMoments() {
               alt={moment.title}
               width={600}
               height={400}
-              className="h-56 w-full object-cover"
+              className="h-56 w-full bg-[#f7efe3] object-contain p-3"
             />
             <div className="p-6">
               <h3 className="text-lg font-semibold">{moment.title}</h3>
