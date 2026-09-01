@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     description: "قصة ولعب وتعلّم في هدية تختار تفاصيلها بنفسك.",
     url: "https://www.peepandbeyond.com",
     siteName: "Peep & beyond",
-    images: [{ url: "/images/peep-box-detail.webp", width: 1100, height: 716, alt: "بوكس بيب الحقيقي مع منتجاته" }],
+    images: [{ url: "/images/peep-box-detail.webp", width: 1154, height: 757, alt: "بوكس بيب الحقيقي مع منتجاته" }],
     locale: "ar_BH",
     type: "website",
   },

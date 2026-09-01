@@ -35,9 +35,9 @@ export function Hero() {
         <Image
           src="/images/peep-box-real.webp"
           alt={ar ? "بوكس بيب مفتوح مع منتجاته" : "An open Peep Box with its products"}
-          width={920}
-          height={1150}
-          className="relative aspect-[4/5] w-full rounded-[2rem] bg-cream object-contain shadow-xl"
+          width={1154}
+          height={757}
+          className="relative aspect-[3/2] w-full rounded-[2rem] bg-cream object-contain shadow-xl"
           priority
         />
       </div>
