@@ -97,4 +97,18 @@ describe("buildOrderEmailHtml", () => {
     const html = buildOrderEmailHtml({ ...data, notes: ["طلب مسبق: نفدت نسخ القصة العربية"] });
     expect(html).toContain("طلب مسبق: نفدت نسخ القصة العربية");
   });
+
+  it("includes the option selected for a standalone product", () => {
+    const html = buildOrderEmailHtml({
+      ...data,
+      items: [{
+        ...data.items[0],
+        kind: "individual-product",
+        selectedProductIds: ["cup"],
+        customization: { ...data.items[0].customization, cupColor: "blue" },
+      }],
+    });
+    expect(html).toContain("كوب الأطفال");
+    expect(html).toContain("اللون: أزرق");
+  });
 });

@@ -1,9 +1,10 @@
 import type { CartItem } from "../types";
 import {
-  BUILDER_MIN_PRODUCTS,
   calculateTrustedItemPrice,
+  getBuilderMinProducts,
   isBuilderKind,
   isBuilderProductId,
+  isIndividualProductKind,
 } from "../product";
 
 export function isValidPhysicalCartItem(item: unknown): item is CartItem {
@@ -14,12 +15,17 @@ export function isValidPhysicalCartItem(item: unknown): item is CartItem {
   if (candidate.customization.cardLanguage !== "ar" && candidate.customization.cardLanguage !== "en") return false;
   if (candidate.customization.cupColor !== "pink" && candidate.customization.cupColor !== "blue") return false;
   if (!Number.isInteger(candidate.quantity) || candidate.quantity < 1) return false;
-  if (candidate.kind && !["ready-made", "build-your-own", "ready-to-gift"].includes(candidate.kind)) return false;
+  if (candidate.kind && !["ready-made", "build-your-own", "ready-to-gift", "individual-product"].includes(candidate.kind)) return false;
 
   if (isBuilderKind(candidate.kind)) {
     if (!Array.isArray(candidate.selectedProductIds)) return false;
     const uniqueIds = [...new Set(candidate.selectedProductIds)];
-    if (uniqueIds.length < BUILDER_MIN_PRODUCTS || uniqueIds.some((id) => !isBuilderProductId(id))) return false;
+    if (uniqueIds.length < getBuilderMinProducts(candidate.kind) || uniqueIds.some((id) => !isBuilderProductId(id))) return false;
+  }
+  if (isIndividualProductKind(candidate.kind)) {
+    if (!Array.isArray(candidate.selectedProductIds)) return false;
+    const uniqueIds = [...new Set(candidate.selectedProductIds)];
+    if (uniqueIds.length !== 1 || !isBuilderProductId(uniqueIds[0])) return false;
   }
   return true;
 }
@@ -31,7 +37,7 @@ export function normalizePhysicalCartItems(items: unknown): CartItem[] | null {
   return items.map((item) => ({
     ...item,
     kind: item.kind ?? "ready-made",
-    selectedProductIds: isBuilderKind(item.kind)
+    selectedProductIds: isBuilderKind(item.kind) || isIndividualProductKind(item.kind)
       ? [...new Set(item.selectedProductIds)]
       : undefined,
     unitPriceBhd: calculateTrustedItemPrice(item),

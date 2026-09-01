@@ -1,9 +1,19 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { BUILDER_BASE_PRICE_BHD, BUILDER_MIN_PRODUCTS, BUILDER_PRODUCTS, PEEP_BOX_PRODUCT, calculateBuilderPrice, createDefaultCustomization, isPhysicalBoxAvailable } from "./product";
+import {
+  BUILDER_PRODUCTS,
+  CUSTOM_BOX_MIN_PRODUCTS,
+  GIFT_BOX_BASE_PRICE_BHD,
+  GIFT_BOX_MIN_PRODUCTS,
+  PEEP_BOX_PRODUCT,
+  calculateBuilderPrice,
+  createDefaultCustomization,
+  getBuilderMinProducts,
+  isPhysicalBoxAvailable,
+} from "./product";
 
 describe("PEEP_BOX_PRODUCT", () => {
   it("has the correct price", () => {
-    expect(PEEP_BOX_PRODUCT.priceBhd).toBe(21.9);
+    expect(PEEP_BOX_PRODUCT.priceBhd).toBe(24.6);
   });
 
   it("lists eight box contents in Arabic and English, kept in sync", () => {
@@ -13,14 +23,23 @@ describe("PEEP_BOX_PRODUCT", () => {
 });
 
 describe("builder catalog", () => {
-  it("starts at BHD 4 and exposes enough products for the five-item minimum", () => {
-    expect(BUILDER_BASE_PRICE_BHD).toBe(4);
-    expect(BUILDER_MIN_PRODUCTS).toBe(5);
-    expect(BUILDER_PRODUCTS.length).toBeGreaterThanOrEqual(BUILDER_MIN_PRODUCTS);
+  it("uses a three-product minimum for custom boxes and five for premium gift boxes", () => {
+    expect(CUSTOM_BOX_MIN_PRODUCTS).toBe(3);
+    expect(GIFT_BOX_MIN_PRODUCTS).toBe(5);
+    expect(GIFT_BOX_BASE_PRICE_BHD).toBe(4);
+    expect(getBuilderMinProducts("build-your-own")).toBe(3);
+    expect(getBuilderMinProducts("ready-to-gift")).toBe(5);
+    expect(BUILDER_PRODUCTS.length).toBeGreaterThanOrEqual(GIFT_BOX_MIN_PRODUCTS);
   });
 
-  it("calculates a running total from the trusted catalog", () => {
-    expect(calculateBuilderPrice(["story", "puzzle", "stickers"])).toBe(13.5);
+  it("calculates the custom box from selected products without an extra box fee", () => {
+    expect(calculateBuilderPrice("build-your-own", ["story", "puzzle", "stickers"])).toBe(7.9);
+  });
+
+  it("applies the premium box fee and 10% discount only above five products", () => {
+    const five = ["story", "puzzle", "magnetic-map", "coloring-book", "alphabet-cards"] as const;
+    expect(calculateBuilderPrice("ready-to-gift", five)).toBe(19.5);
+    expect(calculateBuilderPrice("ready-to-gift", [...five, "cup"])).toBe(20.88);
   });
 });
 

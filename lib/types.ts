@@ -13,15 +13,23 @@ export interface BoxCustomization {
   giftCard: boolean;
 }
 
-export type PhysicalBoxKind = "ready-made" | "build-your-own" | "ready-to-gift";
+export type PhysicalBoxKind =
+  | "ready-made"
+  | "build-your-own"
+  | "ready-to-gift"
+  | "individual-product";
+export type BuilderBoxKind = "build-your-own" | "ready-to-gift";
 export type BuilderProductId =
   | "story"
   | "puzzle"
   | "magnetic-map"
   | "coloring-book"
+  | "lulu-coloring-book"
   | "alphabet-cards"
   | "cup"
   | "stickers"
+  | "lulu-stickers"
+  | "clothes-activity-book"
   | "welcome-card";
 
 export interface CartItem {

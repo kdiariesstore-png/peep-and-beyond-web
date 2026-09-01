@@ -1,5 +1,5 @@
-import type { BoxCustomization, BuilderProductId, CartItem, PhysicalBoxKind } from "../types";
-import { calculateBuilderPrice, PEEP_BOX_PRODUCT } from "../product";
+import type { BoxCustomization, BuilderBoxKind, BuilderProductId, CartItem } from "../types";
+import { calculateBuilderPrice, getBuilderProduct, PEEP_BOX_PRODUCT } from "../product";
 
 export function buildCartItem(customization: BoxCustomization): CartItem {
   return {
@@ -12,7 +12,7 @@ export function buildCartItem(customization: BoxCustomization): CartItem {
 }
 
 export function buildCustomCartItem(
-  kind: Exclude<PhysicalBoxKind, "ready-made">,
+  kind: BuilderBoxKind,
   selectedProductIds: BuilderProductId[],
   customization: BoxCustomization
 ): CartItem {
@@ -21,7 +21,21 @@ export function buildCustomCartItem(
     kind,
     selectedProductIds: [...new Set(selectedProductIds)],
     customization,
-    unitPriceBhd: calculateBuilderPrice(selectedProductIds),
+    unitPriceBhd: calculateBuilderPrice(kind, selectedProductIds),
+    quantity: 1,
+  };
+}
+
+export function buildIndividualProductCartItem(
+  productId: BuilderProductId,
+  customization: BoxCustomization
+): CartItem {
+  return {
+    id: crypto.randomUUID(),
+    kind: "individual-product",
+    selectedProductIds: [productId],
+    customization,
+    unitPriceBhd: getBuilderProduct(productId)?.priceBhd ?? 0,
     quantity: 1,
   };
 }

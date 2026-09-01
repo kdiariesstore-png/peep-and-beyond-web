@@ -1,5 +1,6 @@
 import type {
   BoxCustomization,
+  BuilderBoxKind,
   BuilderProductId,
   CartItem,
   PhysicalBoxKind,
@@ -9,7 +10,7 @@ export const PEEP_BOX_PRODUCT = {
   id: "peep-box",
   nameAr: "بوكس بيب الكامل",
   nameEn: "The Complete Peep Box",
-  priceBhd: 21.9,
+  priceBhd: 24.6,
   contents: {
     ar: [
       "بزل تعليمي يزيد من ثقة الطفل بنفسه مع كل قطعة",
@@ -34,8 +35,11 @@ export const PEEP_BOX_PRODUCT = {
   },
 } as const;
 
-export const BUILDER_BASE_PRICE_BHD = 4;
-export const BUILDER_MIN_PRODUCTS = 5;
+export const CUSTOM_BOX_MIN_PRODUCTS = 3;
+export const GIFT_BOX_MIN_PRODUCTS = 5;
+export const GIFT_BOX_BASE_PRICE_BHD = 4;
+export const GIFT_BOX_DISCOUNT_THRESHOLD = 5;
+export const GIFT_BOX_DISCOUNT_RATE = 0.1;
 
 export interface BuilderProduct {
   id: BuilderProductId;
@@ -54,8 +58,8 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Peep's illustrated story",
     descriptionAr: "قصة دافئة قبل النوم، بالعربية أو الإنجليزية.",
     descriptionEn: "A warm bedtime story in Arabic or English.",
-    priceBhd: 5,
-    image: "/images/scene-read.png",
+    priceBhd: 3.5,
+    image: "/images/products/story.webp",
   },
   {
     id: "puzzle",
@@ -64,7 +68,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionAr: "قطع ممتعة تبني التركيز والثقة.",
     descriptionEn: "Playful pieces that build focus and confidence.",
     priceBhd: 3.5,
-    image: "/images/scene-play.png",
+    image: "/images/products/puzzle.webp",
   },
   {
     id: "magnetic-map",
@@ -72,17 +76,26 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Magnetic map",
     descriptionAr: "شخصيات ومغامرات مفتوحة للخيال.",
     descriptionEn: "Characters and open-ended imaginative play.",
-    priceBhd: 3.5,
-    image: "/images/scene-play.png",
+    priceBhd: 2.5,
+    image: "/images/products/magnetic-map.webp",
   },
   {
     id: "coloring-book",
-    nameAr: "كتاب التلوين",
-    nameEn: "Coloring book",
+    nameAr: "كتاب تلوين بيب",
+    nameEn: "Peep coloring book",
     descriptionAr: "صفحات بيب لتلوين هادئ ومبدع.",
     descriptionEn: "Peep pages for calm, creative coloring.",
-    priceBhd: 2.5,
-    image: "/images/scene-learn.png",
+    priceBhd: 1.5,
+    image: "/images/products/peep-coloring.webp",
+  },
+  {
+    id: "lulu-coloring-book",
+    nameAr: "كتاب تلوين لولو",
+    nameEn: "Lulu coloring book",
+    descriptionAr: "مغامرات لولو والطبيعة في صفحات ممتعة للتلوين.",
+    descriptionEn: "Lulu's nature adventures in playful coloring pages.",
+    priceBhd: 1.5,
+    image: "/images/products/lulu-coloring.webp",
   },
   {
     id: "alphabet-cards",
@@ -90,8 +103,8 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Alphabet cards",
     descriptionAr: "بطاقات قابلة لإعادة الاستخدام مع قلم سبورة.",
     descriptionEn: "Reusable learning cards with a whiteboard marker.",
-    priceBhd: 3,
-    image: "/images/scene-learn.png",
+    priceBhd: 4.5,
+    image: "/images/products/alphabet-cards.webp",
   },
   {
     id: "cup",
@@ -99,8 +112,8 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Kids' cup",
     descriptionAr: "كوب بمصاص، بالوردي أو الأزرق.",
     descriptionEn: "Straw cup, available in pink or blue.",
-    priceBhd: 2.9,
-    image: "/images/peep-box-product.png",
+    priceBhd: 3.7,
+    image: "/images/products/cup.webp",
   },
   {
     id: "stickers",
@@ -108,8 +121,26 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Peep stickers",
     descriptionAr: "ملصقات لطيفة للدفاتر واللعب.",
     descriptionEn: "Sweet stickers for notebooks and playtime.",
-    priceBhd: 1,
-    image: "/images/scene-play.png",
+    priceBhd: 0.9,
+    image: "/images/products/peep-stickers.webp",
+  },
+  {
+    id: "lulu-stickers",
+    nameAr: "ملصقات لولو",
+    nameEn: "Lulu stickers",
+    descriptionAr: "ستيكرات لولو اللطيفة لمحبي الطبيعة والزهور.",
+    descriptionEn: "Sweet Lulu stickers for little nature lovers.",
+    priceBhd: 0.9,
+    image: "/images/products/lulu-stickers.webp",
+  },
+  {
+    id: "clothes-activity-book",
+    nameAr: "كتيب ماذا نرتدي؟ مع بيب",
+    nameEn: "What Should We Wear? with Peep",
+    descriptionAr: "نشاط تلبيس وروتين يومي ممتع في 10 صفحات.",
+    descriptionEn: "A 10-page outfit and daily-routine activity book.",
+    priceBhd: 5,
+    image: "/images/products/clothes-activity-book.webp",
   },
   {
     id: "welcome-card",
@@ -118,35 +149,71 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionAr: "لمسة خاصة باسم الطفل داخل البوكس.",
     descriptionEn: "A personal welcome with the child's name.",
     priceBhd: 0.5,
-    image: "/images/scene-read.png",
+    image: "/images/products/welcome-card.webp",
   },
 ] as const;
 
 const BUILDER_PRODUCT_IDS = new Set<string>(BUILDER_PRODUCTS.map((product) => product.id));
 
-export function isBuilderKind(kind: PhysicalBoxKind | undefined): boolean {
+export function isBuilderKind(kind: PhysicalBoxKind | undefined): kind is BuilderBoxKind {
   return kind === "build-your-own" || kind === "ready-to-gift";
+}
+
+export function isIndividualProductKind(kind: PhysicalBoxKind | undefined): boolean {
+  return kind === "individual-product";
 }
 
 export function isBuilderProductId(value: unknown): value is BuilderProductId {
   return typeof value === "string" && BUILDER_PRODUCT_IDS.has(value);
 }
 
-export function calculateBuilderPrice(productIds: readonly BuilderProductId[]): number {
+export function getBuilderMinProducts(kind: BuilderBoxKind): number {
+  return kind === "ready-to-gift" ? GIFT_BOX_MIN_PRODUCTS : CUSTOM_BOX_MIN_PRODUCTS;
+}
+
+export function getBuilderBasePrice(kind: BuilderBoxKind): number {
+  return kind === "ready-to-gift" ? GIFT_BOX_BASE_PRICE_BHD : 0;
+}
+
+export function getBuilderProductsSubtotal(productIds: readonly BuilderProductId[]): number {
   const selected = new Set(productIds);
   return BUILDER_PRODUCTS.reduce(
     (total, product) => total + (selected.has(product.id) ? product.priceBhd : 0),
-    BUILDER_BASE_PRICE_BHD
+    0
   );
 }
 
+export function calculateBuilderPrice(
+  kind: BuilderBoxKind,
+  productIds: readonly BuilderProductId[]
+): number {
+  const selected = new Set(productIds);
+  const beforeDiscount = getBuilderBasePrice(kind) + getBuilderProductsSubtotal(productIds);
+  const discount =
+    kind === "ready-to-gift" && selected.size > GIFT_BOX_DISCOUNT_THRESHOLD
+      ? beforeDiscount * GIFT_BOX_DISCOUNT_RATE
+      : 0;
+  return Math.round((beforeDiscount - discount) * 1000) / 1000;
+}
+
+export function getBuilderProduct(id: BuilderProductId): BuilderProduct | undefined {
+  return BUILDER_PRODUCTS.find((product) => product.id === id);
+}
+
 export function calculateTrustedItemPrice(item: CartItem): number {
-  if (!isBuilderKind(item.kind)) return PEEP_BOX_PRODUCT.priceBhd;
-  return calculateBuilderPrice(item.selectedProductIds ?? []);
+  if (isBuilderKind(item.kind)) {
+    return calculateBuilderPrice(item.kind, item.selectedProductIds ?? []);
+  }
+  if (isIndividualProductKind(item.kind)) {
+    const productId = item.selectedProductIds?.[0];
+    return productId ? getBuilderProduct(productId)?.priceBhd ?? 0 : 0;
+  }
+  return PEEP_BOX_PRODUCT.priceBhd;
 }
 
 export function itemIncludesStory(item: CartItem): boolean {
-  return !isBuilderKind(item.kind) || (item.selectedProductIds ?? []).includes("story");
+  if (item.kind === "ready-made" || item.kind === undefined) return true;
+  return (item.selectedProductIds ?? []).includes("story");
 }
 
 // Lets the owner temporarily close physical Peep Box ordering (e.g. a soft launch that

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCartItem } from "./build-cart-item";
+import { buildCartItem, buildIndividualProductCartItem } from "./build-cart-item";
 
 describe("buildCartItem", () => {
   it("wraps a customization into a cart item with quantity 1 and the box price", () => {
@@ -12,10 +12,23 @@ describe("buildCartItem", () => {
     });
 
     expect(item.customization.childName).toBe("Omar");
-    expect(item.unitPriceBhd).toBe(21.9);
+    expect(item.unitPriceBhd).toBe(24.6);
     expect(item.quantity).toBe(1);
     expect(typeof item.id).toBe("string");
     expect(item.id.length).toBeGreaterThan(0);
+  });
+
+  it("builds a standalone product item using the catalog price", () => {
+    const item = buildIndividualProductCartItem("lulu-stickers", {
+      storyLanguage: "ar",
+      cardLanguage: "ar",
+      cupColor: "pink",
+      childName: "",
+      giftCard: false,
+    });
+    expect(item.kind).toBe("individual-product");
+    expect(item.selectedProductIds).toEqual(["lulu-stickers"]);
+    expect(item.unitPriceBhd).toBe(0.9);
   });
 
   it("generates a different id on each call", () => {

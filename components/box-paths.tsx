@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { BUILDER_BASE_PRICE_BHD, PEEP_BOX_PRODUCT } from "../lib/product";
+import { GIFT_BOX_BASE_PRICE_BHD, PEEP_BOX_PRODUCT } from "../lib/product";
 
 export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
   const { locale } = useLocale();
@@ -16,21 +16,23 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       eyebrow: ar ? "اختيارك بالكامل" : "Make it yours",
       title: ar ? "اصنع بوكس بيب الخاص فيك" : "Build Your Own Peep Box",
       body: ar
-        ? "ابدأ بالبوكس، ثم اختر 5 منتجات أو أكثر تناسب عمر الطفل واهتماماته."
-        : "Start with the box, then choose 5 or more products for the child you have in mind.",
-      price: formatMoney(BUILDER_BASE_PRICE_BHD, currency),
+        ? "اختيار مرن وبسيط: ابدأ بـ3 منتجات، ثم أضف ما يناسب الطفل وميزانيتك."
+        : "A simple, flexible choice: start with 3 products, then add what fits the child and your budget.",
+      price: ar ? "3 منتجات" : "3 products",
+      pricePrefix: ar ? "يبدأ من" : "Starts with",
       href: "/build?style=custom",
       cta: ar ? "ابدأ الاختيار" : "Start building",
-      image: "/images/scene-play.png",
+      image: "/images/products/puzzle.webp",
       accent: "bg-[#f0e7d6]",
     },
     {
       eyebrow: ar ? "هدية جاهزة للفرحة" : "Made for gifting",
       title: ar ? "بوكس بيب الجاهز للإهداء" : "Ready-to-Gift Peep Box",
       body: ar
-        ? "تغليف أنيق وبطاقة إهداء، وأنت تختار 5 منتجات أو أكثر لتكتمل الهدية."
-        : "Beautiful wrapping and a gift card, with 5 or more products chosen by you.",
-      price: formatMoney(BUILDER_BASE_PRICE_BHD, currency),
+        ? "بوكس مميز بتغليف أنيق وبطاقة إهداء. اختر 5 منتجات أو أكثر، وخذ خصم 10% عند اختيار 6+."
+        : "A premium wrapped box with a gift card. Choose 5+ products and get 10% off when you choose 6+.",
+      price: formatMoney(GIFT_BOX_BASE_PRICE_BHD, currency),
+      pricePrefix: ar ? "سعر البوكس من" : "Box from",
       href: "/build?style=gift",
       cta: ar ? "جهّز هديتك" : "Create a gift",
       image: "/images/peep-box-product.png",
@@ -61,14 +63,14 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
                     {ar ? "الأكثر مرونة" : "Most flexible"}
                   </span>
                 )}
-                <Image src={path.image} alt="" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
+                <Image src={path.image} alt="" fill className={path.featured ? "object-cover" : "object-contain p-3"} sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf">{path.eyebrow}</p>
                 <h3 className="mt-2 text-2xl font-black">{path.title}</h3>
                 <p className="mt-3 flex-1 text-sm leading-7 text-brown/70">{path.body}</p>
                 <p className="mt-6 text-sm text-brown/60">
-                  {ar ? "يبدأ من" : "Starts at"} <strong className="text-xl text-brown">{path.price}</strong>
+                  {path.pricePrefix} <strong className="text-xl text-brown">{path.price}</strong>
                 </p>
                 <Link href={path.href} className="button-primary mt-4 text-center">{path.cta}</Link>
               </div>

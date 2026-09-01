@@ -21,11 +21,25 @@ describe("normalizePhysicalCartItems", () => {
   it("accepts a builder with five unique products and replaces a tampered client price", () => {
     const result = normalizePhysicalCartItems([base]);
     expect(result).not.toBeNull();
-    expect(result?.[0].unitPriceBhd).toBe(21.5);
+    expect(result?.[0].unitPriceBhd).toBe(19.5);
   });
 
-  it("rejects builders with fewer than five products", () => {
+  it("rejects premium gift builders with fewer than five products", () => {
     expect(normalizePhysicalCartItems([{ ...base, selectedProductIds: ["story", "puzzle"] }])).toBeNull();
+  });
+
+  it("accepts a build-your-own box with three unique products", () => {
+    const result = normalizePhysicalCartItems([{ ...base, kind: "build-your-own", selectedProductIds: ["story", "puzzle", "stickers"] }]);
+    expect(result?.[0].unitPriceBhd).toBe(7.9);
+  });
+
+  it("accepts one standalone product and restores its trusted price", () => {
+    const result = normalizePhysicalCartItems([{ ...base, kind: "individual-product", selectedProductIds: ["clothes-activity-book"] }]);
+    expect(result?.[0].unitPriceBhd).toBe(5);
+  });
+
+  it("rejects a standalone item carrying more than one product id", () => {
+    expect(normalizePhysicalCartItems([{ ...base, kind: "individual-product", selectedProductIds: ["story", "cup"] }])).toBeNull();
   });
 
   it("does not count duplicate product ids toward the minimum", () => {
@@ -40,6 +54,6 @@ describe("normalizePhysicalCartItems", () => {
     const legacy = { ...base, kind: undefined, selectedProductIds: undefined, unitPriceBhd: 1 };
     const result = normalizePhysicalCartItems([legacy]);
     expect(result?.[0].kind).toBe("ready-made");
-    expect(result?.[0].unitPriceBhd).toBe(21.9);
+    expect(result?.[0].unitPriceBhd).toBe(24.6);
   });
 });

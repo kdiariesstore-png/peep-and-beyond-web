@@ -19,16 +19,21 @@ export function ThreeMoments() {
         ];
 
   return (
-    <section className="px-6 py-10">
+    <section className="px-4 py-16 sm:px-6 sm:py-24">
+      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto mb-10 max-w-2xl text-center">
+        <span className="section-kicker">{locale === "ar" ? "أكثر من مجرد لعبة" : "More than play"}</span>
+        <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">{locale === "ar" ? "ثلاث لحظات في كل يوم" : "Three moments in every day"}</h2>
+      </div>
       <div className="grid gap-6 md:grid-cols-3">
         {moments.map((moment) => (
-          <article key={moment.title} className="overflow-hidden rounded-xl bg-white/60">
+          <article key={moment.title} className="overflow-hidden rounded-[1.75rem] border border-brown/10 bg-white/65 shadow-sm">
             <Image
               src={moment.image}
               alt={moment.title}
               width={600}
               height={400}
-              className="h-48 w-full object-cover"
+              className="h-56 w-full object-cover"
             />
             <div className="p-6">
               <h3 className="text-lg font-semibold">{moment.title}</h3>
@@ -36,6 +41,7 @@ export function ThreeMoments() {
             </div>
           </article>
         ))}
+      </div>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import type { BuyerDetails, CartItem, PaymentMethod } from "../types";
-import { BUILDER_PRODUCTS, isBuilderKind } from "../product";
+import { BUILDER_PRODUCTS, getBuilderProduct, isBuilderKind, isIndividualProductKind } from "../product";
 
 function escapeHtml(value: string): string {
   return value
@@ -29,6 +29,18 @@ function describeItem(item: CartItem): string {
   const langLabel = item.customization.storyLanguage === "ar" ? "العربية" : "English";
   const cupLabel = item.customization.cupColor === "pink" ? "وردي" : "أزرق";
   const childName = escapeHtml(item.customization.childName || "بدون اسم");
+  if (isIndividualProductKind(item.kind)) {
+    const productId = item.selectedProductIds?.[0];
+    const product = productId ? getBuilderProduct(productId) : undefined;
+    const option = productId === "story"
+      ? ` — اللغة: ${langLabel}`
+      : productId === "alphabet-cards"
+        ? ` — اللغة: ${item.customization.cardLanguage === "ar" ? "العربية" : "English"}`
+        : productId === "cup"
+          ? ` — اللون: ${cupLabel}`
+          : "";
+    return `${product?.nameAr ?? "منتج منفرد"} × ${item.quantity}${option}`;
+  }
   if (isBuilderKind(item.kind)) {
     const boxLabel = item.kind === "ready-to-gift" ? "بوكس بيب الجاهز للإهداء" : "بوكس بيب من اختيار العميل";
     const selectedNames = (item.selectedProductIds ?? [])

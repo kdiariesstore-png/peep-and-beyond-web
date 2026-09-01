@@ -13,17 +13,18 @@ export function InsideTheBox({ onOrderClick }: { onOrderClick: () => void }) {
   const available = isPhysicalBoxAvailable();
 
   return (
-    <section id="inside" className="mx-auto max-w-5xl px-6 py-16">
-      <div className="grid items-center gap-8 md:grid-cols-2">
+    <section id="inside" className="px-4 py-16 sm:px-6 sm:py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 overflow-hidden rounded-[2rem] bg-[#e6ede1] p-5 shadow-sm sm:p-8 md:grid-cols-2 lg:p-12">
         <Image
           src="/images/peep-box-product.png"
           alt={t.insideTitle}
           width={800}
           height={600}
-          className="w-full rounded-2xl"
+          className="aspect-[4/3] w-full rounded-[1.5rem] object-cover shadow-lg"
         />
         <div>
-          <h2 className="text-2xl font-bold">{t.insideTitle}</h2>
+          <p className="section-kicker">{locale === "ar" ? "الاختيار الجاهز" : "The ready-made favorite"}</p>
+          <h2 className="mt-2 text-3xl font-black sm:text-4xl">{t.insideTitle}</h2>
           <p className="mt-2 text-brown/70">{t.insideSubtitle}</p>
           <ul className="mt-6 space-y-3">
             {contents.map((item) => (

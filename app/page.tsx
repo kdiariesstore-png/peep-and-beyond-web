@@ -10,6 +10,7 @@ import { CustomizeBoxForm } from "../components/customize-box-form";
 import { CartDrawer } from "../components/cart-drawer";
 import { Footer } from "../components/footer";
 import { BoxPaths } from "../components/box-paths";
+import { ProductsShop } from "../components/products-shop";
 import { useCart } from "../lib/cart/cart-context";
 import { buildCartItem } from "../lib/cart/build-cart-item";
 import { createDefaultCustomization } from "../lib/product";
@@ -31,6 +32,7 @@ export default function HomePage() {
         <Hero />
         <TrustBadges />
         <BoxPaths onReadyMadeAdd={addReadyMade} />
+        <ProductsShop onAdded={() => setShowCart(true)} />
         <ThreeMoments />
         <InsideTheBox onOrderClick={() => setShowCustomize(true)} />
       </main>

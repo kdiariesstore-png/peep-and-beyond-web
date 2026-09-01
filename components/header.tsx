@@ -11,11 +11,15 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-brown/10 bg-cream/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-brown/10 bg-cream/95 backdrop-blur-xl">
+      <div className="bg-brown px-4 py-2 text-center text-[11px] font-bold tracking-wide text-cream sm:text-xs">
+        {locale === "ar" ? "بطاقة إهداء مجانية  •  توصيل البحرين 2 د.ب  •  صنع بحب في البحرين" : "Free gift card  •  Bahrain delivery BHD 2  •  Made with love in Bahrain"}
+      </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <a href="/" className="text-lg font-black tracking-tight sm:text-xl">Peep &amp; beyond</a>
+        <a href="/" className="flex items-center gap-2 text-lg font-black tracking-tight sm:text-xl"><span className="grid h-9 w-9 place-items-center rounded-full bg-gold/20 text-lg" aria-hidden>🦕</span><span>Peep &amp; Beyond</span></a>
         <nav className="hidden gap-6 md:flex">
           <a href="/#choose" className="font-semibold hover:text-leaf">{locale === "ar" ? "اختر بوكسك" : "Choose your box"}</a>
+          <a href="/#products" className="font-semibold hover:text-leaf">{locale === "ar" ? "المنتجات" : "Products"}</a>
           <a href="/#inside" className="font-semibold hover:text-leaf">{t.navGifts}</a>
           <a href="/digital" className="font-semibold hover:text-leaf">{t.navDigitalProducts}</a>
         </nav>
@@ -41,6 +45,7 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
       </div>
       <nav className="mx-auto flex max-w-7xl gap-5 overflow-x-auto border-t border-brown/10 px-4 py-2 text-sm font-semibold md:hidden">
         <a href="/#choose" className="whitespace-nowrap">{locale === "ar" ? "اختر بوكسك" : "Choose a box"}</a>
+        <a href="/#products" className="whitespace-nowrap">{locale === "ar" ? "المنتجات" : "Products"}</a>
         <a href="/#inside" className="whitespace-nowrap">{t.navGifts}</a>
         <a href="/digital">{t.navDigitalProducts}</a>
       </nav>

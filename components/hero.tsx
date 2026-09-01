@@ -14,18 +14,18 @@ export function Hero() {
       <div className="text-center lg:text-start">
         <span className="section-kicker">{ar ? "هدية صغيرة… أثرها يكبر" : "A little box. A big feeling."}</span>
         <h1 className="mt-4 text-4xl font-black leading-[1.12] tracking-tight sm:text-6xl lg:text-7xl">
-          {ar ? "بوكس بيب،" : "A Peep Box,"}<br />
-          <span className="text-leaf">{ar ? "بالطريقة اللي تحبها." : "made their way."}</span>
+          {ar ? "اصنع فرحتهم،" : "Build their joy,"}<br />
+          <span className="text-leaf">{ar ? "قطعةً قطعة." : "one little piece at a time."}</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-brown/70 sm:text-lg lg:mx-0">
-          {ar ? "اختَر بوكسًا جاهزًا، أو اصنع هدية من 5 منتجات وأكثر. قصة ولعب وتعلّم، بتغليف يفرّح من أول نظرة." : "Choose a complete box or build a thoughtful gift with 5 or more products—story, play and learning, wrapped to delight."}
+          {ar ? "اختر بوكس بيب الكامل، اصنع بوكسك من 3 منتجات، أو جهّز بوكسًا مميزًا للإهداء. قصة ولعب وتعلّم، باختيارك أنت." : "Choose the complete Peep Box, build your own from 3 products, or create a premium gift box—story, play and learning, picked by you."}
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-          <Link href="/build?style=gift" className="button-primary">{ar ? "جهّز هدية بيب" : "Create a Peep gift"}</Link>
-          <a href="#choose" className="button-secondary">{ar ? "شاهد الخيارات الثلاثة" : "Explore all three options"}</a>
+          <Link href="/build?style=custom" className="button-primary">{ar ? "ابدأ بوكسك" : "Build your box"}</Link>
+          <a href="#products" className="button-secondary">{ar ? "تسوّق المنتجات" : "Shop products"}</a>
         </div>
         <div className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm font-semibold text-brown/65 lg:justify-start">
-          <span>✓ {ar ? "يبدأ من 4 د.ب" : "From BHD 4"}</span>
+          <span>✓ {ar ? "ابدأ من 3 منتجات" : "Start with 3 products"}</span>
           <span>✓ {ar ? "توصيل البحرين 2 د.ب" : "Bahrain delivery BHD 2"}</span>
           <span>✓ {ar ? "دفع آمن" : "Secure checkout"}</span>
         </div>

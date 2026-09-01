@@ -7,9 +7,12 @@ html {
 }
 
 body {
-  background-color: #fbf3e7;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(239, 198, 90, .08), transparent 24rem),
+    radial-gradient(circle at 92% 72%, rgba(113, 148, 96, .08), transparent 28rem),
+    #fbf3e7;
   color: #3b2a1e;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", "Segoe UI", Tahoma, Arial, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }

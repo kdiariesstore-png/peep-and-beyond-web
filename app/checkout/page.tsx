@@ -9,8 +9,8 @@ import { calculateOrderTotal } from "../../lib/order/order-total";
 import { validateReceiptFile } from "../../lib/order/validate-receipt";
 import { BuyerForm } from "../../components/checkout/buyer-form";
 import { PaymentMethodSelector } from "../../components/checkout/payment-method-selector";
-import type { BuyerDetails, PaymentMethod } from "../../lib/types";
-import { BUILDER_PRODUCTS, isBuilderKind } from "../../lib/product";
+import type { BuyerDetails, CartItem, PaymentMethod } from "../../lib/types";
+import { BUILDER_PRODUCTS, getBuilderProduct, isBuilderKind, isIndividualProductKind } from "../../lib/product";
 
 const EMPTY_BUYER: BuyerDetails = {
   fullName: "",
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
 
       <aside className="h-fit rounded-3xl bg-brown p-6 text-cream lg:sticky lg:top-28">
         <h2 className="text-xl font-black">ملخص الطلب</h2>
-        <ul className="mt-5 space-y-4">{items.map((item) => <li key={item.id} className="border-b border-cream/15 pb-4"><div className="flex justify-between gap-4"><span className="font-bold">{isBuilderKind(item.kind) ? (item.kind === "ready-to-gift" ? "بوكس للإهداء" : "بوكس من اختيارك") : "بوكس بيب الكامل"} × {item.quantity}</span><span>{formatMoney(item.unitPriceBhd * item.quantity, currency)}</span></div>{isBuilderKind(item.kind) && <p className="mt-2 text-xs leading-5 text-cream/60">{(item.selectedProductIds ?? []).map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr).filter(Boolean).join(" · ")}</p>}</li>)}</ul>
+        <ul className="mt-5 space-y-4">{items.map((item) => <li key={item.id} className="border-b border-cream/15 pb-4"><div className="flex justify-between gap-4"><span className="font-bold">{isIndividualProductKind(item.kind) ? getBuilderProduct(item.selectedProductIds?.[0]!)?.nameAr : isBuilderKind(item.kind) ? (item.kind === "ready-to-gift" ? "بوكس بيب المميز" : "بوكس من اختيارك") : "بوكس بيب الكامل"} × {item.quantity}</span><span>{formatMoney(item.unitPriceBhd * item.quantity, currency)}</span></div>{isBuilderKind(item.kind) && <p className="mt-2 text-xs leading-5 text-cream/60">{(item.selectedProductIds ?? []).map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr).filter(Boolean).join(" · ")}</p>}{isIndividualProductKind(item.kind) && checkoutOptionLabel(item) && <p className="mt-2 text-xs text-cream/60">{checkoutOptionLabel(item)}</p>}</li>)}</ul>
         <div className="mt-5 space-y-3 text-sm"><div className="flex justify-between"><span>المجموع الفرعي</span><span>{formatMoney(subtotalBhd, currency)}</span></div>
         <div className="flex justify-between"><span>الشحن</span><span>{shippingBhd === null ? "يُحدَّد لاحقًا" : formatMoney(shippingBhd, currency)}</span></div>
         <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "يُحدَّد لاحقًا" : formatMoney(totalBhd, currency)}</span></div></div>
@@ -138,4 +138,12 @@ export default function CheckoutPage() {
       </div>
     </main>
   );
+}
+
+function checkoutOptionLabel(item: CartItem): string | null {
+  const productId = item.selectedProductIds?.[0];
+  if (productId === "story") return `اللغة: ${item.customization.storyLanguage === "ar" ? "العربية" : "English"}`;
+  if (productId === "alphabet-cards") return `اللغة: ${item.customization.cardLanguage === "ar" ? "العربية" : "English"}`;
+  if (productId === "cup") return `اللون: ${item.customization.cupColor === "pink" ? "وردي" : "أزرق"}`;
+  return null;
 }

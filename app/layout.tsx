@@ -8,7 +8,7 @@ import { DigitalCartProvider } from "../lib/digital/cart-context";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.peepandbeyond.com"),
   title: "Peep & beyond | اصنع بوكس بيب الخاص فيك",
-  description: "بوكس بيب يبدأ من 4 د.ب — اختر 5 منتجات أو أكثر، جهّز هديتك، أو اطلب البوكس الكامل.",
+  description: "اصنع بوكس بيب من 3 منتجات، جهّز بوكسًا مميزًا للإهداء، أو اطلب البوكس الكامل والمنتجات على حدة.",
   openGraph: {
     title: "Peep & beyond | بوكس بطريقتك",
     description: "قصة ولعب وتعلّم في هدية تختار تفاصيلها بنفسك.",
