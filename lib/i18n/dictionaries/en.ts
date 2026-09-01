@@ -48,4 +48,8 @@ export const en: Dictionary = {
   comingSoon: "Coming Soon",
   comingSoonNote: "Orders open soon — stay tuned for the launch date.",
   digitalRemoveItem: "Remove",
+  digitalWhatsInsideHeading: "What you'll find inside",
+  digitalPreviewPrev: "Previous page",
+  digitalPreviewNext: "Next page",
+  digitalBackCoverAlt: "back cover",
 };

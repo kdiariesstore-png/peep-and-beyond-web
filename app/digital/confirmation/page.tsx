@@ -5,6 +5,7 @@ import {
 } from "../../../lib/digital/order-payload";
 import { claimOrderProcessing } from "../../../lib/order/order-processing-lock";
 import { getPendingOrder } from "../../../lib/order/pending-order-store";
+import { resolveTxnRef } from "../../../lib/order/resolve-txn-ref";
 import { verifyTransaction } from "../../../lib/payments/oreem-client";
 import {
   sendDigitalOrderNotificationEmail,
@@ -12,7 +13,8 @@ import {
 } from "../../../lib/digital/resend-client";
 import { addToMarketingAudience } from "../../../lib/email/resend-client";
 import { buildCustomerToOwnerWhatsappLink } from "../../../lib/email/whatsapp-link";
-import { DIGITAL_PRODUCTS, DIGITAL_BUNDLE } from "../../../lib/digital/catalog";
+import { getSiteUrl } from "../../../lib/site-url";
+import { DIGITAL_PRODUCTS, DIGITAL_BUNDLES } from "../../../lib/digital/catalog";
 import { OrderConfirmationMessage } from "../../../components/order-confirmation-message";
 import { ClearDigitalCartOnMount } from "../../../components/digital/clear-digital-cart-on-mount";
 import type { DigitalTopicId } from "../../../lib/digital/types";
@@ -39,6 +41,7 @@ const INSTAGRAM_HANDLE = "@peepandbeyond";
 interface ConfirmationPageProps {
   searchParams: {
     ref?: string;
+    txn_ref?: string;
   };
 }
 
@@ -50,14 +53,15 @@ interface ConfirmationPageProps {
 const TXN_REF_PATTERN = /^peepdigi_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // Expands the purchased items into a flat list of {topicId, language} download entries,
-// unrolling any "digital-bundle" line into its 7 underlying topics.
+// unrolling any bundle line into its underlying topics.
 function resolveDownloads(
   items: { id: string; language: "ar" | "en" }[]
 ): { topicId: DigitalTopicId; language: "ar" | "en" }[] {
   const downloads: { topicId: DigitalTopicId; language: "ar" | "en" }[] = [];
   for (const item of items) {
-    if (item.id === "digital-bundle") {
-      for (const topicId of DIGITAL_BUNDLE.includes) {
+    const bundle = DIGITAL_BUNDLES.find((b) => b.id === item.id);
+    if (bundle) {
+      for (const topicId of bundle.includes) {
         downloads.push({ topicId, language: item.language });
       }
     } else {
@@ -68,8 +72,8 @@ function resolveDownloads(
 }
 
 export default async function DigitalConfirmationPage({ searchParams }: ConfirmationPageProps) {
-  const txnRef = searchParams.ref;
-  if (!txnRef || !TXN_REF_PATTERN.test(txnRef)) {
+  const txnRef = resolveTxnRef(TXN_REF_PATTERN, searchParams.ref, searchParams.txn_ref);
+  if (!txnRef) {
     return <OrderConfirmationMessage success={false} title="لا يوجد طلب لعرضه" body="" />;
   }
 
@@ -157,6 +161,22 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
     );
   }
 
+  // Computed up front (rather than only for the page's own download list further below)
+  // because the customer confirmation email needs these same links, in absolute form —
+  // they're the customer's only route to their files if they never make it back to this
+  // page (e.g. Oreem's redirect lands on a stale deployment URL).
+  const encodedOrder = encodeDigitalOrderPayload(payload);
+  const downloads = resolveDownloads(payload.items).map(({ topicId, language }) => {
+    const product = DIGITAL_PRODUCTS.find((p) => p.id === topicId);
+    const name = product ? (language === "ar" ? product.nameAr : product.nameEn) : topicId;
+    return {
+      topicId,
+      language,
+      label: `${name} (${language === "ar" ? "عربي" : "English"})`,
+      path: `/api/digital-download?order=${encodeURIComponent(encodedOrder)}&product=${topicId}&language=${language}`,
+    };
+  });
+
   // One payment must produce at most one set of side effects, no matter how many times
   // this URL is hit (refresh, back button, link-preview bot) — same guard as the
   // physical box's confirmation page.
@@ -174,7 +194,11 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
     }
 
     try {
-      await sendDigitalCustomerConfirmationEmail(emailData);
+      const siteUrl = getSiteUrl();
+      await sendDigitalCustomerConfirmationEmail({
+        ...emailData,
+        downloads: downloads.map((d) => ({ label: d.label, href: `${siteUrl}${d.path}` })),
+      });
     } catch (error) {
       console.error("Failed to send digital customer confirmation email", error);
     }
@@ -199,12 +223,6 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
     }
   }
 
-  // Regenerated fresh from the KV-fetched payload for the download links below — these
-  // links are clicked directly by the customer's own browser and never pass through
-  // Oreem's redirect, so they aren't subject to the truncation bug; the signature still
-  // protects them from being hand-edited to claim a different product.
-  const encodedOrder = encodeDigitalOrderPayload(payload);
-  const downloads = resolveDownloads(payload.items);
   const successBody = ownerEmailSucceeded
     ? "شكرًا لتسوقك من Peep & beyond — وصلك تأكيد على بريدك الإلكتروني، وروابط التحميل بالأسفل."
     : `شكرًا لتسوقك من Peep & beyond — تم الدفع بنجاح. رقم مرجع طلبك: ${payload.txnRef}. روابط التحميل بالأسفل — احتفظي بهذه الصفحة لو احتجتِ تنزيل الملفات مرة أخرى.`;
@@ -220,18 +238,13 @@ export default async function DigitalConfirmationPage({ searchParams }: Confirma
       <div className="mx-auto max-w-lg px-10 pb-10">
         <h2 className="text-lg font-bold">روابط التحميل</h2>
         <ul className="mt-4 space-y-2">
-          {downloads.map(({ topicId, language }) => {
-            const product = DIGITAL_PRODUCTS.find((p) => p.id === topicId);
-            const label = product ? (language === "ar" ? product.nameAr : product.nameEn) : topicId;
-            const href = `/api/digital-download?order=${encodeURIComponent(encodedOrder)}&product=${topicId}&language=${language}`;
-            return (
-              <li key={`${topicId}-${language}`}>
-                <a href={href} className="text-leaf underline">
-                  {label} ({language === "ar" ? "عربي" : "English"}) — تحميل
-                </a>
-              </li>
-            );
-          })}
+          {downloads.map(({ topicId, language, label, path }) => (
+            <li key={`${topicId}-${language}`}>
+              <a href={path} target="_blank" rel="noreferrer" className="text-leaf underline">
+                {label} — تحميل
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
       <ClearDigitalCartOnMount />

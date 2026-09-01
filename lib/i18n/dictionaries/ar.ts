@@ -46,6 +46,10 @@ export const ar = {
   comingSoon: "قريبًا",
   comingSoonNote: "الطلبات ستفتح قريبًا — تابعينا لمعرفة موعد الافتتاح.",
   digitalRemoveItem: "إزالة",
+  digitalWhatsInsideHeading: "ماذا ستجدين في هذا الدليل",
+  digitalPreviewPrev: "الصفحة السابقة",
+  digitalPreviewNext: "الصفحة التالية",
+  digitalBackCoverAlt: "الغلاف الخلفي",
 } as const;
 
 export type Dictionary = Record<keyof typeof ar, string>;

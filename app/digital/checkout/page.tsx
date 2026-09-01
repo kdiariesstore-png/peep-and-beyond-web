@@ -10,8 +10,8 @@ import { DigitalBuyerForm } from "../../../components/digital/buyer-form";
 import { useCurrency } from "../../../lib/currency-context";
 import { useLocale } from "../../../lib/i18n/locale-context";
 import { formatMoney } from "../../../lib/currency";
-import { DIGITAL_PRODUCTS, DIGITAL_BUNDLE } from "../../../lib/digital/catalog";
-import type { DigitalBuyerDetails, DigitalTopicId } from "../../../lib/digital/types";
+import { DIGITAL_PRODUCTS, DIGITAL_BUNDLES } from "../../../lib/digital/catalog";
+import type { DigitalBuyerDetails, DigitalProductId } from "../../../lib/digital/types";
 
 const EMPTY_BUYER: DigitalBuyerDetails = {
   fullName: "",
@@ -32,11 +32,10 @@ export default function DigitalCheckoutPage() {
   const { totalBhd } = calculateDigitalOrderTotal(items);
 
   // Resolves a cart line's display name in the current locale, covering both individual
-  // topics and the bundle (which lives outside DIGITAL_PRODUCTS).
-  function itemLabel(id: DigitalTopicId | "digital-bundle"): string {
-    if (id === "digital-bundle") {
-      return locale === "ar" ? DIGITAL_BUNDLE.nameAr : DIGITAL_BUNDLE.nameEn;
-    }
+  // topics and any bundle (bundles live outside DIGITAL_PRODUCTS).
+  function itemLabel(id: DigitalProductId): string {
+    const bundle = DIGITAL_BUNDLES.find((b) => b.id === id);
+    if (bundle) return locale === "ar" ? bundle.nameAr : bundle.nameEn;
     const product = DIGITAL_PRODUCTS.find((p) => p.id === id);
     return product ? (locale === "ar" ? product.nameAr : product.nameEn) : id;
   }
