@@ -33,13 +33,61 @@ export default function CheckoutPage() {
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [liveShippingBhd, setLiveShippingBhd] = useState<number | null | undefined>(undefined);
+  const [shippingLoading, setShippingLoading] = useState(false);
 
-  const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
-  const internationalQuoteRequired = shippingBhd === null || totalBhd === null;
+  const calculated = calculateOrderTotal(items, buyer.country);
+  const isBahrain = buyer.country === "BH";
+  const shippingBhd = isBahrain ? calculated.shippingBhd : (liveShippingBhd ?? null);
+  const subtotalBhd = calculated.subtotalBhd;
+  const totalBhd = shippingBhd === null
+    ? null
+    : Math.round((subtotalBhd + shippingBhd) * 1000) / 1000;
+  const internationalQuoteRequired = !isBahrain && (shippingLoading || shippingBhd === null);
 
   useEffect(() => {
     setPaymentMethod(buyer.country === "BH" ? "iban" : "oreem");
   }, [buyer.country]);
+
+  useEffect(() => {
+    if (isBahrain || items.length === 0 || !buyer.city.trim()) {
+      setLiveShippingBhd(undefined);
+      setShippingLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLiveShippingBhd(undefined);
+    setShippingLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/shipping/quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            countryCode: buyer.country,
+            city: buyer.city,
+            items,
+          }),
+        });
+        const json = await response.json();
+        if (!cancelled) {
+          setLiveShippingBhd(
+            response.ok && typeof json.shippingBhd === "number" ? json.shippingBhd : null
+          );
+        }
+      } catch {
+        if (!cancelled) setLiveShippingBhd(null);
+      } finally {
+        if (!cancelled) setShippingLoading(false);
+      }
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [isBahrain, buyer.country, buyer.city, items]);
 
   function handleReceiptChange(file: File | null) {
     setReceipt(file);
@@ -120,8 +168,16 @@ export default function CheckoutPage() {
         <BuyerForm value={buyer} onChange={setBuyer} />
         {internationalQuoteRequired ? (
           <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
-            <p className="font-black">الشحن الدولي يحتاج تسعيرة قبل الدفع</p>
-            <p className="mt-1">لن يقبل الموقع الطلب أو الدفع من دون سعر شحن. أرسل لنا الدولة والمنتجات المطلوبة لنحسب الوزن والسعر أولًا.</p>
+            <p className="font-black">
+              {!buyer.city.trim()
+                ? "أدخل المدينة لحساب الشحن الدولي"
+                : shippingLoading
+                  ? "جارٍ حساب الشحن حسب الوزن والحجم…"
+                  : "تعذر إيجاد سعر شحن تلقائي لهذه الوجهة"}
+            </p>
+            {!shippingLoading && buyer.city.trim() && (
+              <p className="mt-1">لن يقبل الموقع الطلب أو الدفع من دون سعر شحن مؤكد.</p>
+            )}
             <a href="https://instagram.com/peepandbeyond" target="_blank" rel="noreferrer" className="mt-3 inline-block font-black text-leaf underline underline-offset-4">اطلب تسعيرة الشحن عبر @peepandbeyond</a>
           </div>
         ) : (
@@ -134,7 +190,7 @@ export default function CheckoutPage() {
         {submitError && <p className="text-red-600">{submitError}</p>}
         <button
           type="submit"
-          disabled={submitting || items.length === 0 || internationalQuoteRequired}
+          disabled={submitting || shippingLoading || items.length === 0 || internationalQuoteRequired}
           className="button-primary w-full disabled:opacity-50"
         >
           تأكيد الطلب
@@ -145,7 +201,7 @@ export default function CheckoutPage() {
         <h2 className="text-xl font-black">ملخص الطلب</h2>
         <ul className="mt-5 space-y-4">{items.map((item) => <li key={item.id} className="border-b border-cream/15 pb-4"><div className="flex justify-between gap-4"><span className="font-bold">{isIndividualProductKind(item.kind) ? getBuilderProduct(item.selectedProductIds?.[0]!)?.nameAr : isBuilderKind(item.kind) ? (item.kind === "ready-to-gift" ? "بوكس بيب المميز" : "بوكس من اختيارك") : "بوكس بيب الكامل"} × {item.quantity}</span><span>{formatMoney(item.unitPriceBhd * item.quantity, currency)}</span></div>{isBuilderKind(item.kind) && <p className="mt-2 text-xs leading-5 text-cream/60">{(item.selectedProductIds ?? []).map((id) => BUILDER_PRODUCTS.find((product) => product.id === id)?.nameAr).filter(Boolean).join(" · ")}</p>}{isIndividualProductKind(item.kind) && checkoutOptionLabel(item) && <p className="mt-2 text-xs text-cream/60">{checkoutOptionLabel(item)}</p>}</li>)}</ul>
         <div className="mt-5 space-y-3 text-sm"><div className="flex justify-between"><span>المجموع الفرعي</span><span>{formatMoney(subtotalBhd, currency)}</span></div>
-        <div className="flex justify-between"><span>الشحن</span><span>{shippingBhd === null ? "يلزم طلب تسعيرة" : formatMoney(shippingBhd, currency)}</span></div>
+        <div className="flex justify-between"><span>الشحن</span><span>{shippingLoading ? "جارٍ الحساب…" : shippingBhd === null ? "يلزم طلب تسعيرة" : formatMoney(shippingBhd, currency)}</span></div>
         <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "بعد تسعير الشحن" : formatMoney(totalBhd, currency)}</span></div></div>
         <div className="mt-6 rounded-2xl bg-cream/10 p-4 text-xs leading-6 text-cream/70">🔒 دفع آمن عبر أوريم أو تحويل بنكي · توصيل البحرين 2 د.ب</div>
       </aside>

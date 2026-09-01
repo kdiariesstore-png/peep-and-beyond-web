@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { calculateOrderTotal } from "../../../../lib/order/order-total";
+import { quoteShippingBhd } from "../../../../lib/order/quote-shipping";
 import { createHostedPayment } from "../../../../lib/payments/oreem-client";
 import { storePendingOrder } from "../../../../lib/order/pending-order-store";
 import { normalizePhysicalCartItems } from "../../../../lib/cart/validate-cart";
@@ -48,10 +49,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid_cart" }, { status: 400 });
   }
 
-  const { subtotalBhd, shippingBhd, totalBhd } = calculateOrderTotal(items, buyer.country);
-  if (shippingBhd === null || totalBhd === null) {
+  const { subtotalBhd } = calculateOrderTotal(items, buyer.country);
+  const shippingBhd = await quoteShippingBhd(buyer.country, buyer.city, items);
+  if (shippingBhd === null) {
     return NextResponse.json({ error: "shipping_not_available" }, { status: 400 });
   }
+  const totalBhd = Math.round((subtotalBhd + shippingBhd) * 1000) / 1000;
 
   const txnRef = `peep_${randomUUID()}`;
 

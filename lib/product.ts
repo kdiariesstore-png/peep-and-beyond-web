@@ -11,6 +11,11 @@ export const PEEP_BOX_PRODUCT = {
   nameAr: "بوكس بيب الكامل",
   nameEn: "The Complete Peep Box",
   priceBhd: 24.6,
+  shipping: {
+    // Measured empty printed Peep box.
+    emptyBoxWeightGrams: 498,
+    dimensionsCm: { length: 35, width: 26, height: 10 },
+  },
   contents: {
     ar: [
       "بزل تعليمي يزيد من ثقة الطفل بنفسه مع كل قطعة",
@@ -49,6 +54,10 @@ export interface BuilderProduct {
   descriptionEn: string;
   priceBhd: number;
   image: string;
+  shipping: {
+    weightGrams: number;
+    dimensionsCm: { length: number; width: number; height: number };
+  };
 }
 
 export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
@@ -60,6 +69,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "A warm bedtime story in Arabic or English.",
     priceBhd: 3.5,
     image: "/images/products/story.webp",
+    shipping: { weightGrams: 177, dimensionsCm: { length: 23, width: 23, height: 1 } },
   },
   {
     id: "puzzle",
@@ -69,6 +79,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Playful pieces that build focus and confidence.",
     priceBhd: 3.5,
     image: "/images/products/puzzle.webp",
+    shipping: { weightGrams: 140, dimensionsCm: { length: 29.7, width: 21, height: 1 } },
   },
   {
     id: "magnetic-map",
@@ -78,6 +89,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Characters and open-ended imaginative play.",
     priceBhd: 2.5,
     image: "/images/products/magnetic-map.webp",
+    shipping: { weightGrams: 91, dimensionsCm: { length: 29.7, width: 21, height: 1 } },
   },
   {
     id: "coloring-book",
@@ -87,6 +99,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Peep pages for calm, creative coloring.",
     priceBhd: 1.5,
     image: "/images/products/peep-coloring.webp",
+    shipping: { weightGrams: 37, dimensionsCm: { length: 21, width: 14.8, height: 1 } },
   },
   {
     id: "lulu-coloring-book",
@@ -96,6 +109,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Lulu's nature adventures in playful coloring pages.",
     priceBhd: 1.5,
     image: "/images/products/lulu-coloring.webp",
+    shipping: { weightGrams: 37, dimensionsCm: { length: 21, width: 14.8, height: 1 } },
   },
   {
     id: "alphabet-cards",
@@ -105,6 +119,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Reusable learning cards with a whiteboard marker.",
     priceBhd: 4.5,
     image: "/images/products/alphabet-cards.webp",
+    shipping: { weightGrams: 96, dimensionsCm: { length: 12, width: 12, height: 3 } },
   },
   {
     id: "cup",
@@ -114,6 +129,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Straw cup, available in pink or blue.",
     priceBhd: 3.7,
     image: "/images/products/cup.webp",
+    shipping: { weightGrams: 157, dimensionsCm: { length: 16, width: 11, height: 11 } },
   },
   {
     id: "stickers",
@@ -123,6 +139,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Sweet stickers for notebooks and playtime.",
     priceBhd: 0.9,
     image: "/images/products/peep-stickers.webp",
+    shipping: { weightGrams: 6, dimensionsCm: { length: 29.7, width: 21, height: 0.2 } },
   },
   {
     id: "lulu-stickers",
@@ -132,6 +149,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "Sweet Lulu stickers for little nature lovers.",
     priceBhd: 0.9,
     image: "/images/products/lulu-stickers.webp",
+    shipping: { weightGrams: 6, dimensionsCm: { length: 29.7, width: 21, height: 0.2 } },
   },
   {
     id: "clothes-activity-book",
@@ -141,6 +159,8 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "A 10-page outfit and daily-routine activity book.",
     priceBhd: 5,
     image: "/images/products/clothes-activity-book.webp",
+    // Owner requested the clothes booklet use the same shipping weight as the cards.
+    shipping: { weightGrams: 96, dimensionsCm: { length: 29.7, width: 21, height: 1.5 } },
   },
   {
     id: "welcome-card",
@@ -150,6 +170,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     descriptionEn: "A personal welcome with the child's name.",
     priceBhd: 0.5,
     image: "/images/products/welcome-card.webp",
+    shipping: { weightGrams: 2, dimensionsCm: { length: 14.8, width: 10.5, height: 0.2 } },
   },
 ] as const;
 

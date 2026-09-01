@@ -21,6 +21,17 @@ export interface VerifyTransactionResult {
   amountBhd?: number;
 }
 
+export interface ShippingRateParcel {
+  chargeableWeightKg: number;
+  qty: number;
+}
+
+export interface ShippingRateOption {
+  serviceName: string;
+  serviceCode: string;
+  amountBhd: number;
+}
+
 function getBaseUrl(): string {
   return process.env.OREEM_BASE_URL ?? "https://app.oreem.com";
 }
@@ -116,4 +127,73 @@ export async function verifyTransaction(txnRef: string): Promise<VerifyTransacti
   const amountBhd = Number.isFinite(parsedAmount) ? parsedAmount : undefined;
 
   return { verified, status, amountBhd };
+}
+
+export async function fetchShippingRates(params: {
+  destCountryCode: string;
+  destCity: string;
+  parcels: ShippingRateParcel[];
+}): Promise<ShippingRateOption[]> {
+  const response = await fetch(`${getBaseUrl()}/api/v1/shipments/rates`, {
+    method: "POST",
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      origin: {
+        country_code: "BH",
+        city_name: process.env.SHIP_ORIGIN_CITY ?? "Manama",
+        postal_code: null,
+      },
+      dest: {
+        country_code: params.destCountryCode,
+        city_name: params.destCity,
+        postal_code: params.destCountryCode === "BH" ? null : "00000",
+      },
+      parcels: params.parcels.map((parcel) => ({
+        qty: parcel.qty,
+        item_qty: 1,
+        chargeable_weight: parcel.chargeableWeightKg.toFixed(3),
+        weight_unit: "kg",
+      })),
+      delivery_method_code: null,
+      cod: false,
+      currency: "BHD",
+    }),
+  });
+
+  if (!response.ok) {
+    let detail = "";
+    try {
+      detail = await response.text();
+    } catch {
+      // The status is still enough to fail closed when Oreem returns no readable body.
+    }
+    throw new Error(
+      `Oreem shipping-rates request failed with status ${response.status}${detail ? `: ${detail}` : ""}`
+    );
+  }
+
+  const json = await response.json();
+  const rows = Array.isArray(json?.data) ? json.data : [];
+  const options: ShippingRateOption[] = [];
+  for (const row of rows) {
+    const service = row?.delivery_service;
+    const amount = service?.rate?.value;
+    if (
+      typeof amount === "number" &&
+      Number.isFinite(amount) &&
+      typeof service?.code === "string"
+    ) {
+      options.push({
+        serviceName: typeof service?.name === "string" ? service.name : service.code,
+        serviceCode: service.code,
+        amountBhd: amount,
+      });
+    }
+  }
+  return options.sort((a, b) => a.amountBhd - b.amountBhd);
 }
