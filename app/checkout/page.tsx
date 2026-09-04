@@ -35,6 +35,8 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [liveShippingBhd, setLiveShippingBhd] = useState<number | null | undefined>(undefined);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [cityOptionsLoading, setCityOptionsLoading] = useState(false);
 
   const calculated = calculateOrderTotal(items, buyer.country);
   const isBahrain = buyer.country === "BH";
@@ -47,6 +49,38 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setPaymentMethod(buyer.country === "BH" ? "iban" : "oreem");
+  }, [buyer.country]);
+
+  // Offers Oreem's own recognized city names for the selected country, so the buyer
+  // picks a spelling Oreem's rates endpoint actually knows instead of free-typing one
+  // that silently mismatches and reads as "shipping unavailable". Falls back to the
+  // free-text field (empty cityOptions) if Oreem has no list for this country or the
+  // lookup fails.
+  useEffect(() => {
+    let cancelled = false;
+    setCityOptions([]);
+    setCityOptionsLoading(true);
+    fetch(`/api/shipping/cities?country=${encodeURIComponent(buyer.country)}`)
+      .then((response) => response.json())
+      .then((json) => {
+        if (cancelled) return;
+        const cities: string[] = Array.isArray(json?.cities)
+          ? json.cities.filter((c: unknown): c is string => typeof c === "string")
+          : [];
+        setCityOptions(cities);
+        if (cities.length > 0) {
+          setBuyer((current) => (cities.includes(current.city) ? current : { ...current, city: "" }));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCityOptions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setCityOptionsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [buyer.country]);
 
   useEffect(() => {
@@ -187,7 +221,12 @@ export default function CheckoutPage() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_380px]">
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl bg-white/70 p-5 shadow-sm sm:p-8">
         <div><p className="section-kicker">الخطوة الأخيرة</p><h1 className="mt-2 text-3xl font-black">إتمام الطلب</h1><p className="mt-2 text-sm text-brown/60">بياناتك محمية، ولن يتم تغيير المبلغ بعد تأكيدك.</p></div>
-        <BuyerForm value={buyer} onChange={setBuyer} />
+        <BuyerForm
+          value={buyer}
+          onChange={setBuyer}
+          cityOptions={cityOptions}
+          cityOptionsLoading={cityOptionsLoading}
+        />
         {internationalQuoteRequired ? (
           <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
             <p className="font-black">

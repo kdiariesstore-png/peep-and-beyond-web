@@ -16,9 +16,18 @@ const COUNTRIES = [
 export function BuyerForm({
   value,
   onChange,
+  cityOptions,
+  cityOptionsLoading,
 }: {
   value: BuyerDetails;
   onChange: (value: BuyerDetails) => void;
+  // Oreem's own recognized city names for the selected country (from GET
+  // /shipments/cities), when available. A non-empty list renders a dropdown instead of
+  // free text, so the value sent to the rates endpoint always matches spelling Oreem
+  // knows — a free-typed city that doesn't match is a common cause of a bogus "shipping
+  // unavailable" result. Falls back to free text when the list is empty/unavailable.
+  cityOptions?: string[];
+  cityOptionsLoading?: boolean;
 }) {
   function update<K extends keyof BuyerDetails>(key: K, fieldValue: BuyerDetails[K]) {
     onChange({ ...value, [key]: fieldValue });
@@ -78,13 +87,34 @@ export function BuyerForm({
 
       <label className="block">
         المدينة / المحافظة
-        <input
-          required
-          type="text"
-          value={value.city}
-          onChange={(e) => update("city", e.target.value)}
-          className="mt-1 block w-full rounded border border-brown/20 p-2"
-        />
+        {cityOptions && cityOptions.length > 0 ? (
+          <select
+            required
+            value={value.city}
+            onChange={(e) => update("city", e.target.value)}
+            className="mt-1 block w-full rounded border border-brown/20 p-2"
+          >
+            <option value="" disabled>
+              اختاري المدينة
+            </option>
+            {cityOptions.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            required
+            type="text"
+            value={value.city}
+            onChange={(e) => update("city", e.target.value)}
+            className="mt-1 block w-full rounded border border-brown/20 p-2"
+          />
+        )}
+        {cityOptionsLoading && (
+          <span className="mt-1 block text-xs text-brown/60">جارٍ تحميل قائمة المدن...</span>
+        )}
       </label>
 
       <label className="block">
