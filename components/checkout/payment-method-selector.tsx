@@ -10,16 +10,45 @@ const RECEIPT_ERROR_MESSAGES: Record<string, string> = {
 
 export function PaymentMethodSelector({
   method,
+  isBahrain,
   receiptError,
+  onMethodChange,
   onReceiptChange,
 }: {
   method: PaymentMethod;
+  isBahrain: boolean;
   receiptError: string | null;
+  onMethodChange: (method: PaymentMethod) => void;
   onReceiptChange: (file: File | null) => void;
 }) {
   return (
     <fieldset className="space-y-3">
       <legend className="text-lg font-bold">طريقة الدفع</legend>
+
+      {isBahrain && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            aria-pressed={method === "iban"}
+            onClick={() => onMethodChange("iban")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              method === "iban" ? "border-leaf bg-leaf text-white" : "border-brown/20 bg-white text-brown"
+            }`}
+          >
+            تحويل بنكي
+          </button>
+          <button
+            type="button"
+            aria-pressed={method === "cod"}
+            onClick={() => onMethodChange("cod")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              method === "cod" ? "border-leaf bg-leaf text-white" : "border-brown/20 bg-white text-brown"
+            }`}
+          >
+            الدفع عند الاستلام
+          </button>
+        </div>
+      )}
 
       {method === "iban" && (
         <div className="rounded border border-brown/20 p-4">
@@ -46,6 +75,16 @@ export function PaymentMethodSelector({
               </p>
             )}
           </label>
+        </div>
+      )}
+
+      {method === "cod" && (
+        <div className="rounded border border-brown/20 p-4">
+          <strong>الدفع عند الاستلام</strong>
+          <p className="text-sm text-brown/70">تدفعين نقدًا لمندوب التوصيل عند استلام طلبك.</p>
+          <p className="mt-2 text-xs text-brown/60">
+            الدفع عند الاستلام متاح للطلبات داخل البحرين فقط.
+          </p>
         </div>
       )}
 

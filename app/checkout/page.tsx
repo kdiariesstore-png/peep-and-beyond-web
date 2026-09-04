@@ -137,6 +137,28 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (paymentMethod === "cod") {
+      setSubmitting(true);
+      try {
+        const response = await fetch("/api/orders/cod", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buyer, items }),
+        });
+        if (!response.ok) {
+          setSubmitError("تعذر إرسال الطلب. حاول مرة أخرى.");
+          return;
+        }
+        clear();
+        router.push("/order/confirmation?method=cod");
+      } catch {
+        setSubmitError("تعذر إرسال الطلب. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     if (paymentMethod === "oreem") {
       setSubmitting(true);
       try {
@@ -183,7 +205,9 @@ export default function CheckoutPage() {
         ) : (
           <PaymentMethodSelector
             method={paymentMethod}
+            isBahrain={isBahrain}
             receiptError={receiptError}
+            onMethodChange={setPaymentMethod}
             onReceiptChange={handleReceiptChange}
           />
         )}
@@ -203,7 +227,7 @@ export default function CheckoutPage() {
         <div className="mt-5 space-y-3 text-sm"><div className="flex justify-between"><span>المجموع الفرعي</span><span>{formatMoney(subtotalBhd, currency)}</span></div>
         <div className="flex justify-between"><span>الشحن</span><span>{shippingLoading ? "جارٍ الحساب…" : shippingBhd === null ? "يلزم طلب تسعيرة" : formatMoney(shippingBhd, currency)}</span></div>
         <div className="flex justify-between border-t border-cream/15 pt-4 text-lg font-black"><span>الإجمالي</span><span>{totalBhd === null ? "بعد تسعير الشحن" : formatMoney(totalBhd, currency)}</span></div></div>
-        <div className="mt-6 rounded-2xl bg-cream/10 p-4 text-xs leading-6 text-cream/70">🔒 دفع آمن عبر أوريم أو تحويل بنكي · توصيل البحرين 2 د.ب</div>
+        <div className="mt-6 rounded-2xl bg-cream/10 p-4 text-xs leading-6 text-cream/70">🔒 دفع آمن عبر أوريم أو تحويل بنكي أو عند الاستلام · توصيل البحرين 2 د.ب</div>
       </aside>
       </div>
     </main>

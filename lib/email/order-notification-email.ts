@@ -61,7 +61,9 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
   const paymentText =
     data.paymentMethod === "iban"
       ? "تحويل بنكي (IBAN)"
-      : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
+      : data.paymentMethod === "cod"
+        ? "الدفع عند الاستلام"
+        : `أوريم${data.oreemTransactionReference ? ` — مرجع: ${data.oreemTransactionReference}` : ""}`;
   const notesHtml =
     data.notes && data.notes.length > 0
       ? `<p style="color:#b45309;"><strong>ملاحظات:</strong> ${data.notes.map(escapeHtml).join(" — ")}</p>`

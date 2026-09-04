@@ -53,4 +53,4 @@ export interface BuyerDetails {
   marketingOptIn: boolean;
 }
 
-export type PaymentMethod = "iban" | "oreem";
+export type PaymentMethod = "iban" | "oreem" | "cod";
