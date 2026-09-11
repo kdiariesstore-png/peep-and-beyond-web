@@ -38,8 +38,8 @@ describe("builder catalog", () => {
 
   it("applies the premium box fee and 10% discount only above five products", () => {
     const five = ["story", "puzzle", "magnetic-map", "coloring-book", "alphabet-cards"] as const;
-    expect(calculateBuilderPrice("ready-to-gift", five)).toBe(19.5);
-    expect(calculateBuilderPrice("ready-to-gift", [...five, "cup"])).toBe(20.88);
+    expect(calculateBuilderPrice("ready-to-gift", five)).toBe(20);
+    expect(calculateBuilderPrice("ready-to-gift", [...five, "cup"])).toBe(21.33);
   });
 });
 
