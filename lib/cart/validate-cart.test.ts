@@ -21,7 +21,7 @@ describe("normalizePhysicalCartItems", () => {
   it("accepts a builder with five unique products and replaces a tampered client price", () => {
     const result = normalizePhysicalCartItems([base]);
     expect(result).not.toBeNull();
-    expect(result?.[0].unitPriceBhd).toBe(20);
+    expect(result?.[0].unitPriceBhd).toBe(21);
   });
 
   it("rejects premium gift builders with fewer than five products", () => {
@@ -35,7 +35,7 @@ describe("normalizePhysicalCartItems", () => {
 
   it("accepts one standalone product and restores its trusted price", () => {
     const result = normalizePhysicalCartItems([{ ...base, kind: "individual-product", selectedProductIds: ["clothes-activity-book"] }]);
-    expect(result?.[0].unitPriceBhd).toBe(4.5);
+    expect(result?.[0].unitPriceBhd).toBe(5);
   });
 
   it("rejects a standalone item carrying more than one product id", () => {

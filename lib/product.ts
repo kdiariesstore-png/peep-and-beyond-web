@@ -117,7 +117,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "Alphabet cards",
     descriptionAr: "بطاقات قابلة لإعادة الاستخدام مع قلم سبورة.",
     descriptionEn: "Reusable learning cards with a whiteboard marker.",
-    priceBhd: 5,
+    priceBhd: 6,
     image: "/images/products/alphabet-cards.webp",
     shipping: { weightGrams: 96, dimensionsCm: { length: 12, width: 12, height: 3 } },
   },
@@ -157,7 +157,7 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     nameEn: "What Should We Wear? with Peep",
     descriptionAr: "نشاط تلبيس وروتين يومي ممتع في 10 صفحات.",
     descriptionEn: "A 10-page outfit and daily-routine activity book.",
-    priceBhd: 4.5,
+    priceBhd: 5,
     image: "/images/products/clothes-activity-book.webp",
     // Owner requested the clothes booklet use the same shipping weight as the cards.
     shipping: { weightGrams: 96, dimensionsCm: { length: 29.7, width: 21, height: 1.5 } },
