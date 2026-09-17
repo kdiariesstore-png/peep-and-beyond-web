@@ -206,6 +206,24 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
   },
 ] as const;
 
+export interface ProductCategory {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  productIds: readonly BuilderProductId[];
+}
+
+// Featured groupings shown above the general shop grid, in display order — each new
+// category is appended here and renders as its own titled row above the ones after it.
+export const PRODUCT_CATEGORIES: readonly ProductCategory[] = [
+  {
+    id: "occasions-gifts",
+    nameAr: "مناسبات وهدايا",
+    nameEn: "Occasions & Gifts",
+    productIds: ["matcha-cup", "matcha-stickers"],
+  },
+] as const;
+
 const BUILDER_PRODUCT_IDS = new Set<string>(BUILDER_PRODUCTS.map((product) => product.id));
 
 export function isBuilderKind(kind: PhysicalBoxKind | undefined): kind is BuilderBoxKind {

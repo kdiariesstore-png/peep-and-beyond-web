@@ -9,10 +9,12 @@ import { useCurrency } from "../lib/currency-context";
 import { useLocale } from "../lib/i18n/locale-context";
 import {
   BUILDER_PRODUCTS,
+  PRODUCT_CATEGORIES,
   createDefaultCustomization,
   isPhysicalBoxAvailable,
+  type BuilderProduct,
 } from "../lib/product";
-import type { BuilderProductId } from "../lib/types";
+import type { BoxCustomization, BuilderProductId, Currency } from "../lib/types";
 
 const NEW_PRODUCTS = new Set<BuilderProductId>([
   "lulu-stickers",
@@ -22,6 +24,10 @@ const NEW_PRODUCTS = new Set<BuilderProductId>([
   "matcha-cup",
   "matcha-stickers",
 ]);
+
+const CATEGORIZED_PRODUCT_IDS = new Set<BuilderProductId>(
+  PRODUCT_CATEGORIES.flatMap((category) => category.productIds)
+);
 
 export function ProductsShop({ onAdded }: { onAdded: () => void }) {
   const { addItem } = useCart();
@@ -37,9 +43,37 @@ export function ProductsShop({ onAdded }: { onAdded: () => void }) {
     onAdded();
   }
 
+  const generalProducts = BUILDER_PRODUCTS.filter((product) => !CATEGORIZED_PRODUCT_IDS.has(product.id));
+
   return (
     <section id="products" className="bg-white/45 px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-7xl">
+        {PRODUCT_CATEGORIES.map((category) => {
+          const products = BUILDER_PRODUCTS.filter((product) => category.productIds.includes(product.id));
+          if (products.length === 0) return null;
+          return (
+            <div key={category.id} className="mb-14">
+              <h3 className="text-2xl font-black tracking-tight sm:text-3xl">
+                {ar ? category.nameAr : category.nameEn}
+              </h3>
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    ar={ar}
+                    currency={currency}
+                    available={available}
+                    customization={customization}
+                    setCustomization={setCustomization}
+                    onAdd={() => addProduct(product.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <span className="section-kicker">{ar ? "كل منتجاتنا" : "The Peep shop"}</span>
@@ -56,67 +90,98 @@ export function ProductsShop({ onAdded }: { onAdded: () => void }) {
         </div>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {BUILDER_PRODUCTS.map((product) => (
-            <article key={product.id} className="group flex overflow-hidden rounded-[1.75rem] border border-brown/10 bg-cream shadow-[0_12px_35px_rgba(59,42,30,.07)] transition hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(59,42,30,.12)] sm:flex-col">
-              <div className="relative aspect-square w-36 shrink-0 overflow-hidden bg-[#f7efe3] sm:w-full">
-                {NEW_PRODUCTS.has(product.id) && (
-                  <span className="absolute start-3 top-3 z-10 rounded-full bg-gold px-3 py-1 text-[10px] font-black text-brown">
-                    {ar ? "جديد" : "NEW"}
-                  </span>
-                )}
-                <Image
-                  src={product.image}
-                  alt={ar ? product.nameAr : product.nameEn}
-                  fill
-                  className="object-contain p-2 transition duration-300 group-hover:scale-[1.03]"
-                  sizes="(max-width: 640px) 144px, (max-width: 1280px) 33vw, 25vw"
-                />
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-black leading-6">{ar ? product.nameAr : product.nameEn}</h3>
-                  <strong className="whitespace-nowrap text-leaf">{formatMoney(product.priceBhd, currency)}</strong>
-                </div>
-                <p className="mt-2 hidden text-sm leading-6 text-brown/60 sm:block">{ar ? product.descriptionAr : product.descriptionEn}</p>
-
-                {product.id === "story" && (
-                  <MiniChoice
-                    label={ar ? "لغة القصة" : "Story language"}
-                    value={customization.storyLanguage}
-                    onChange={(value) => setCustomization((current) => ({ ...current, storyLanguage: value }))}
-                    ar={ar}
-                  />
-                )}
-                {product.id === "alphabet-cards" && (
-                  <MiniChoice
-                    label={ar ? "لغة البطاقات" : "Card language"}
-                    value={customization.cardLanguage}
-                    onChange={(value) => setCustomization((current) => ({ ...current, cardLanguage: value }))}
-                    ar={ar}
-                  />
-                )}
-                {product.id === "cup" && (
-                  <div className="mt-4">
-                    <p className="text-xs font-bold text-brown/60">{ar ? "لون الكوب" : "Cup color"}</p>
-                    <div className="mt-2 flex gap-2">
-                      {(["pink", "blue"] as const).map((color) => (
-                        <button key={color} type="button" onClick={() => setCustomization((current) => ({ ...current, cupColor: color }))} className={`choice-pill !px-3 !py-1 text-xs ${customization.cupColor === color ? "choice-pill-active" : ""}`}>
-                          {color === "pink" ? (ar ? "وردي" : "Pink") : (ar ? "أزرق" : "Blue")}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <button type="button" onClick={() => addProduct(product.id)} disabled={!available} className="mt-auto pt-4 text-start text-sm font-black text-leaf disabled:cursor-not-allowed disabled:opacity-40">
-                  {available ? (ar ? "+ أضف إلى السلة" : "+ Add to cart") : (ar ? "قريبًا" : "Coming soon")}
-                </button>
-              </div>
-            </article>
+          {generalProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              ar={ar}
+              currency={currency}
+              available={available}
+              customization={customization}
+              setCustomization={setCustomization}
+              onAdd={() => addProduct(product.id)}
+            />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ProductCard({
+  product,
+  ar,
+  currency,
+  available,
+  customization,
+  setCustomization,
+  onAdd,
+}: {
+  product: BuilderProduct;
+  ar: boolean;
+  currency: Currency;
+  available: boolean;
+  customization: BoxCustomization;
+  setCustomization: (update: (current: BoxCustomization) => BoxCustomization) => void;
+  onAdd: () => void;
+}) {
+  return (
+    <article className="group flex overflow-hidden rounded-[1.75rem] border border-brown/10 bg-cream shadow-[0_12px_35px_rgba(59,42,30,.07)] transition hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(59,42,30,.12)] sm:flex-col">
+      <div className="relative aspect-square w-36 shrink-0 overflow-hidden bg-[#f7efe3] sm:w-full">
+        {NEW_PRODUCTS.has(product.id) && (
+          <span className="absolute start-3 top-3 z-10 rounded-full bg-gold px-3 py-1 text-[10px] font-black text-brown">
+            {ar ? "جديد" : "NEW"}
+          </span>
+        )}
+        <Image
+          src={product.image}
+          alt={ar ? product.nameAr : product.nameEn}
+          fill
+          className="object-contain p-2 transition duration-300 group-hover:scale-[1.03]"
+          sizes="(max-width: 640px) 144px, (max-width: 1280px) 33vw, 25vw"
+        />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-black leading-6">{ar ? product.nameAr : product.nameEn}</h3>
+          <strong className="whitespace-nowrap text-leaf">{formatMoney(product.priceBhd, currency)}</strong>
+        </div>
+        <p className="mt-2 hidden text-sm leading-6 text-brown/60 sm:block">{ar ? product.descriptionAr : product.descriptionEn}</p>
+
+        {product.id === "story" && (
+          <MiniChoice
+            label={ar ? "لغة القصة" : "Story language"}
+            value={customization.storyLanguage}
+            onChange={(value) => setCustomization((current) => ({ ...current, storyLanguage: value }))}
+            ar={ar}
+          />
+        )}
+        {product.id === "alphabet-cards" && (
+          <MiniChoice
+            label={ar ? "لغة البطاقات" : "Card language"}
+            value={customization.cardLanguage}
+            onChange={(value) => setCustomization((current) => ({ ...current, cardLanguage: value }))}
+            ar={ar}
+          />
+        )}
+        {product.id === "cup" && (
+          <div className="mt-4">
+            <p className="text-xs font-bold text-brown/60">{ar ? "لون الكوب" : "Cup color"}</p>
+            <div className="mt-2 flex gap-2">
+              {(["pink", "blue"] as const).map((color) => (
+                <button key={color} type="button" onClick={() => setCustomization((current) => ({ ...current, cupColor: color }))} className={`choice-pill !px-3 !py-1 text-xs ${customization.cupColor === color ? "choice-pill-active" : ""}`}>
+                  {color === "pink" ? (ar ? "وردي" : "Pink") : (ar ? "أزرق" : "Blue")}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button type="button" onClick={onAdd} disabled={!available} className="mt-auto pt-4 text-start text-sm font-black text-leaf disabled:cursor-not-allowed disabled:opacity-40">
+          {available ? (ar ? "+ أضف إلى السلة" : "+ Add to cart") : (ar ? "قريبًا" : "Coming soon")}
+        </button>
+      </div>
+    </article>
   );
 }
 
