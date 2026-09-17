@@ -28,7 +28,7 @@ function item(overrides: Partial<CartItem>): CartItem {
 
 describe("physical shipping measurements", () => {
   it("stores every measured product weight and gives the clothes booklet the cards weight", () => {
-    expect(BUILDER_PRODUCTS).toHaveLength(11);
+    expect(BUILDER_PRODUCTS).toHaveLength(12);
     for (const product of BUILDER_PRODUCTS) {
       expect(product.shipping.weightGrams).toBeGreaterThan(0);
       expect(product.shipping.dimensionsCm.length).toBeGreaterThan(0);
@@ -51,6 +51,7 @@ describe("physical shipping measurements", () => {
       "lulu-stickers": 6,
       "clothes-activity-book": 96,
       "welcome-card": 2,
+      "teacher-day-gift": 280,
     });
   });
 

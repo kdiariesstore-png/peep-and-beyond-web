@@ -172,6 +172,17 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     image: "/images/products/welcome-card.webp",
     shipping: { weightGrams: 2, dimensionsCm: { length: 14.8, width: 10.5, height: 0.2 } },
   },
+  {
+    id: "teacher-day-gift",
+    nameAr: "هدية عيد المعلم",
+    nameEn: "Teacher's Day gift",
+    descriptionAr: "إطار 8×10 إنش، بطاقة إهداء، و3 مغناطيس.",
+    descriptionEn: "An 8×10 inch frame, a dedication card, and 3 magnets.",
+    priceBhd: 3.5,
+    image: "/images/products/teacher-day-gift.webp",
+    // Estimated (no scale available yet) — owner should confirm once weighed.
+    shipping: { weightGrams: 280, dimensionsCm: { length: 25, width: 20, height: 3 } },
+  },
 ] as const;
 
 const BUILDER_PRODUCT_IDS = new Set<string>(BUILDER_PRODUCTS.map((product) => product.id));
