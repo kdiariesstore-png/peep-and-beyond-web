@@ -19,6 +19,8 @@ const NEW_PRODUCTS = new Set<BuilderProductId>([
   "lulu-coloring-book",
   "clothes-activity-book",
   "teacher-day-gift",
+  "matcha-cup",
+  "matcha-stickers",
 ]);
 
 export function ProductsShop({ onAdded }: { onAdded: () => void }) {

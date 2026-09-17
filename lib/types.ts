@@ -31,7 +31,9 @@ export type BuilderProductId =
   | "lulu-stickers"
   | "clothes-activity-book"
   | "welcome-card"
-  | "teacher-day-gift";
+  | "teacher-day-gift"
+  | "matcha-cup"
+  | "matcha-stickers";
 
 export interface CartItem {
   id: string;

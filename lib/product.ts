@@ -183,6 +183,27 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     // Estimated (no scale available yet) — owner should confirm once weighed.
     shipping: { weightGrams: 280, dimensionsCm: { length: 25, width: 20, height: 3 } },
   },
+  {
+    id: "matcha-cup",
+    nameAr: "كوب الماتشا",
+    nameEn: "Matcha cup",
+    descriptionAr: "كوب زجاجي بسعة 540 مل، بغطاء بامبو ومصاصة زجاجية.",
+    descriptionEn: "A 540 ml glass cup with a bamboo lid and a glass straw.",
+    priceBhd: 5,
+    image: "/images/products/matcha-cup.webp",
+    // Estimated (no scale available yet) — owner should confirm once weighed.
+    shipping: { weightGrams: 400, dimensionsCm: { length: 9, width: 9, height: 15 } },
+  },
+  {
+    id: "matcha-stickers",
+    nameAr: "ملصقات ماتشا",
+    nameEn: "Matcha stickers",
+    descriptionAr: "ورقة ملصقات بتصميم الماتشا.",
+    descriptionEn: "A matcha-themed sticker sheet.",
+    priceBhd: 1.5,
+    image: "/images/products/matcha-stickers.webp",
+    shipping: { weightGrams: 6, dimensionsCm: { length: 29.7, width: 21, height: 0.2 } },
+  },
 ] as const;
 
 const BUILDER_PRODUCT_IDS = new Set<string>(BUILDER_PRODUCTS.map((product) => product.id));
