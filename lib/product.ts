@@ -220,7 +220,7 @@ export const PRODUCT_CATEGORIES: readonly ProductCategory[] = [
     id: "occasions-gifts",
     nameAr: "مناسبات وهدايا",
     nameEn: "Occasions & Gifts",
-    productIds: ["matcha-cup", "matcha-stickers"],
+    productIds: ["matcha-cup", "matcha-stickers", "teacher-day-gift"],
   },
 ] as const;
 
