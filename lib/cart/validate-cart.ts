@@ -5,6 +5,7 @@ import {
   isBuilderKind,
   isBuilderProductId,
   isIndividualProductKind,
+  isReadyToGiftAvailable,
 } from "../product";
 
 export function isValidPhysicalCartItem(item: unknown): item is CartItem {
@@ -16,6 +17,7 @@ export function isValidPhysicalCartItem(item: unknown): item is CartItem {
   if (candidate.customization.cupColor !== "pink" && candidate.customization.cupColor !== "blue") return false;
   if (!Number.isInteger(candidate.quantity) || candidate.quantity < 1) return false;
   if (candidate.kind && !["ready-made", "build-your-own", "ready-to-gift", "individual-product"].includes(candidate.kind)) return false;
+  if (candidate.kind === "ready-to-gift" && !isReadyToGiftAvailable()) return false;
 
   if (isBuilderKind(candidate.kind)) {
     if (!Array.isArray(candidate.selectedProductIds)) return false;

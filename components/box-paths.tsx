@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { GIFT_BOX_BASE_PRICE_BHD, PEEP_BOX_PRODUCT } from "../lib/product";
+import { GIFT_BOX_BASE_PRICE_BHD, PEEP_BOX_PRODUCT, isReadyToGiftAvailable } from "../lib/product";
 
 export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
   const { locale } = useLocale();
   const { currency } = useCurrency();
   const ar = locale === "ar";
+  const readyToGiftAvailable = isReadyToGiftAvailable();
   const paths = [
     {
       eyebrow: ar ? "اختيارك بالكامل" : "Make it yours",
@@ -24,6 +25,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       cta: ar ? "ابدأ الاختيار" : "Start building",
       image: "/images/products/puzzle.webp",
       accent: "bg-[#f0e7d6]",
+      available: true,
     },
     {
       eyebrow: ar ? "هدية جاهزة للفرحة" : "Made for gifting",
@@ -38,6 +40,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       image: "/images/peep-box-detail.webp",
       accent: "bg-[#e4eadf]",
       featured: true,
+      available: readyToGiftAvailable,
     },
   ];
 
@@ -56,9 +59,9 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
 
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {paths.map((path) => (
-            <article key={path.href} className={`path-card ${path.featured ? "ring-2 ring-leaf/30" : ""}`}>
+            <article key={path.href} className={`path-card ${path.featured ? "ring-2 ring-leaf/30" : ""} ${path.available ? "" : "opacity-60"}`}>
               <div className={`relative h-56 overflow-hidden ${path.accent}`}>
-                {path.featured && (
+                {path.featured && path.available && (
                   <span className="absolute start-4 top-4 z-10 rounded-full bg-brown px-3 py-1 text-xs font-bold text-cream">
                     {ar ? "الأكثر مرونة" : "Most flexible"}
                   </span>
@@ -72,7 +75,13 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
                 <p className="mt-6 text-sm text-brown/60">
                   {path.pricePrefix} <strong className="text-xl text-brown">{path.price}</strong>
                 </p>
-                <Link href={path.href} className="button-primary mt-4 text-center">{path.cta}</Link>
+                {path.available ? (
+                  <Link href={path.href} className="button-primary mt-4 text-center">{path.cta}</Link>
+                ) : (
+                  <span className="button-primary mt-4 cursor-not-allowed text-center opacity-50">
+                    {ar ? "غير متوفر حاليًا" : "Currently unavailable"}
+                  </span>
+                )}
               </div>
             </article>
           ))}

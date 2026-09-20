@@ -295,6 +295,12 @@ export function isPhysicalBoxAvailable(): boolean {
   return process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE !== "false";
 }
 
+// The ready-to-gift (premium) box is currently paused while everything else stays on
+// sale — opt-in rather than opt-out, so it stays off unless explicitly turned back on.
+export function isReadyToGiftAvailable(): boolean {
+  return process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE === "true";
+}
+
 export function createDefaultCustomization(): BoxCustomization {
   return {
     storyLanguage: "ar",

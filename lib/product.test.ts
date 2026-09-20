@@ -9,6 +9,7 @@ import {
   createDefaultCustomization,
   getBuilderMinProducts,
   isPhysicalBoxAvailable,
+  isReadyToGiftAvailable,
 } from "./product";
 
 describe("PEEP_BOX_PRODUCT", () => {
@@ -70,6 +71,33 @@ describe("isPhysicalBoxAvailable", () => {
   it("stays available for any other value", () => {
     process.env.NEXT_PUBLIC_PHYSICAL_BOX_AVAILABLE = "true";
     expect(isPhysicalBoxAvailable()).toBe(true);
+  });
+});
+
+describe("isReadyToGiftAvailable", () => {
+  const original = process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE;
+
+  afterEach(() => {
+    if (original === undefined) {
+      delete process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE;
+    } else {
+      process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE = original;
+    }
+  });
+
+  it("defaults to unavailable when the env var is unset", () => {
+    delete process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE;
+    expect(isReadyToGiftAvailable()).toBe(false);
+  });
+
+  it("is available only when explicitly set to \"true\"", () => {
+    process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE = "true";
+    expect(isReadyToGiftAvailable()).toBe(true);
+  });
+
+  it("stays unavailable for any other value", () => {
+    process.env.NEXT_PUBLIC_READY_TO_GIFT_AVAILABLE = "false";
+    expect(isReadyToGiftAvailable()).toBe(false);
   });
 });
 
