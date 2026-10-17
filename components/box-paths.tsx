@@ -5,13 +5,12 @@ import Link from "next/link";
 import { useLocale } from "../lib/i18n/locale-context";
 import { useCurrency } from "../lib/currency-context";
 import { formatMoney } from "../lib/currency";
-import { GIFT_BOX_BASE_PRICE_BHD, PEEP_BOX_PRODUCT, isReadyToGiftAvailable } from "../lib/product";
+import { PEEP_BOX_PRODUCT } from "../lib/product";
 
 export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
   const { locale } = useLocale();
   const { currency } = useCurrency();
   const ar = locale === "ar";
-  const readyToGiftAvailable = isReadyToGiftAvailable();
   const paths = [
     {
       eyebrow: ar ? "اختيارك بالكامل" : "Make it yours",
@@ -25,22 +24,6 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       cta: ar ? "ابدأ الاختيار" : "Start building",
       image: "/images/products/puzzle.webp",
       accent: "bg-[#f0e7d6]",
-      available: true,
-    },
-    {
-      eyebrow: ar ? "هدية جاهزة للفرحة" : "Made for gifting",
-      title: ar ? "بوكس بيب الجاهز للإهداء" : "Ready-to-Gift Peep Box",
-      body: ar
-        ? "بوكس مميز بتغليف أنيق وبطاقة إهداء. اختر 5 منتجات أو أكثر، وخذ خصم 10% عند اختيار 6+."
-        : "A premium wrapped box with a gift card. Choose 5+ products and get 10% off when you choose 6+.",
-      price: formatMoney(GIFT_BOX_BASE_PRICE_BHD, currency),
-      pricePrefix: ar ? "سعر البوكس من" : "Box from",
-      href: "/build?style=gift",
-      cta: ar ? "جهّز هديتك" : "Create a gift",
-      image: "/images/peep-box-detail.webp",
-      accent: "bg-[#e4eadf]",
-      featured: true,
-      available: readyToGiftAvailable,
     },
   ];
 
@@ -48,7 +31,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
     <section id="choose" className="px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="section-kicker">{ar ? "ثلاث طرق، فرحة واحدة" : "Three ways to make their day"}</span>
+          <span className="section-kicker">{ar ? "طريقتان، فرحة واحدة" : "Two ways to make their day"}</span>
           <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">
             {ar ? "أي بوكس يشبه هديتك؟" : "Which Peep Box feels right?"}
           </h2>
@@ -57,15 +40,10 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
           {paths.map((path) => (
-            <article key={path.href} className={`path-card ${path.featured ? "ring-2 ring-leaf/30" : ""} ${path.available ? "" : "opacity-60"}`}>
+            <article key={path.href} className="path-card">
               <div className={`relative h-56 overflow-hidden ${path.accent}`}>
-                {path.featured && path.available && (
-                  <span className="absolute start-4 top-4 z-10 rounded-full bg-brown px-3 py-1 text-xs font-bold text-cream">
-                    {ar ? "الأكثر مرونة" : "Most flexible"}
-                  </span>
-                )}
                 <Image src={path.image} alt="" fill className="object-contain p-2" sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
               <div className="flex flex-1 flex-col p-6">
@@ -75,13 +53,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
                 <p className="mt-6 text-sm text-brown/60">
                   {path.pricePrefix} <strong className="text-xl text-brown">{path.price}</strong>
                 </p>
-                {path.available ? (
-                  <Link href={path.href} className="button-primary mt-4 text-center">{path.cta}</Link>
-                ) : (
-                  <span className="button-primary mt-4 cursor-not-allowed text-center opacity-50">
-                    {ar ? "غير متوفر حاليًا" : "Currently unavailable"}
-                  </span>
-                )}
+                <Link href={path.href} className="button-primary mt-4 text-center">{path.cta}</Link>
               </div>
             </article>
           ))}

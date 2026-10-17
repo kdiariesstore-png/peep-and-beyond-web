@@ -18,7 +18,7 @@ export function Hero() {
           <span className="text-leaf">{ar ? "قطعةً قطعة." : "one little piece at a time."}</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-brown/70 sm:text-lg lg:mx-0">
-          {ar ? "اختر بوكس بيب الكامل، اصنع بوكسك من 3 منتجات، أو جهّز بوكسًا مميزًا للإهداء. قصة ولعب وتعلّم، باختيارك أنت." : "Choose the complete Peep Box, build your own from 3 products, or create a premium gift box—story, play and learning, picked by you."}
+          {ar ? "اختر بوكس بيب الكامل، أو اصنع بوكسك من 3 منتجات. قصة ولعب وتعلّم، باختيارك أنت." : "Choose the complete Peep Box, or build your own from 3 products—story, play and learning, picked by you."}
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
           <Link href="/build?style=custom" className="button-primary">{ar ? "ابدأ بوكسك" : "Build your box"}</Link>
