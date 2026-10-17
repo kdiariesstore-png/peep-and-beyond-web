@@ -172,38 +172,6 @@ export const BUILDER_PRODUCTS: readonly BuilderProduct[] = [
     image: "/images/products/welcome-card.webp",
     shipping: { weightGrams: 2, dimensionsCm: { length: 14.8, width: 10.5, height: 0.2 } },
   },
-  {
-    id: "teacher-day-gift",
-    nameAr: "هدية عيد المعلم",
-    nameEn: "Teacher's Day gift",
-    descriptionAr: "إطار 8×10 إنش، بطاقة إهداء، و3 مغناطيس.",
-    descriptionEn: "An 8×10 inch frame, a dedication card, and 3 magnets.",
-    priceBhd: 3.5,
-    image: "/images/products/teacher-day-gift.webp",
-    // Estimated (no scale available yet) — owner should confirm once weighed.
-    shipping: { weightGrams: 280, dimensionsCm: { length: 25, width: 20, height: 3 } },
-  },
-  {
-    id: "matcha-cup",
-    nameAr: "كوب الماتشا",
-    nameEn: "Matcha cup",
-    descriptionAr: "كوب زجاجي بسعة 540 مل، بغطاء بامبو ومصاصة زجاجية.",
-    descriptionEn: "A 540 ml glass cup with a bamboo lid and a glass straw.",
-    priceBhd: 5,
-    image: "/images/products/matcha-cup.webp",
-    // Estimated (no scale available yet) — owner should confirm once weighed.
-    shipping: { weightGrams: 400, dimensionsCm: { length: 9, width: 9, height: 15 } },
-  },
-  {
-    id: "matcha-stickers",
-    nameAr: "ملصقات ماتشا",
-    nameEn: "Matcha stickers",
-    descriptionAr: "ورقة ملصقات بتصميم الماتشا.",
-    descriptionEn: "A matcha-themed sticker sheet.",
-    priceBhd: 1.5,
-    image: "/images/products/matcha-stickers.webp",
-    shipping: { weightGrams: 6, dimensionsCm: { length: 29.7, width: 21, height: 0.2 } },
-  },
 ] as const;
 
 export interface ProductCategory {
@@ -215,14 +183,8 @@ export interface ProductCategory {
 
 // Featured groupings shown above the general shop grid, in display order — each new
 // category is appended here and renders as its own titled row above the ones after it.
-export const PRODUCT_CATEGORIES: readonly ProductCategory[] = [
-  {
-    id: "occasions-gifts",
-    nameAr: "مناسبات وهدايا",
-    nameEn: "Occasions & Gifts",
-    productIds: ["matcha-cup", "matcha-stickers", "teacher-day-gift"],
-  },
-] as const;
+// Currently empty: the only category ("Occasions & Gifts") held products that were removed.
+export const PRODUCT_CATEGORIES: readonly ProductCategory[] = [];
 
 const BUILDER_PRODUCT_IDS = new Set<string>(BUILDER_PRODUCTS.map((product) => product.id));
 

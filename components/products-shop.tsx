@@ -20,9 +20,6 @@ const NEW_PRODUCTS = new Set<BuilderProductId>([
   "lulu-stickers",
   "lulu-coloring-book",
   "clothes-activity-book",
-  "teacher-day-gift",
-  "matcha-cup",
-  "matcha-stickers",
 ]);
 
 const CATEGORIZED_PRODUCT_IDS = new Set<BuilderProductId>(
