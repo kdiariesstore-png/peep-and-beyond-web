@@ -364,7 +364,7 @@ back_pics = "".join(f'<div class="bk-cell">{final_svg(by_name[n])}</div>'
                     for n in ["Arabian Palace", "Mermaid", "Tiger", "Game Controller", "Phoenix", "Treehouse", "Knight", "Sneaker"])
 burst_d = dsl.STAR(50, 50, 49, 40, n=14).svg.split('d="')[1].split('"')[0]
 
-INK, BG, ACC, ACC2 = "#2a0d17", "#7B1E3A", "#FFD23F", "#FF7A45"
+INK, BG, ACC, ACC2 = "#2b1608", "#F47A20", "#FFF1C9", "#7B1E3A"
 
 COVER_CSS = f"""
 @page {{ size: {W}in {H}in; margin: 0 }}
@@ -374,8 +374,8 @@ body {{ width: {W}in; height: {H}in; position: relative; background: {BG}; font-
         -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow: hidden }}
 svg {{ display: block; width: 100%; height: 100% }}
 .new, .old {{ stroke: {INK}; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round }}
-.old {{ stroke: #d8b4c0 }}
-.guide {{ stroke: #b9849a; stroke-width: 1; stroke-dasharray: 2.2 2; fill: none }}
+.old {{ stroke: #f0c29c }}
+.guide {{ stroke: #d39466; stroke-width: 1; stroke-dasharray: 2.2 2; fill: none }}
 .bg-grid {{ position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.09) 1.5px, transparent 1.5px),
             linear-gradient(90deg, rgba(255,255,255,.09) 1.5px, transparent 1.5px); background-size: .5in .5in }}
 .front {{ position: absolute; top: 0; bottom: 0; left: {BLEED + 8.5 + SPINE}in; width: {8.5 + BLEED}in; padding: {BLEED + .45}in {BLEED + .45}in 0 .45in }}
