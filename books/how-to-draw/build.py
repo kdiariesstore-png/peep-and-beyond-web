@@ -18,8 +18,8 @@ for f in sorted(glob.glob(os.path.join(HERE, "drawings", "d*.py"))):
 # ---- Book settings (edit these) -------------------------------------------
 TITLE = "How to Draw Everything for Kids"
 SUBTITLE = "100 Easy Step-by-Step Drawings"
-AUTHOR = "Peep & Beyond Kids"
-AGES = "Ages 4-8"
+AUTHOR = "Khadija AbdulRasool"
+AGES = "Ages 3-8"
 YEAR = 2026
 PAPER_IN_PER_PAGE = 0.002252  # KDP white paper, black ink
 OUT = os.path.join(HERE, "out")
@@ -351,7 +351,7 @@ cover = f"""<!doctype html><html><head><meta charset="utf-8"><title>{TITLE} - Co
       <li>Large 8.5 x 11 in pages &mdash; perfect for crayons, markers and pencils</li>
       <li>A <b>Super Artist certificate</b> to celebrate at the end</li>
     </ul>
-    <p style="margin:0">Builds confidence, focus and fine motor skills &mdash; a perfect screen-free gift for ages 4-8.</p>
+    <p style="margin:0">Builds confidence, focus and fine motor skills &mdash; a perfect screen-free gift for ages 3-8.</p>
   </div>
   <div class="bk-grid">{back_pics}</div>
   <div class="perfect">Perfect for birthdays &bull; road trips &bull; rainy days &bull; classrooms &bull; quiet time</div>

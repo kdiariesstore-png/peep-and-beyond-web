@@ -13,8 +13,14 @@ class El:
         self.z = z
         self.black = filled_black
         self.closed = closed
+        self.guide = False
+        self.highlight = False
 
     def render(self, cls):
+        if self.guide:
+            return self.svg.replace("{A}", 'class="guide" fill="none"')
+        if self.highlight:
+            return self.svg.replace("{A}", 'fill="#fff" style="stroke:none"')
         if self.black:
             fill = "#000" if cls == "new" else "#bbb"
         elif self.closed:
@@ -72,16 +78,43 @@ def flat(items):
     return out
 
 
+def G(*els):
+    """Construction guide lines: dashed, and erased in the final step."""
+    out = []
+    for el in flat(els):
+        el.guide = True
+        el.z = 1000
+        out.append(el)
+    return out
+
+
+def HL(cx, cy, r):
+    """White eye highlight (no outline)."""
+    el = El(f'<circle cx="{cx}" cy="{cy}" r="{r}" {{A}}/>', 200)
+    el.highlight = True
+    return el
+
+
 def draw(name, category, *steps):
-    DRAWINGS.append({"name": name, "category": category, "steps": [flat(s) for s in steps]})
+    caps, body = [], []
+    for st in steps:
+        st = list(st)
+        caps.append(st.pop(0) if st and isinstance(st[0], str) else "")
+        body.append(flat(st))
+    DRAWINGS.append({"name": name, "category": category, "steps": body, "captions": caps})
 
 
 def render_svg(drawing, upto, highlight=True, size=None):
-    """SVG of the drawing through step index `upto` (inclusive)."""
+    """SVG of the drawing through step index `upto` (inclusive).
+
+    Guide lines are shown until the last step, where they are erased."""
     items = []
     order = 0
+    last = upto == len(drawing["steps"]) - 1
     for si, step in enumerate(drawing["steps"][: upto + 1]):
         for el in step:
+            if el.guide and last:
+                continue
             z = el.z if el.z is not None else 0
             cls = "new" if (si == upto or not highlight) else "old"
             items.append((z, order, el.render(cls)))
@@ -148,3 +181,16 @@ def mirror(d, axis=50):
 def PM(d, z=None, closed=None, axis=50):
     """Path plus its horizontal mirror image."""
     return [P(d, z=z, closed=closed), P(mirror(d, axis), z=z, closed=closed)]
+
+
+def TXT(x, y, text, size=8, weight=800, z=99):
+    """Solid text label (e.g. a jersey number)."""
+    return El(f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{weight}" text-anchor="middle" '
+              f'font-family="Baloo 2, sans-serif" style="stroke:none" {{A}}>{text}</text>', z, filled_black=True)
+
+
+def WF(d, z):
+    """White-filled shape with no outline (hides what is behind, e.g. under waves)."""
+    el = El(f'<path d="{d}" {{A}}/>', z)
+    el.highlight = True
+    return el
