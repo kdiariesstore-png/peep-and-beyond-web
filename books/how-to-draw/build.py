@@ -355,9 +355,8 @@ cover = f"""<!doctype html><html><head><meta charset="utf-8"><title>{TITLE} - Co
   </div>
   <div class="bk-grid">{back_pics}</div>
   <div class="perfect">Perfect for birthdays &bull; road trips &bull; rainy days &bull; classrooms &bull; quiet time</div>
-  <div class="barcode"></div>
 </div>
-<div class="spine"><div class="spine-text">{TITLE.upper()} &nbsp;&bull;&nbsp; {AUTHOR}</div></div>
+<div class="spine"></div>
 <div class="front">
   <div class="ages">{AGES}</div>
   <h1>How to Draw <span class="big">Everything</span>for Kids</h1>

@@ -436,9 +436,8 @@ cover = f"""<!doctype html><html><head><meta charset="utf-8"><title>{TITLE} - Co
   </div>
   <div class="bk-grid">{back_pics}</div>
   <div class="perfect">For curious creators ages 8-12 &bull; beginners &amp; young artists</div>
-  <div class="barcode"></div>
 </div>
-<div class="spine"><div class="spine-text">{TITLE.upper()} &nbsp;&bull;&nbsp; {AUTHOR}</div></div>
+<div class="spine"></div>
 <div class="front">
   <div class="ages">{AGES}</div>
   <h1>Draw Like a <span class="big">PRO</span>for Kids</h1>
