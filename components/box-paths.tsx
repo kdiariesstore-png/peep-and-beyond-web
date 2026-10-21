@@ -22,7 +22,7 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       pricePrefix: ar ? "يبدأ من" : "Starts with",
       href: "/build?style=custom",
       cta: ar ? "ابدأ الاختيار" : "Start building",
-      image: "/images/products/puzzle.webp",
+      image: "/images/peep-box-choose-products.webp",
       accent: "bg-[#f0e7d6]",
     },
   ];
