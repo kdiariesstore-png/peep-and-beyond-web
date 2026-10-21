@@ -23,6 +23,9 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
       href: "/build?style=custom",
       cta: ar ? "ابدأ الاختيار" : "Start building",
       image: "/images/peep-box-choose-products.webp",
+      // An animated WebP — Next's image optimizer would flatten it to a single
+      // static frame, so this one must bypass optimization to keep the animation.
+      imageUnoptimized: true,
       accent: "bg-[#f0e7d6]",
     },
   ];
@@ -44,7 +47,14 @@ export function BoxPaths({ onReadyMadeAdd }: { onReadyMadeAdd: () => void }) {
           {paths.map((path) => (
             <article key={path.href} className="path-card">
               <div className={`relative h-56 overflow-hidden ${path.accent}`}>
-                <Image src={path.image} alt="" fill className="object-contain p-2" sizes="(max-width: 1024px) 100vw, 33vw" />
+                <Image
+                  src={path.image}
+                  alt=""
+                  fill
+                  unoptimized={path.imageUnoptimized}
+                  className="object-contain p-2"
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                />
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf">{path.eyebrow}</p>
